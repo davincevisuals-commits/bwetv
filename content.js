@@ -12,7 +12,7 @@ const PROGRAMS = [
     id: 1,
     name: "Local News",
     time: "10:00 AM",
-    host: "Sarah K.",
+    host: "Tonny Blair.",
     description: "Latest news and updates from our community",
     duration: "60 min",
     category: "News"
@@ -21,7 +21,7 @@ const PROGRAMS = [
     id: 2,
     name: "Culture Show",
     time: "12:00 PM",
-    host: "Moses A.",
+    host: "Alphonse Secondo.",
     description: "Explore our rich cultural heritage and traditions",
     duration: "90 min",
     category: "Culture"
@@ -30,7 +30,7 @@ const PROGRAMS = [
     id: 3,
     name: "Health Talk",
     time: "2:00 PM",
-    host: "Dr. Lydia",
+    host: "Dr. Jimmy Lujang",
     description: "Health tips and wellness advice from medical experts",
     duration: "45 min",
     category: "Health"
@@ -39,7 +39,7 @@ const PROGRAMS = [
     id: 4,
     name: "Youth Forum",
     time: "4:00 PM",
-    host: "Brian T.",
+    host: "Charles Khemis.",
     description: "Discussions on youth empowerment and education",
     duration: "60 min",
     category: "Education"
