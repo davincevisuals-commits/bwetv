@@ -1,0 +1,27 @@
+# Video files (large media)
+*.mp4
+*.mov
+*.avi
+*.mkv
+*.webm
+
+# System files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# IDE
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Dependencies
+node_modules/
+package-lock.json
+
+# Logs
+*.log
+npm-debug.log*
