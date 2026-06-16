@@ -175,14 +175,13 @@
     <p id="authStatus" class="text-sm text-gray-700">Not logged in</p>
   </div>
 </section>
- <!-- Firebase SDKs -->
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-analytics.js"></script>
+ <!-- Firebase SDKs (Compat versions) -->
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-analytics-compat.js"></script>
 
 <script>
- <script>
-  // Your Firebase configuration
+  // Firebase config
   const firebaseConfig = {
     apiKey: "AIzaSyCg9fxgrXlEuKW_m5MvDnG26Uf6lLdiYik",
     authDomain: "bwetv-ug.firebaseapp.com",
@@ -193,20 +192,11 @@
     measurementId: "G-SJ5YJH2G7C"
   };
 
-// Initialize Firebase
+  // Initialize Firebase
   const app = firebase.initializeApp(firebaseConfig);
+  const analytics = firebase.analytics();
   const auth = firebase.auth();
 
-  // Protect this page: redirect if not logged in
-  auth.onAuthStateChanged(user => {
-    if (!user) {
-      alert("You must be logged in to access the community.");
-      window.location.href = "index.html"; // send back to login page
-    } else {
-      console.log("Welcome to the community, " + user.email);
-    }
-  });
-<script>
   // Sign Up
   document.getElementById("signupForm").addEventListener("submit", function(e) {
     e.preventDefault();
@@ -237,7 +227,7 @@
   document.getElementById("logoutBtn").addEventListener("click", function() {
     auth.signOut().then(() => {
       alert("Logged out successfully");
-      window.location.href = "index.html"; // redirect back to home after logout
+      window.location.href = "index.html"; // redirect back to home
     });
   });
 
