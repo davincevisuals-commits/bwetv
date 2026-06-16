@@ -156,6 +156,7 @@
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-analytics.js"></script>
 
 <script>
+ <script>
   // Your Firebase configuration
   const firebaseConfig = {
     apiKey: "AIzaSyCg9fxgrXlEuKW_m5MvDnG26Uf6lLdiYik",
@@ -180,6 +181,7 @@
     auth.createUserWithEmailAndPassword(email, password)
       .then(userCredential => {
         alert("Sign up successful: " + userCredential.user.email);
+        window.location.href = "community.html"; // redirect after sign-up
       })
       .catch(error => alert(error.message));
   });
@@ -192,6 +194,7 @@
     auth.signInWithEmailAndPassword(email, password)
       .then(userCredential => {
         alert("Login successful: " + userCredential.user.email);
+        window.location.href = "community.html"; // redirect after login
       })
       .catch(error => alert(error.message));
   });
@@ -200,6 +203,7 @@
   document.getElementById("logoutBtn").addEventListener("click", function() {
     auth.signOut().then(() => {
       alert("Logged out successfully");
+      window.location.href = "index.html"; // redirect back to home after logout
     });
   });
 
