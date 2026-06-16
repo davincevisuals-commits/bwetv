@@ -220,5 +220,41 @@
       event.target.reset();
     }
   </script>
+  <!-- Firebase SDKs (Compat versions) -->
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-analytics-compat.js"></script>
+
+<script>
+  // Firebase config (same as index.html)
+  const firebaseConfig = {
+    apiKey: "AIzaSyCg9fxgrXlEuKW_m5MvDnG26Uf6lLdiYik",
+    authDomain: "bwetv-ug.firebaseapp.com",
+    projectId: "bwetv-ug",
+    storageBucket: "bwetv-ug.firebasestorage.app",
+    messagingSenderId: "481870926362",
+    appId: "1:481870926362:web:f406a0f135449ccfaa77a3",
+    measurementId: "G-SJ5YJH2G7C"
+  };
+
+  // Initialize Firebase
+  const app = firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+
+  // Protect this page: redirect if not logged in
+  auth.onAuthStateChanged(user => {
+    if (!user) {
+      alert("You must be logged in to access the community.");
+      window.location.href = "index.html"; // send back to login page
+    } else {
+      // Show welcome message
+      const welcome = document.createElement("p");
+      welcome.innerText = "Welcome to the community, " + user.email;
+      welcome.className = "text-lg font-bold text-green-700 text-center mt-4";
+      document.body.prepend(welcome);
+    }
+  });
+</script>
+
 </body>
 </html>
