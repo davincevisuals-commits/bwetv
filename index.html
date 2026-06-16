@@ -147,6 +147,48 @@
     </div>
   </footer>
 
+   <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
+
+  <script>
+    // Replace with your Firebase config from the console
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_PROJECT_ID.appspot.com",
+      messagingSenderId: "YOUR_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
+
+    // Initialize Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
+    // Sign Up
+    document.getElementById("signupForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const email = document.getElementById("signupEmail").value;
+      const password = document.getElementById("signupPassword").value;
+      auth.createUserWithEmailAndPassword(email, password)
+        .then(() => alert("Sign up successful!"))
+        .catch(error => alert(error.message));
+    });
+
+    // Login
+    document.getElementById("loginForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const email = document.getElementById("loginEmail").value;
+      const password = document.getElementById("loginPassword").value;
+      auth.signInWithEmailAndPassword(email, password)
+        .then(() => alert("Login successful!"))
+        .catch(error => alert(error.message));
+    });
+  </script>
+</body>
+</html>
+
   <script src="https://vjs.zencdn.net/7.20.3/video.min.js"></script>
   <script src="content.js"></script>
   
