@@ -194,10 +194,20 @@
     measurementId: "G-SJ5YJH2G7C"
   };
 
-  // Initialize Firebase
+// Initialize Firebase
   const app = firebase.initializeApp(firebaseConfig);
-  const analytics = firebase.analytics();
   const auth = firebase.auth();
+
+  // Protect this page: redirect if not logged in
+  auth.onAuthStateChanged(user => {
+    if (!user) {
+      alert("You must be logged in to access the community.");
+      window.location.href = "index.html"; // send back to login page
+    } else {
+      console.log("Welcome to the community, " + user.email);
+    }
+  });
+</script>
 
   // Sign Up
   document.getElementById("signupForm").addEventListener("submit", function(e) {
