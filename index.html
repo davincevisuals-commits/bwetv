@@ -133,6 +133,32 @@
   </iframe>
 </div>
 
+<!-- Firebase Auth Section -->
+<section class="p-6 bg-gray-100">
+  <div class="max-w-md mx-auto text-center">
+    <h2 class="text-2xl font-bold mb-4">🔐 Member Access</h2>
+
+    <!-- Sign Up Form -->
+    <form id="signupForm" class="mb-6">
+      <input id="signupEmail" type="email" placeholder="Email" class="border p-2 w-full mb-2" required>
+      <input id="signupPassword" type="password" placeholder="Password" class="border p-2 w-full mb-2" required>
+      <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded">Sign Up</button>
+    </form>
+
+    <!-- Login Form -->
+    <form id="loginForm" class="mb-6">
+      <input id="loginEmail" type="email" placeholder="Email" class="border p-2 w-full mb-2" required>
+      <input id="loginPassword" type="password" placeholder="Password" class="border p-2 w-full mb-2" required>
+      <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Login</button>
+    </form>
+
+    <!-- Logout Button -->
+    <button id="logoutBtn" class="bg-red-600 text-white px-4 py-2 rounded mb-4">Logout</button>
+
+    <!-- Auth Status -->
+    <p id="authStatus" class="text-sm text-gray-700">Not logged in</p>
+  </div>
+</section>
 
   </section>
 
