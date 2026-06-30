@@ -6,6 +6,22 @@
   <title>BWE TV Community</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
+
+  <script>
+  // Test Firebase connection
+  console.log("Firebase App:", firebase.app().name); // should log "[DEFAULT]"
+
+  // Test Firestore
+  db.collection("test").add({check: "ok", time: Date.now()})
+    .then(() => console.log("✅ Firestore write succeeded"))
+    .catch(err => console.error("❌ Firestore error:", err));
+
+  // Test Realtime Database
+  rtdb.ref("test").set({check: "ok", time: Date.now()})
+    .then(() => console.log("✅ Realtime DB write succeeded"))
+    .catch(err => console.error("❌ RTDB error:", err));
+</script>
+
 <body class="bg-white text-black">
 
   <!-- Header -->
