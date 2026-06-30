@@ -2,177 +2,127 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>BWE TV Community Hub</title>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-storage-compat.js"></script>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BWE TV Community</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <style>
+    .mobile-menu { transition: all 0.3s ease; }
+    .mobile-menu.hidden { max-height: 0; overflow: hidden; }
+    .mobile-menu.visible { max-height: 300px; }
+    .community-card { transition: all 0.3s ease; }
+    .community-card:hover { transform: translateY(-4px); box-shadow: 0 15px 35px rgba(220, 38, 38, 0.2); }
+  </style>
 </head>
-<body class="bg-gray-100 p-6">
+<body class="bg-white text-black">
 
-  <!-- Welcome Banner -->
-  <p id="welcomeBanner" class="text-xl font-semibold text-green-700 bg-green-100 border rounded p-3 mb-6 text-center shadow"></p>
-
-  <!-- Discussion Feed -->
-  <section class="mb-8">
-    <h2 class="text-2xl font-bold mb-4">Discussion Feed</h2>
-    <textarea id="postInput" placeholder="Share your thoughts..." class="border p-2 w-full mb-2"></textarea>
-    <button id="postBtn" class="bg-blue-600 text-white px-4 py-2 rounded">Post</button>
-    <div id="postsContainer" class="mt-4 space-y-3"></div>
-  </section>
-
-  <!-- Live Chat -->
-  <section class="mb-8">
-    <h2 class="text-2xl font-bold mb-4">Live Chat</h2>
-    <div id="chatContainer" class="border p-4 h-64 overflow-y-auto bg-gray-50 mb-2 space-y-2"></div>
-    <input id="chatInput" type="text" placeholder="Type a message..." class="border p-2 w-full mb-2">
-    <button id="chatBtn" class="bg-purple-600 text-white px-4 py-2 rounded">Send</button>
-  </section>
-
-  <!-- Polls -->
-  <section class="mb-8">
-    <h2 class="text-2xl font-bold mb-4">Polls</h2>
-    <p>Which program should air next?</p>
-    <button onclick="vote('Music Show')" class="bg-yellow-600 text-white px-4 py-2 rounded">Music Show</button>
-    <button onclick="vote('Talk Show')" class="bg-yellow-600 text-white px-4 py-2 rounded">Talk Show</button>
-    <button onclick="vote('News Hour')" class="bg-yellow-600 text-white px-4 py-2 rounded">News Hour</button>
-    <div id="pollResults" class="mt-4 bg-gray-100 p-3 rounded"></div>
-  </section>
-
-  <!-- Events -->
-  <section class="mb-8">
-    <h2 class="text-2xl font-bold mb-4">Upcoming Events</h2>
-    <ul id="eventsList" class="list-disc pl-6 bg-white p-4 rounded shadow"></ul>
-  </section>
-
-  <!-- Profile Edit -->
-  <section class="mb-8">
-    <h2 class="text-2xl font-bold mb-4">Edit Profile</h2>
-    <input id="displayNameInput" type="text" placeholder="Display Name" class="border p-2 w-full mb-2">
-    <textarea id="bioInput" placeholder="Write a short bio..." class="border p-2 w-full mb-2"></textarea>
-    <input type="file" id="avatarUpload" accept="image/*" class="mb-2">
-    <button id="uploadAvatarBtn" class="bg-green-600 text-white px-4 py-2 rounded">Save Profile</button>
-    <div class="mt-4 flex items-center space-x-3">
-      <img id="profileAvatar" class="w-16 h-16 rounded-full border" alt="Profile Avatar">
-      <div>
-        <p id="profileName" class="font-bold text-lg"></p>
-        <p id="profileBio" class="text-sm text-gray-600"></p>
+  <!-- Header -->
+  <header class="bg-yellow-900 text-white sticky top-0 z-50 shadow-lg">
+    <div class="flex justify-between items-center p-4">
+      <div class="text-2xl font-bold">BWE <span class="bg-red-600 px-2">TV</span></div>
+      <nav class="hidden md:flex space-x-6">
+        <a href="index.html" class="hover:text-yellow-200 transition">Home</a>
+        <a href="schedule.html" class="hover:text-yellow-200 transition">Programs</a>
+        <a href="shows.html" class="hover:text-yellow-200 transition">Shows</a>
+        <a href="community.html" class="hover:text-yellow-200 transition">Community</a>
+      </nav>
+      <button id="mobileMenuBtn" class="md:hidden text-2xl hover:bg-yellow-800 p-2 rounded transition">☰</button>
+    </div>
+    <nav id="mobileMenu" class="mobile-menu hidden bg-yellow-800 md:hidden">
+      <div class="flex flex-col p-4 space-y-3">
+        <a href="index.html" class="hover:text-yellow-200 transition">Home</a>
+        <a href="schedule.html" class="hover:text-yellow-200 transition">Programs</a>
+        <a href="shows.html" class="hover:text-yellow-200 transition">Shows</a>
+        <a href="community.html" class="hover:text-yellow-200 transition">Community</a>
       </div>
+    </nav>
+  </header>
+
+  <!-- Hero -->
+  <section class="p-6 text-center bg-gradient-to-r from-red-600 to-red-800 text-white">
+    <h1 class="text-4xl font-bold mb-2">Join the BWE TV Community</h1>
+    <p class="text-lg opacity-90">Connect with viewers, share your thoughts, and support our mission</p>
+  </section>
+
+  <!-- Firebase Features -->
+  <section class="p-6 bg-gray-50">
+    <h2 class="text-2xl font-bold mb-6 text-center">Community Hub</h2>
+
+    <!-- Welcome Banner -->
+    <p id="welcomeBanner" class="text-xl font-semibold text-green-700 bg-green-100 border rounded p-3 mb-6 text-center shadow"></p>
+
+    <!-- Discussion Feed -->
+    <div class="mb-8">
+      <h3 class="text-xl font-bold mb-4">Discussion Feed</h3>
+      <textarea id="postInput" placeholder="Share your thoughts..." class="border p-2 w-full mb-2"></textarea>
+      <button id="postBtn" class="bg-blue-600 text-white px-4 py-2 rounded">Post</button>
+      <div id="postsContainer" class="mt-4 space-y-3"></div>
+    </div>
+
+    <!-- Live Chat -->
+    <div class="mb-8">
+      <h3 class="text-xl font-bold mb-4">Live Chat</h3>
+      <div id="chatContainer" class="border p-4 h-64 overflow-y-auto bg-gray-50 mb-2 space-y-2"></div>
+      <input id="chatInput" type="text" placeholder="Type a message..." class="border p-2 w-full mb-2">
+      <button id="chatBtn" class="bg-purple-600 text-white px-4 py-2 rounded">Send</button>
+    </div>
+
+    <!-- Polls -->
+    <div class="mb-8">
+      <h3 class="text-xl font-bold mb-4">Polls</h3>
+      <p>Which program should air next?</p>
+      <button onclick="vote('Music Show')" class="bg-yellow-600 text-white px-4 py-2 rounded">Music Show</button>
+      <button onclick="vote('Talk Show')" class="bg-yellow-600 text-white px-4 py-2 rounded">Talk Show</button>
+      <button onclick="vote('News Hour')" class="bg-yellow-600 text-white px-4 py-2 rounded">News Hour</button>
+      <div id="pollResults" class="mt-4 bg-gray-100 p-3 rounded"></div>
+    </div>
+
+    <!-- Events -->
+    <div class="mb-8">
+      <h3 class="text-xl font-bold mb-4">Upcoming Events</h3>
+      <ul id="eventsList" class="list-disc pl-6 bg-white p-4 rounded shadow"></ul>
+    </div>
+
+    <!-- Profile Edit -->
+    <div class="mb-8">
+      <h3 class="text-xl font-bold mb-4">Edit Profile</h3>
+      <input id="displayNameInput" type="text" placeholder="Display Name" class="border p-2 w-full mb-2">
+      <textarea id="bioInput" placeholder="Write a short bio..." class="border p-2 w-full mb-2"></textarea>
+      <input type="file" id="avatarUpload" accept="image/*" class="mb-2">
+      <button id="uploadAvatarBtn" class="bg-green-600 text-white px-4 py-2 rounded">Save Profile</button>
+      <div class="mt-4 flex items-center space-x-3">
+        <img id="profileAvatar" class="w-16 h-16 rounded-full border" alt="Profile Avatar">
+        <div>
+          <p id="profileName" class="font-bold text-lg"></p>
+          <p id="profileBio" class="text-sm text-gray-600"></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Member Directory -->
+    <div>
+      <h3 class="text-xl font-bold mb-4">Community Members</h3>
+      <div id="membersList" class="grid md:grid-cols-2 gap-4"></div>
     </div>
   </section>
 
-  <!-- Member Directory -->
-  <section>
-    <h2 class="text-2xl font-bold mb-4">Community Members</h2>
-    <div id="membersList" class="grid grid-cols-2 gap-4"></div>
+  <!-- Newsletter -->
+  <section class="p-6 bg-gradient-to-r from-yellow-900 to-red-600 text-white">
+    <div class="max-w-2xl mx-auto text-center">
+      <h2 class="text-2xl font-bold mb-4">Stay Updated</h2>
+      <p class="mb-6 opacity-90">Subscribe to our newsletter for program updates, special announcements, and exclusive content</p>
+      <form onsubmit="handleNewsletterSignup(event)" class="flex flex-col md:flex-row gap-3">
+        <input type="email" placeholder="Enter your email address" required class="flex-1 px-4 py-3 rounded text-black focus:outline-none focus:ring-2 focus:ring-yellow-300">
+        <button type="submit" class="bg-red-700 text-white px-8 py-3 rounded font-bold hover:bg-red-800 transition">Subscribe</button>
+      </form>
+    </div>
   </section>
 
-<script>
-  // TODO: Replace with your Firebase config
-  const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_PROJECT.firebaseapp.com",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_PROJECT.appspot.com",
-    messagingSenderId: "YOUR_SENDER_ID",
-    appId: "YOUR_APP_ID",
-    databaseURL: "https://YOUR_PROJECT.firebaseio.com"
-  };
-  firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-  const db = firebase.firestore();
-  const rtdb = firebase.database();
-  const storage = firebase.storage();
-
-  // Welcome Banner
-  auth.onAuthStateChanged(user => {
-    if (user) {
-      document.getElementById("welcomeBanner").innerText = "Welcome, " + user.email;
-    }
-  });
-
-  // Discussion Feed
-  document.getElementById("postBtn").addEventListener("click", () => {
-    const text = document.getElementById("postInput").value;
-    if (text.trim() !== "") {
-      db.collection("posts").add({
-        text,
-        user: auth.currentUser.email,
-        userId: auth.currentUser.uid,
-        timestamp: firebase.firestore.FieldValue.serverTimestamp()
-      });
-      document.getElementById("postInput").value = "";
-    }
-  });
-
-  db.collection("posts").orderBy("timestamp", "desc").onSnapshot(snapshot => {
-    const container = document.getElementById("postsContainer");
-    container.innerHTML = "";
-    snapshot.forEach(async doc => {
-      const post = doc.data();
-      const userDoc = await db.collection("users").doc(post.userId).get();
-      const profile = userDoc.exists ? userDoc.data() : {};
-      const div = document.createElement("div");
-      div.className = "flex items-start space-x-3 border p-3 rounded-lg bg-white shadow";
-      const avatar = document.createElement("img");
-      avatar.className = "w-10 h-10 rounded-full border";
-      avatar.src = profile.avatar || "https://via.placeholder.com/40?text=" + post.user.charAt(0).toUpperCase();
-      const content = document.createElement("div");
-      content.innerHTML = `<strong>${profile.displayName || post.user}</strong><br>${post.text}`;
-      div.appendChild(avatar);
-      div.appendChild(content);
-      container.appendChild(div);
-    });
-  });
-
-  // Live Chat
-  document.getElementById("chatBtn").addEventListener("click", () => {
-    const msg = document.getElementById("chatInput").value;
-    if (msg.trim() !== "") {
-      rtdb.ref("chat").push({
-        text: msg,
-        user: auth.currentUser.email,
-        userId: auth.currentUser.uid,
-        timestamp: Date.now()
-      });
-      document.getElementById("chatInput").value = "";
-    }
-  });
-
-  rtdb.ref("chat").on("child_added", async snapshot => {
-    const msg = snapshot.val();
-    const userDoc = await db.collection("users").doc(msg.userId).get();
-    const profile = userDoc.exists ? userDoc.data() : {};
-    const div = document.createElement("div");
-    div.className = "flex items-center space-x-3 bg-white border rounded-lg p-2 shadow-sm";
-    const avatar = document.createElement("img");
-    avatar.className = "w-8 h-8 rounded-full border";
-    avatar.src = profile.avatar || "https://via.placeholder.com/40?text=" + msg.user.charAt(0).toUpperCase();
-    const content = document.createElement("div");
-    content.innerHTML = `<strong>${profile.displayName || msg.user}</strong>: ${msg.text}`;
-    div.appendChild(avatar);
-    div.appendChild(content);
-    document.getElementById("chatContainer").appendChild(div);
-  });
-
-  // Polls
-  function vote(option) {
-    db.collection("polls").doc(option).set({
-      count: firebase.firestore.FieldValue.increment(1)
-    }, { merge: true });
-  }
-
-  db.collection("polls").onSnapshot(snapshot => {
-    const results = document.getElementById("pollResults");
-    results.innerHTML = "";
-    snapshot.forEach(doc => {
-      results.innerHTML += `${doc.id}: ${doc.data().count || 0} votes<br>`;
-    });
-  });
-
-  // Events
-  const events = [
-    "June 20: Live Gospel Concert",
-    "June 25: Community Talk Show",
+  <!-- Community Stats -->
+  <section class="p-6 bg-gray-50">
+    <div class="max-w-6xl mx-auto">
+      <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">Our Community</h2>
+      <div class="grid md:grid-cols-4 gap-4">
+        <div class="bg-white rounded-lg shadow p-6 text-center"><p class="text-3xl font-bold text-red-600 mb-2">45K+</p><p class="text-gray-600 font-semibold">Active Members</p></div>
+        <div class="bg-white rounded-lg shadow p-6 text-center"><p class="text-3xl font-bold text-blue-600 mb-2">2.4K</p><p class="text-gray-600 font-semibold">Monthly Discussions</p></div>
+        <div class="bg-white rounded-lg shadow p-6 text-center"><p class="text-3xl font-bold text-green-600 mb-2">98%</p><p class="text-gray-600 font-semibold">Satisfaction Rate</p></div>
+        <div class="bg-white rounded-lg shadow p-6 text-center"><p class="text-3xl font-bold text-purple-600 mb-2">150+</p><p class="text-gray
