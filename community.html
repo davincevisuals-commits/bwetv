@@ -1,3 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BWE TV Community</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-white text-black">
+
+  <!-- Header -->
+  <header class="bg-yellow-900 text-white sticky top-0 z-50 shadow-lg p-4 flex justify-between">
+    <div class="text-2xl font-bold">BWE <span class="bg-red-600 px-2">TV</span></div>
+    <nav class="hidden md:flex space-x-6">
+      <a href="index.html">Home</a>
+      <a href="schedule.html">Programs</a>
+      <a href="shows.html">Shows</a>
+      <a href="community.html">Community</a>
+    </nav>
+    <button id="mobileMenuBtn" class="md:hidden text-2xl">☰</button>
+  </header>
+
+  <!-- Hero -->
+  <section class="p-6 text-center bg-gradient-to-r from-red-600 to-red-800 text-white">
+    <h1 class="text-4xl font-bold mb-2">Join the BWE TV Community</h1>
+    <p class="text-lg opacity-90">Connect with viewers, share your thoughts, and support our mission</p>
+  </section>
+
+  <!-- Login Section -->
+  <section id="loginSection" class="p-6 bg-gray-100 text-center">
+    <h2 class="text-2xl font-bold mb-4">Login to Access Community</h2>
+    <input id="emailInput" type="email" placeholder="Email" class="border p-2 w-64 mb-2"><br>
+    <input id="passwordInput" type="password" placeholder="Password" class="border p-2 w-64 mb-2"><br>
+    <button id="loginBtn" class="bg-blue-600 text-white px-4 py-2 rounded">Login</button>
+    <button id="signupBtn" class="bg-green-600 text-white px-4 py-2 rounded ml-2">Sign Up</button>
+    <p class="mt-2 text-gray-600">Or <button id="anonBtn" class="underline text-blue-700">Continue as Guest</button></p>
+  </section>
+
+  <!-- Community Features (hidden until login) -->
+  <section id="communitySection" class="p-6 bg-gray-50 grid md:grid-cols-3 gap-6 hidden">
+
+    <!-- Live Chat -->
+    <div class="bg-white rounded-lg shadow-lg border-t-4 border-blue-600 p-6">
+      <h3 class="text-xl font-bold mb-2">💬 Live Chat</h3>
+      <div id="chatContainer" class="border p-4 h-40 overflow-y-auto bg-gray-50 mb-2"></div>
+      <input id="chatInput" type="text" placeholder="Type a message..." class="border p-2 w-full mb-2">
+      <button id="chatBtn" class="w-full bg-blue-600 text-white px-4 py-2 rounded">Send</button>
+    </div>
+
+    <!-- Forums -->
+    <div class="bg-white rounded-lg shadow-lg border-t-4 border-purple-600 p-6">
+      <h3 class="text-xl font-bold mb-2">📋 Forums & Discussions</h3>
+      <textarea id="postInput" placeholder="Share your thoughts..." class="border p-2 w-full mb-2"></textarea>
+      <button id="postBtn" class="w-full bg-purple-600 text-white px-4 py-2 rounded">Post</button>
+      <div id="postsContainer" class="mt-4 space-y-3"></div>
+    </div>
+
+    <!-- Support Us -->
+    <div class="bg-white rounded-lg shadow-lg border-t-4 border-green-600 p-6">
+      <h3 class="text-xl font-bold mb-2">❤️ Support BWE TV</h3>
+      <p class="text-gray-600 mb-4">Help sustain BWE TV through donations, sponsorships, or partnerships.</p>
+      <button id="donatePaypalBtn" class="w-full bg-green-600 text-white px-4 py-3 rounded mb-2">Pay via PayPal.Me</button>
+      <button id="donateMtnBtn" class="w-full bg-yellow-600 text-white px-4 py-3 rounded">Donate via MTN MoMo</button>
+    </div>
+
+  </section>
+
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
@@ -22,8 +89,28 @@
     const db = firebase.firestore();
     const rtdb = firebase.database();
 
-    // TEMP bypass auth for testing
-    auth.signInAnonymously().catch(err => console.error(err));
+    // Login / Signup / Guest
+    document.getElementById("loginBtn").addEventListener("click", () => {
+      const email = document.getElementById("emailInput").value;
+      const pass = document.getElementById("passwordInput").value;
+      auth.signInWithEmailAndPassword(email, pass).catch(err => alert(err.message));
+    });
+    document.getElementById("signupBtn").addEventListener("click", () => {
+      const email = document.getElementById("emailInput").value;
+      const pass = document.getElementById("passwordInput").value;
+      auth.createUserWithEmailAndPassword(email, pass).catch(err => alert(err.message));
+    });
+    document.getElementById("anonBtn").addEventListener("click", () => {
+      auth.signInAnonymously().catch(err => alert(err.message));
+    });
+
+    // Show community after login
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        document.getElementById("loginSection").classList.add("hidden");
+        document.getElementById("communitySection").classList.remove("hidden");
+      }
+    });
 
     // Live Chat
     document.getElementById("chatBtn").addEventListener("click", () => {
@@ -31,14 +118,12 @@
       if (msg.trim() !== "") {
         rtdb.ref("chat").push({
           text: msg,
-          user: auth.currentUser ? auth.currentUser.uid : "guest",
+          user: auth.currentUser ? auth.currentUser.email || "guest" : "guest",
           timestamp: Date.now()
         });
         document.getElementById("chatInput").value = "";
-        alert("✅ Message sent!");
       }
     });
-
     rtdb.ref("chat").on("child_added", snapshot => {
       const msg = snapshot.val();
       const div = document.createElement("div");
@@ -53,14 +138,12 @@
       if (text.trim() !== "") {
         db.collection("posts").add({
           text,
-          user: auth.currentUser ? auth.currentUser.uid : "guest",
+          user: auth.currentUser ? auth.currentUser.email || "guest" : "guest",
           timestamp: firebase.firestore.FieldValue.serverTimestamp()
         });
         document.getElementById("postInput").value = "";
-        alert("✅ Post submitted!");
       }
     });
-
     db.collection("posts").orderBy("timestamp", "desc").onSnapshot(snapshot => {
       const container = document.getElementById("postsContainer");
       container.innerHTML = "";
@@ -74,20 +157,4 @@
     });
 
     // Support Us
-    document.getElementById("donatePaypalBtn").addEventListener("click", () => {
-      window.location.href = "https://www.paypal.com/donate?business=oyoovincentoyoo1725@gmail.com";
-    });
-    document.getElementById("donateMtnBtn").addEventListener("click", () => {
-      alert("📱 To donate via MTN Mobile Money, send funds to: +256774231123");
-    });
-
-    // Newsletter
-    function handleNewsletterSignup(event) {
-      event.preventDefault();
-      const email = event.target.querySelector('input[type="email"]').value;
-      alert(`✅ Welcome! We've sent a confirmation email to ${email}`);
-      event.target.reset();
-    }
-  </script>
-</body>
-</html>
+    document.getElementById("donatePaypalBtn").
