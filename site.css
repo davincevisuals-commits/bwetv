@@ -213,6 +213,29 @@ main { display: block; }
 }
 .footer-link-grid a { text-decoration: none; }
 
+/* ── Social Links ── */
+.social-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem 1.25rem;
+}
+.social-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  text-decoration: none;
+  color: rgba(237,224,200,0.9);
+  font-size: 0.875rem;
+  font-weight: 600;
+  transition: color 0.2s ease, opacity 0.2s ease;
+}
+.social-link:hover {
+  color: #fde68a;
+  opacity: 0.9;
+}
+.social-link svg { flex-shrink: 0; }
+
 /* ── Misc ── */
 .hero-copy { max-width: 40rem; }
 
