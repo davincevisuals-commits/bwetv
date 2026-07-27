@@ -1,16 +1,53 @@
+/* ============================================================
+   BWETV – Global Stylesheet
+   Palette inspired by the 6-colour style guide:
+   Classic White · Chocolate Brown · Black Elegance
+   Olive Green   · Dusty Blue      · Cream & Ivory
+   ============================================================ */
+
 :root {
-  --bwe-focus: #fbbf24;
+  /* ── Brand palette ── */
+  --bwe-white:          #F8F5F0;
+  --bwe-cream:          #EDE0C8;
+  --bwe-ivory:          #D6C9A8;
+  --bwe-choc-light:     #A0603A;
+  --bwe-choc:           #6B3A22;
+  --bwe-choc-dark:      #3D1F0E;
+  --bwe-olive:          #6B714C;
+  --bwe-olive-dark:     #4A4D30;
+  --bwe-dusty-blue:     #6E8FAB;
+  --bwe-dusty-blue-dk:  #3D5A73;
+  --bwe-black:          #1A1209;
+  --bwe-red:            #BF1506;
+
+  /* ── Gradients ── */
+  --grad-hero:      linear-gradient(135deg, rgba(26,18,9,0.97) 0%, rgba(61,31,14,0.93) 50%, rgba(107,58,34,0.88) 100%);
+  --grad-header:    linear-gradient(90deg, #3D1F0E 0%, #6B3A22 55%, #A0603A 100%);
+  --grad-surface:   linear-gradient(160deg, #EDE0C8 0%, #D6C9A8 60%, #c4b48e 100%);
+  --grad-footer:    linear-gradient(90deg, #3D1F0E 0%, #4A4D30 60%, #3D5A73 100%);
+  --grad-card:      linear-gradient(145deg, rgba(237,224,200,0.9) 0%, rgba(214,201,168,0.7) 100%);
+  --grad-btn-prim:  linear-gradient(135deg, #BF1506 0%, #8C2B0A 100%);
+  --grad-btn-acc:   linear-gradient(135deg, #3D5A73 0%, #6E8FAB 100%);
+  --grad-btn-succ:  linear-gradient(135deg, #4A4D30 0%, #6B714C 100%);
+  --grad-chat:      linear-gradient(180deg, #1A1209 0%, #2a1a08 100%);
+  --grad-member:    linear-gradient(160deg, rgba(237,224,200,0.85) 0%, rgba(110,143,171,0.25) 100%);
+  --grad-radio:     linear-gradient(145deg, rgba(248,245,240,0.95) 0%, rgba(237,224,200,0.7) 100%);
+
+  /* ── Focus ring ── */
+  --bwe-focus: #D4A96A;
 }
 
-html {
-  scroll-behavior: smooth;
-}
+/* ── Base ── */
+html { scroll-behavior: smooth; }
 
 body {
   min-height: 100vh;
   text-rendering: optimizeLegibility;
+  background: var(--grad-surface);
+  background-attachment: fixed;
 }
 
+/* ── Accessibility ── */
 .skip-link {
   position: absolute;
   left: 1rem;
@@ -18,14 +55,11 @@ body {
   z-index: 100;
   padding: 0.75rem 1rem;
   border-radius: 0.5rem;
-  background: #111827;
-  color: #ffffff;
+  background: var(--bwe-choc-dark);
+  color: var(--bwe-white);
   transition: top 0.2s ease;
 }
-
-.skip-link:focus {
-  top: 1rem;
-}
+.skip-link:focus { top: 1rem; }
 
 a:focus-visible,
 button:focus-visible,
@@ -36,13 +70,23 @@ select:focus-visible {
   outline-offset: 2px;
 }
 
-main {
-  display: block;
-}
+/* ── Layout ── */
+main { display: block; }
 
 .site-shell {
   width: min(100%, 80rem);
   margin: 0 auto;
+}
+
+/* ── Header / Nav ── */
+.brand-header {
+  background: var(--grad-header) !important;
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid rgba(160,96,58,0.35);
+}
+
+.brand-header-sub {
+  background: linear-gradient(90deg, #4A4D30 0%, #6B714C 100%) !important;
 }
 
 .nav-link-active {
@@ -50,26 +94,115 @@ main {
   font-weight: 700;
 }
 
-.mobile-menu.hidden {
-  max-height: 0;
+.mobile-menu.hidden  { max-height: 0;    overflow: hidden; }
+.mobile-menu.visible { max-height: 20rem; }
+
+/* ── Hero section ── */
+.hero-section {
+  background: var(--grad-hero) !important;
+  position: relative;
   overflow: hidden;
 }
-
-.mobile-menu.visible {
-  max-height: 20rem;
+.hero-section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 60% 80% at 20% 50%, rgba(160,96,58,0.18) 0%, transparent 70%),
+    radial-gradient(ellipse 40% 60% at 80% 30%, rgba(110,143,171,0.12) 0%, transparent 70%);
+  pointer-events: none;
 }
 
+/* ── Surface section ── */
+.section-surface {
+  background: var(--grad-surface) !important;
+}
+
+/* ── Partner Radio / white sections ── */
+.radio-section {
+  background: var(--grad-radio) !important;
+}
+
+/* ── Chat shell ── */
 .chat-shell {
   min-height: 28rem;
+  background: var(--grad-chat) !important;
+  border: 1px solid rgba(160,96,58,0.3);
+  box-shadow: 0 8px 32px rgba(61,31,14,0.45), inset 0 1px 0 rgba(160,96,58,0.2);
 }
 
-.chat-scroll {
-  scrollbar-width: thin;
+.chat-scroll { scrollbar-width: thin; }
+
+/* ── Cards ── */
+.program-card {
+  background: var(--grad-card) !important;
+  border: 1px solid rgba(160,96,58,0.25);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  backdrop-filter: blur(4px);
+}
+.program-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px rgba(61,31,14,0.25);
 }
 
 .stat-card,
 .surface-card {
-  border: 1px solid rgba(209, 213, 219, 0.7);
+  background: var(--grad-card) !important;
+  border: 1px solid rgba(160,96,58,0.3);
+  backdrop-filter: blur(6px);
+}
+
+/* ── Member access aside ── */
+.member-aside {
+  background: var(--grad-member) !important;
+  border: 1px solid rgba(160,96,58,0.25);
+  backdrop-filter: blur(8px);
+}
+
+/* ── Buttons ── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.5rem;
+  padding: 0.625rem 1rem;
+  font-weight: 700;
+  transition: filter 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  border: 1px solid transparent;
+  letter-spacing: 0.01em;
+}
+.btn:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.1);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+}
+
+.btn-primary {
+  background: var(--grad-btn-prim);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(191,21,6,0.4);
+}
+.btn-secondary {
+  background: linear-gradient(135deg, rgba(237,224,200,0.8) 0%, rgba(214,201,168,0.6) 100%);
+  color: var(--bwe-choc-dark);
+  border-color: rgba(160,96,58,0.45);
+  backdrop-filter: blur(4px);
+}
+.btn-accent {
+  background: var(--grad-btn-acc);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(61,90,115,0.45);
+}
+.btn-success {
+  background: var(--grad-btn-succ);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(74,77,48,0.45);
+}
+
+/* ── Footer ── */
+.brand-footer {
+  background: var(--grad-footer) !important;
+  border-top: 1px solid rgba(160,96,58,0.3);
 }
 
 .footer-link-grid {
@@ -78,38 +211,21 @@ main {
   justify-content: center;
   gap: 0.75rem 1.5rem;
 }
+.footer-link-grid a { text-decoration: none; }
 
-.footer-link-grid a {
-  text-decoration: none;
-}
+/* ── Misc ── */
+.hero-copy { max-width: 40rem; }
 
-.hero-copy {
-  max-width: 40rem;
-}
-
+/* ── Responsive ── */
 @media (max-width: 767px) {
-  .chat-shell {
-    min-height: 24rem;
-  }
-
-  .stack-mobile {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .footer-link-grid {
-    gap: 0.75rem 1rem;
-  }
+  .chat-shell    { min-height: 24rem; }
+  .stack-mobile  { flex-direction: column; align-items: stretch; }
+  .footer-link-grid { gap: 0.75rem 1rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
-
-  *,
-  *::before,
-  *::after {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
