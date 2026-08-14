@@ -230,7 +230,7 @@ const FEATURED_SHOWS = [
 // ============================================
 const STREAM_CONFIG = {
   primary: {
-    url: "http://yourserverip:8080/live/streamkey.m3u8",
+    url: "https://stream.bwetv.live/hls/bwetv/index.m3u8",
     type: "application/x-mpegURL",
     qualities: ["720p", "480p", "360p", "240p"]
   },
@@ -1229,9 +1229,54 @@ function sortShows() {
   renderShows();
 }
 
+function initializeLivePlayerErrorBanner() {
+  const videoEl = document.getElementById("livePlayer");
+  if (!videoEl) return;
+
+  const banner = document.createElement("p");
+  banner.id = "livePlayerErrorBanner";
+  banner.className = "hidden mt-2 rounded-lg px-4 py-3 text-sm text-red-200 bg-red-900/70";
+  videoEl.parentNode.insertBefore(banner, videoEl.nextSibling);
+
+  const hints = {
+    1: "Playback aborted — the stream request was cancelled.",
+    2: "Network error — check your connection or stream server.",
+    3: "Decoding error — the stream format may be unsupported.",
+    4: "Stream unavailable — manifest not found or CORS/auth issue."
+  };
+
+  function showError(mediaError) {
+    const hint = (mediaError && hints[mediaError.code]) || "Unknown playback error.";
+    banner.textContent = `Stream failed to load. ${hint}`;
+    banner.classList.remove("hidden");
+  }
+
+  function hideError() {
+    banner.textContent = "";
+    banner.classList.add("hidden");
+  }
+
+  if (typeof window.videojs === "function") {
+    window.videojs.getPlayer("livePlayer")
+      ? attachVjsHandlers(window.videojs.getPlayer("livePlayer"), showError, hideError)
+      : window.videojs.hooks("setup", (player) => {
+          if (player.id() === "livePlayer") attachVjsHandlers(player, showError, hideError);
+        });
+  } else {
+    videoEl.addEventListener("error", () => showError(videoEl.error));
+    videoEl.addEventListener("playing", hideError);
+  }
+}
+
+function attachVjsHandlers(player, showError, hideError) {
+  player.on("error", () => showError(player.error()));
+  player.on("playing", hideError);
+}
+
 function initializePageEnhancements() {
   initializeMobileMenu();
   highlightCurrentNav();
+  initializeLivePlayerErrorBanner();
   renderPrograms();
   renderCurrentShow();
   renderSchedule(scheduleState.selectedDay);

@@ -49,9 +49,14 @@ bwetv/
 
 ## Live Streaming Setup
 
-To connect your streaming server:
-1. Replace `http://yourserverip:8080/live/streamkey.m3u8` with your actual stream URL
-2. Update in `index.html` and `schedule.html`
+The live stream is served from the production endpoints below.
+
+| Format | URL |
+|--------|-----|
+| HLS    | `https://stream.bwetv.live/hls/bwetv/index.m3u8` |
+| DASH   | `https://stream.bwetv.live/dash/bwetv/index.mpd` |
+
+To point players at a different server, update `STREAM_CONFIG.primary.url` in `content.js` and the `<source>` tags in `index.html` and `schedule.html`.
 
 ## Chat & Firebase Notes
 
