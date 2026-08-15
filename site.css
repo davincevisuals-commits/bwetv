@@ -97,19 +97,18 @@ main { display: block; }
 .mobile-menu.hidden  { max-height: 0;    overflow: hidden; }
 .mobile-menu.visible { max-height: 20rem; }
 
-/* ── Hero section ── */
 .hero-section {
-  background: var(--grad-hero) !important;
   position: relative;
   overflow: hidden;
+  background:
+    linear-gradient(to bottom right, rgba(0,0,0,0.40), rgba(0,0,0,0.56)),
+    url("./20260602_190647(1).jpg") center / cover no-repeat !important;
 }
 .hero-section::before {
   content: '';
   position: absolute;
   inset: 0;
-  background:
-    radial-gradient(ellipse 60% 80% at 20% 50%, rgba(160,96,58,0.18) 0%, transparent 70%),
-    radial-gradient(ellipse 40% 60% at 80% 30%, rgba(110,143,171,0.12) 0%, transparent 70%);
+  background: linear-gradient(to bottom, rgba(0,0,0,0.10), rgba(0,0,0,0.24));
   pointer-events: none;
 }
 
