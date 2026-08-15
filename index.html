@@ -58,6 +58,46 @@
 
     .text-brand { color: var(--bwe-brand); }
 
+    /* Safe background integration for existing homepage hero */
+    .hero-section {
+      position: relative;
+      background:
+        linear-gradient(
+          115deg,
+          rgba(4, 10, 24, 0.78) 0%,
+          rgba(6, 14, 30, 0.68) 35%,
+          rgba(8, 16, 34, 0.62) 58%,
+          rgba(10, 18, 36, 0.72) 100%
+        ),
+        radial-gradient(
+          85% 70% at 78% 42%,
+          rgba(255, 170, 80, 0.20) 0%,
+          rgba(255, 170, 80, 0.08) 35%,
+          rgba(255, 170, 80, 0.00) 70%
+        ),
+        linear-gradient(
+          to bottom,
+          rgba(5, 10, 22, 0.20) 0%,
+          rgba(5, 10, 22, 0.12) 46%,
+          rgba(4, 8, 18, 0.58) 100%
+        ),
+        url("./20260602_190647(1).jpg") center / cover no-repeat;
+    }
+
+    .hero-section::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(120% 90% at 50% 50%, rgba(0, 0, 0, 0) 52%, rgba(0, 0, 0, 0.34) 100%);
+      pointer-events: none;
+    }
+
+    .hero-section > * {
+      position: relative;
+      z-index: 1;
+    }
+
     .hero-section .hero-copy h1,
     .hero-section .hero-copy p,
     .hero-section .hero-copy .text-sm {
@@ -137,7 +177,7 @@
   <main id="main-content">
 
     <!-- ═══════════════════════ HERO / LIVE PLAYER ═══════════════════════ -->
-    <section class="hero-section px-6 py-8 text-white">
+    <section class="hero-section bweyale-hero-bg px-6 py-8 text-white">
       <div class="site-shell grid grid-cols-1 gap-6 lg:grid-cols-3 lg:items-start">
 
         <!-- Player column -->
@@ -148,7 +188,7 @@
             <p class="text-base md:text-lg" style="color:rgba(237,224,200,0.85);">Stream the latest programming, keep up with what is airing today, and join the live conversation without leaving home.</p>
           </div>
 
-          <div class="mb-4 overflow-hidden rounded-xl shadow-2xl" style="background:linear-gradient(145deg,#1A1209,#2a1a08);border:1px solid rgba(160,96,58,0.3);">
+          <div class="mb-4 overflow-hidden rounded-xl shadow-2xl glass-panel panel-video" style="border:1px solid rgba(255,255,255,0.2);">
             <video id="livePlayer" class="video-js vjs-default-skin w-full h-auto" controls preload="metadata"
                    aria-label="BWE TV live stream player" data-setup='{"fluid": true, "aspectRatio": "16:9"}'>
               <source src="http://yourserverip:8080/live/streamkey.m3u8" type="application/x-mpegURL">
@@ -167,7 +207,7 @@
         </div>
 
         <!-- Chat column -->
-        <aside class="chat-shell flex flex-col rounded-xl" aria-labelledby="home-chat-heading">
+        <aside class="chat-shell glass-panel-soft panel-chat flex flex-col rounded-xl" aria-labelledby="home-chat-heading">
           <div class="flex items-center justify-between p-3" style="border-bottom:1px solid rgba(160,96,58,0.3);">
             <h2 id="home-chat-heading" class="text-sm font-bold uppercase tracking-wide text-white">Live chat</h2>
             <span id="chatStatus" class="text-xs" style="color:rgba(212,169,106,0.8);">Connecting...</span>
