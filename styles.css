@@ -1,0 +1,209 @@
+/* Base reset */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+  color: #fff;
+  background: #0b0b0b;
+}
+
+/* Full-screen hero using uploaded image */
+.hero {
+  position: relative;
+  min-height: 100vh;
+  background:
+    linear-gradient(
+      115deg,
+      rgba(4, 10, 24, 0.78) 0%,
+      rgba(6, 14, 30, 0.68) 35%,
+      rgba(8, 16, 34, 0.62) 58%,
+      rgba(10, 18, 36, 0.72) 100%
+    ),
+    radial-gradient(
+      85% 70% at 78% 42%,
+      rgba(255, 170, 80, 0.20) 0%,
+      rgba(255, 170, 80, 0.08) 35%,
+      rgba(255, 170, 80, 0.00) 70%
+    ),
+    linear-gradient(
+      to bottom,
+      rgba(5, 10, 22, 0.20) 0%,
+      rgba(5, 10, 22, 0.12) 46%,
+      rgba(4, 8, 18, 0.58) 100%
+    ),
+    url("./20260602_190647(1).jpg") center / cover no-repeat;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: left;
+  padding: 0 8%;
+}
+
+/* subtle vignette for deeper edges like the reference screenshot */
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(120% 90% at 50% 50%, rgba(0, 0, 0, 0) 52%, rgba(0, 0, 0, 0.34) 100%);
+  pointer-events: none;
+}
+
+.hero > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* ===== Glass panel presets for hero content (video/chat cards) ===== */
+.glass-panel {
+  background: linear-gradient(
+    145deg,
+    rgba(18, 28, 48, 0.46) 0%,
+    rgba(12, 20, 36, 0.34) 100%
+  );
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  box-shadow:
+    0 10px 28px rgba(0, 0, 0, 0.34),
+    inset 0 1px 0 rgba(255, 255, 255, 0.20);
+  backdrop-filter: blur(12px) saturate(125%);
+  -webkit-backdrop-filter: blur(12px) saturate(125%);
+  border-radius: 16px;
+}
+
+.glass-panel-soft {
+  background: linear-gradient(
+    145deg,
+    rgba(24, 36, 62, 0.34) 0%,
+    rgba(14, 24, 44, 0.24) 100%
+  );
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.16);
+  backdrop-filter: blur(8px) saturate(118%);
+  -webkit-backdrop-filter: blur(8px) saturate(118%);
+  border-radius: 14px;
+}
+
+/* spacing presets for typical blocks */
+.panel-video {
+  padding: 0.9rem;
+}
+
+.panel-chat {
+  padding: 1rem;
+}
+
+/* ===== Mobile/low-end performance variant ===== */
+@media (max-width: 768px) {
+  .glass-panel,
+  .glass-panel-soft {
+    /* less GPU-heavy blur on mobile */
+    backdrop-filter: blur(4px) saturate(108%);
+    -webkit-backdrop-filter: blur(4px) saturate(108%);
+
+    /* tighter spacing + lighter paint */
+    border-radius: 12px;
+    box-shadow:
+      0 4px 12px rgba(0, 0, 0, 0.24),
+      inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  }
+
+  .panel-video { padding: 0.55rem; }
+  .panel-chat  { padding: 0.65rem; }
+}
+
+/* extra fallback for very small/older devices */
+@media (max-width: 480px) {
+  .glass-panel,
+  .glass-panel-soft {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: rgba(12, 20, 36, 0.72);
+    border-color: rgba(255, 255, 255, 0.16);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.22);
+  }
+
+  .panel-video { padding: 0.45rem; }
+  .panel-chat  { padding: 0.55rem; }
+}
+
+.hero-content {
+  max-width: 760px;
+}
+
+.hero h1 {
+  font-size: clamp(2.2rem, 5vw, 4.4rem);
+  line-height: 1.05;
+  margin-bottom: 1rem;
+  letter-spacing: -0.02em;
+}
+
+.hero p {
+  max-width: 620px;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: clamp(1rem, 1.6vw, 1.2rem);
+  margin-bottom: 1.8rem;
+}
+
+.cta-row {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.btn {
+  display: inline-block;
+  border-radius: 10px;
+  padding: 0.85rem 1.2rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+  opacity: 0.95;
+}
+
+.btn-primary {
+  background: #ff6a3d;
+  color: #fff;
+  border: 1px solid #ff6a3d;
+}
+
+.btn-secondary {
+  background: transparent;
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.65);
+}
+
+/* Optional translucent top nav */
+.site-nav {
+  position: fixed;
+  top: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(1100px, calc(100% - 2rem));
+  padding: 0.8rem 1rem;
+  border-radius: 12px;
+  background: rgba(17, 17, 17, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 1000;
+}
+
+.site-nav ul {
+  list-style: none;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.site-nav a {
+  color: rgba(255, 255, 255, 0.92);
+  text-decoration: none;
+  font-weight: 500;
+}
