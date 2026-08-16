@@ -100,9 +100,14 @@ main { display: block; }
 .hero-section {
   position: relative;
   overflow: hidden;
+  min-height: 60vh;
   background:
     linear-gradient(to bottom right, rgba(0,0,0,0.40), rgba(0,0,0,0.56)),
     url("./20260602_190647(1).jpg") center / cover no-repeat !important;
+}
+.hero-section > * {
+  position: relative;
+  z-index: 1;
 }
 .hero-section::before {
   content: '';

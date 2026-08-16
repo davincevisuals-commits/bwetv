@@ -58,33 +58,6 @@
 
     .text-brand { color: var(--bwe-brand); }
 
-    /* Safe background integration for existing homepage hero */
-    .hero-section {
-      position: relative;
-      background:
-        linear-gradient(to bottom right, rgba(0, 0, 0, 0.20), rgba(0, 0, 0, 0.35)),
-        url("./20260602_190647(1).jpg") center / cover no-repeat;
-    }
-
-    .hero-section::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(to bottom, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.12));
-      pointer-events: none;
-    }
-
-    .hero-section > * {
-      position: relative;
-      z-index: 1;
-    }
-
-    .hero-section .hero-copy h1,
-    .hero-section .hero-copy p,
-    .hero-section .hero-copy .text-sm {
-      color: #fff;
-    }
-
     /* Radio section glass cards */
     .surface-card {
       background: linear-gradient(145deg, rgba(248,245,240,0.88) 0%, rgba(237,224,200,0.65) 100%) !important;
