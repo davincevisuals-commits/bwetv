@@ -22,13 +22,14 @@
   <link href="site.css" rel="stylesheet">
   <link href="styles.css" rel="stylesheet">
   <style>
+    /* ── CSS custom properties (also available to inline Tailwind overrides) ── */
     :root {
       --bwe-bg:            #EDE0C8;
       --bwe-surface:       #D6C9A8;
       --bwe-surface-alt:   #6B714C;
       --bwe-text:          #1A1209;
       --bwe-text-muted:    #5a4a38;
-      --bwe-brand:         #6F4E37;
+      --bwe-brand:         #6B3A22;
       --bwe-brand-strong:  #BF1506;
       --bwe-primary:       #BF1506;
       --bwe-primary-hover: #8C2B0A;
@@ -57,6 +58,7 @@
 
     .text-brand { color: var(--bwe-brand); }
 
+    /* Safe background integration for existing homepage hero */
     .hero-section {
       position: relative;
       background:
@@ -83,12 +85,14 @@
       color: #fff;
     }
 
+    /* Radio section glass cards */
     .surface-card {
       background: linear-gradient(145deg, rgba(248,245,240,0.88) 0%, rgba(237,224,200,0.65) 100%) !important;
       backdrop-filter: blur(6px);
       border: 1px solid rgba(160,96,58,0.28);
     }
 
+    /* Member aside override */
     .member-form-input {
       background: rgba(248,245,240,0.7);
       border: 1px solid rgba(160,96,58,0.4);
@@ -102,6 +106,7 @@
       box-shadow: 0 0 0 3px rgba(212,169,106,0.5);
     }
 
+    /* Skeleton shimmer uses warm palette */
     .skeleton-block {
       background: linear-gradient(90deg, rgba(214,201,168,0.6) 25%, rgba(193,174,138,0.5) 50%, rgba(214,201,168,0.6) 75%);
       background-size: 200% 100%;
@@ -110,6 +115,7 @@
     }
     @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
 
+    /* Scrollbar warm tint */
     .chat-scroll::-webkit-scrollbar       { width: 5px; }
     .chat-scroll::-webkit-scrollbar-track { background: rgba(61,31,14,0.15); }
     .chat-scroll::-webkit-scrollbar-thumb { background: rgba(160,96,58,0.55); border-radius: 3px; }
@@ -118,6 +124,7 @@
 <body>
   <a class="skip-link" href="#main-content">Skip to main content</a>
 
+  <!-- ═══════════════════════ HEADER ═══════════════════════ -->
   <header class="brand-header sticky top-0 z-50 text-white shadow-lg">
     <div class="site-shell flex items-center justify-between p-4">
       <a href="index.html" class="text-2xl font-bold tracking-tight">
@@ -149,17 +156,184 @@
   </header>
 
   <main id="main-content">
-    <section class="hero-section px-6 py-8 text-white">
+
+    <!-- ═══════════════════════ HERO / LIVE PLAYER ═══════════════════════ -->
+      <section class="hero-section px-6 py-8 text-white">
       <div class="site-shell grid grid-cols-1 gap-6 lg:grid-cols-3 lg:items-start">
+
+        <!-- Player column -->
         <div class="lg:col-span-2">
           <div class="hero-copy mb-5">
             <p class="mb-2 text-sm font-semibold uppercase tracking-[0.2em]" style="color:#D4A96A;">Live now from Bweyale</p>
             <h1 class="mb-3 text-3xl font-bold md:text-4xl">Watch BWE TV live and stay connected with your community</h1>
-            <p class="text-base md:text-lg" style="color:rgba(237,224,200,0.85);">Stream the latest programming, keep up with what is airing today, and join the live conversation without leaving the page.</p>
+            <p class="text-base md:text-lg" style="color:rgba(237,224,200,0.85);">Stream the latest programming, keep up with what is airing today, and join the live conversation without leaving home.</p>
+          </div>
+
+          <div class="mb-4 overflow-hidden rounded-xl shadow-2xl" style="background:linear-gradient(145deg,#1A1209,#2a1a08);border:1px solid rgba(160,96,58,0.3);">
+            <video id="livePlayer" class="video-js vjs-default-skin w-full h-auto" controls preload="metadata"
+                   aria-label="BWE TV live stream player" data-setup='{"fluid": true, "aspectRatio": "16:9"}'>
+              <source src="http://yourserverip:8080/live/streamkey.m3u8" type="application/x-mpegURL">
+              <source src="video.mp4" type="video/mp4">
+            </video>
+          </div>
+
+          <div class="stack-mobile flex flex-wrap gap-3">
+            <a href="schedule.html" class="btn btn-primary">
+              <span class="mr-2 inline-block h-3 w-3 rounded-full bg-red-300 animate-pulse" aria-hidden="true"></span>
+              Watch today's lineup
+            </a>
+            <a href="community.html" class="btn btn-secondary">Join the Community</a>
+            <button onclick="shareVideo()" class="btn btn-accent" type="button">Share the live stream</button>
+          </div>
+        </div>
+
+        <!-- Chat column -->
+        <aside class="chat-shell flex flex-col rounded-xl" aria-labelledby="home-chat-heading">
+          <div class="flex items-center justify-between p-3" style="border-bottom:1px solid rgba(160,96,58,0.3);">
+            <h2 id="home-chat-heading" class="text-sm font-bold uppercase tracking-wide text-white">Live chat</h2>
+            <span id="chatStatus" class="text-xs" style="color:rgba(212,169,106,0.8);">Connecting...</span>
+          </div>
+
+          <div id="chatContainer" class="chat-scroll flex-1 overflow-y-auto p-3 space-y-1" aria-live="polite"></div>
+          <p id="chatEmptyState" class="px-3 text-sm" style="color:rgba(237,224,200,0.6);">Messages appear here as the community joins in.</p>
+
+          <button id="newMsgBtn" class="btn btn-accent hidden self-center rounded-full px-3 py-1 text-xs mx-3 mb-1" type="button">↓ New messages</button>
+
+          <div class="p-3" style="border-top:1px solid rgba(160,96,58,0.3);">
+            <label class="sr-only" for="chatInput">Type your live chat message</label>
+            <div class="flex gap-2">
+              <textarea id="chatInput" rows="2" maxlength="300" placeholder="Say something…"
+                        class="flex-1 resize-none rounded p-2 text-sm text-white focus:outline-none focus:ring-1 focus:ring-yellow-400"
+                        style="background:rgba(255,255,255,0.08);border:1px solid rgba(160,96,58,0.4);"></textarea>
+              <button id="chatBtn" disabled class="btn btn-accent self-end text-sm disabled:cursor-not-allowed disabled:opacity-40" type="button">Send</button>
+            </div>
+            <div class="mt-1 text-right">
+              <span id="charCount" class="text-xs" style="color:rgba(212,169,106,0.6);">0/300</span>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════ TODAY'S PROGRAMS ═══════════════════════ -->
+    <section class="section-surface p-6">
+      <div class="site-shell">
+        <div class="mb-6 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+          <div>
+            <h2 class="text-3xl font-bold" style="background:var(--grad-btn-prim);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Today's Programs</h2>
+            <p class="mt-2" style="color:#5a4a38;">Catch what is on now and what is coming up next.</p>
+          </div>
+          <a href="schedule.html" class="btn btn-secondary">View full weekly schedule</a>
+        </div>
+        <div id="programsContainer" class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <!-- skeleton card -->
+          <div class="program-card rounded-xl p-4 shadow">
+            <div class="skeleton-block mb-3 h-20"></div>
+            <div class="skeleton-block mb-2 h-4"></div>
+            <div class="skeleton-block h-4"></div>
           </div>
         </div>
       </div>
     </section>
+
+    <!-- ═══════════════════════ RADIO + MEMBER ACCESS ═══════════════════════ -->
+    <section class="radio-section p-6">
+      <div class="site-shell grid gap-6 lg:grid-cols-[2fr_1fr] lg:items-start">
+
+        <!-- Radio stations -->
+        <div>
+          <h2 class="mb-4 text-3xl font-bold text-brand">Partner Radio Stations</h2>
+          <div class="grid gap-5 md:grid-cols-2">
+
+            <article class="surface-card rounded-xl p-4 shadow-sm">
+              <h3 class="mb-2 text-xl font-semibold" style="color:#3D1F0E;">BBC Radio 1</h3>
+              <audio controls class="w-full">
+                <source src="http://as-hls-ww-live.akamaized.net/pool_01505109/live/ww/bbc_radio_one/bbc_radio_one.isml/bbc_radio_one-audio=96000.norewind.m3u8" type="audio/mpeg">
+                Your browser does not support the audio element.
+              </audio>
+            </article>
+
+            <article class="surface-card rounded-xl p-4 shadow-sm">
+              <h3 class="mb-2 text-xl font-semibold" style="color:#3D1F0E;">BBC Radio 2</h3>
+              <audio controls class="w-full">
+                <source src="http://as-hls-ww-live.akamaized.net/pool_74208725/live/ww/bbc_radio_two/bbc_radio_two.isml/bbc_radio_two-audio=96000.norewind.m3u8" type="audio/mpeg">
+                Your browser does not support the audio element.
+              </audio>
+            </article>
+
+            <article class="surface-card rounded-xl p-4 shadow-sm">
+              <h3 class="mb-2 text-xl font-semibold" style="color:#3D1F0E;">BBC World Service</h3>
+              <audio controls class="w-full">
+                <source src="http://as-hls-ww-live.akamaized.net/pool_87948813/live/ww/bbc_world_service/bbc_world_service.isml/bbc_world_service-audio=96000.norewind.m3u8" type="audio/mpeg">
+                Your browser does not support the audio element.
+              </audio>
+            </article>
+
+            <article class="surface-card rounded-xl p-4 shadow-sm">
+              <h3 class="mb-2 text-xl font-semibold" style="color:#3D1F0E;">Prime Radio Kampala 91.9 FM</h3>
+              <iframe src="https://onlineradiobox.com/ug/prime/?cs=ug.prime" width="100%" height="180"
+                      title="Prime Radio Kampala live player" frameborder="0" loading="lazy" allow="autoplay" sandbox="allow-scripts allow-same-origin"></iframe>
+            </article>
+
+          </div>
+        </div>
+
+        <!-- Member access -->
+        <aside class="member-aside rounded-xl p-6 shadow-sm">
+          <h2 class="mb-4 text-2xl font-bold" style="color:#3D1F0E;">Member Access</h2>
+          <p class="mb-4 text-sm" style="color:#5a4a38;">Create an account, sign in, or continue chatting as a guest.</p>
+
+          <form id="signupForm" class="mb-5 space-y-3">
+            <div>
+              <label for="signupEmail" class="mb-1 block text-sm font-semibold" style="color:#3D1F0E;">Email</label>
+              <input id="signupEmail" type="email" placeholder="you@example.com" class="member-form-input" required>
+            </div>
+            <div>
+              <label for="signupPassword" class="mb-1 block text-sm font-semibold" style="color:#3D1F0E;">Password</label>
+              <input id="signupPassword" type="password" placeholder="Create a password" class="member-form-input" required>
+            </div>
+            <button type="submit" class="btn btn-success w-full">Create account</button>
+          </form>
+
+          <form id="loginForm" class="space-y-3">
+            <div>
+              <label for="loginEmail" class="mb-1 block text-sm font-semibold" style="color:#3D1F0E;">Email</label>
+              <input id="loginEmail" type="email" placeholder="you@example.com" class="member-form-input" required>
+            </div>
+            <div>
+              <label for="loginPassword" class="mb-1 block text-sm font-semibold" style="color:#3D1F0E;">Password</label>
+              <input id="loginPassword" type="password" placeholder="Enter your password" class="member-form-input" required>
+            </div>
+            <button type="submit" class="btn btn-accent w-full">Login</button>
+          </form>
+
+          <button id="logoutBtn" class="btn btn-secondary mt-4 w-full" type="button">Switch back to guest</button>
+          <p id="authStatus" class="mt-3 text-sm" style="color:#5a4a38;">Checking account status...</p>
+        </aside>
+
+      </div>
+    </section>
+
   </main>
+
+  <!-- ═══════════════════════ FOOTER ═══════════════════════ -->
+  <footer class="brand-footer brand-header mt-8 p-4 text-center text-white">
+    <div class="site-shell">
+      <p style="color:rgba(237,224,200,0.8);">© 2026 BWE TV</p>
+      <div class="footer-link-grid mt-3 text-sm font-semibold">
+        <a href="about.html"     class="hover:text-yellow-200 transition">About</a>
+        <a href="privacy.html"   class="hover:text-yellow-200 transition">Privacy</a>
+        <a href="contact.html"   class="hover:text-yellow-200 transition">Contact</a>
+        <a href="schedule.html"  class="hover:text-yellow-200 transition">Programs</a>
+        <a href="community.html" class="hover:text-yellow-200 transition">Community</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js" defer></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js" defer></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js" defer></script>
+  <script src="https://vjs.zencdn.net/7.20.3/video.min.js" defer></script>
+  <script src="content.js" defer></script>
 </body>
 </html>
