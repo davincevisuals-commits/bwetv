@@ -364,7 +364,8 @@
     </div>
   </footer>
 
-  <script src="https://vjs.zencdn.net/7.20.3/video.min.js" defer></script>
+  <!-- Video.js loaded without defer so data-setup auto-init works synchronously -->
+  <script src="https://vjs.zencdn.net/7.20.3/video.min.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js" defer></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js" defer></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js" defer></script>
@@ -388,34 +389,79 @@
       });
     })();
 
+    // Parse "HH:MM AM/PM" → 24-hour integer
+    function parseHour(timeStr) {
+      var parts = timeStr.match(/(\d+)(?::(\d+))?\s*(am|pm)/i);
+      if (!parts) return 0;
+      var h = parseInt(parts[1], 10);
+      var ampm = parts[3].toLowerCase();
+      if (ampm === 'am') return h === 12 ? 0 : h;
+      return h === 12 ? 12 : h + 12;
+    }
+
+    // Build a program card using DOM methods to avoid XSS
+    function buildProgramCard(p) {
+      var article = document.createElement('article');
+      article.className = 'program-card rounded-xl p-4 shadow';
+
+      var row = document.createElement('div');
+      row.className = 'flex items-start justify-between gap-2';
+
+      var info = document.createElement('div');
+
+      var meta = document.createElement('p');
+      meta.className = 'text-xs font-semibold uppercase tracking-wide mb-1';
+      meta.style.color = 'var(--bwe-brand)';
+      meta.textContent = p.time + ' · ' + p.category;
+
+      var title = document.createElement('h3');
+      title.className = 'font-bold text-base';
+      title.style.color = 'var(--bwe-text)';
+      title.textContent = p.name;
+
+      var desc = document.createElement('p');
+      desc.className = 'text-sm mt-1';
+      desc.style.color = 'var(--bwe-text-muted)';
+      desc.textContent = p.description;
+
+      info.appendChild(meta);
+      info.appendChild(title);
+      info.appendChild(desc);
+
+      var dur = document.createElement('span');
+      dur.className = 'text-xs whitespace-nowrap rounded px-2 py-1 font-semibold';
+      dur.style.cssText = 'background:rgba(191,21,6,0.12);color:var(--bwe-primary);';
+      dur.textContent = p.duration;
+
+      row.appendChild(info);
+      row.appendChild(dur);
+
+      var host = document.createElement('p');
+      host.className = 'mt-2 text-xs';
+      host.style.color = 'var(--bwe-text-muted)';
+      host.textContent = 'Host: ' + p.host;
+
+      article.appendChild(row);
+      article.appendChild(host);
+      return article;
+    }
+
     // Render today's programs
     document.addEventListener('DOMContentLoaded', function () {
-      const container = document.getElementById('programsContainer');
+      var container = document.getElementById('programsContainer');
       if (typeof PROGRAMS !== 'undefined' && PROGRAMS.length) {
-        container.innerHTML = PROGRAMS.map(function (p) {
-          return '<article class="program-card rounded-xl p-4 shadow">' +
-            '<div class="flex items-start justify-between gap-2">' +
-            '<div>' +
-            '<p class="text-xs font-semibold uppercase tracking-wide mb-1" style="color:var(--bwe-brand);">' + p.time + ' · ' + p.category + '</p>' +
-            '<h3 class="font-bold text-base" style="color:var(--bwe-text);">' + p.name + '</h3>' +
-            '<p class="text-sm mt-1" style="color:var(--bwe-text-muted);">' + p.description + '</p>' +
-            '</div>' +
-            '<span class="text-xs whitespace-nowrap rounded px-2 py-1 font-semibold" style="background:rgba(191,21,6,0.12);color:var(--bwe-primary);">' + p.duration + '</span>' +
-            '</div>' +
-            '<p class="mt-2 text-xs" style="color:var(--bwe-text-muted);">Host: ' + p.host + '</p>' +
-            '</article>';
-        }).join('');
+        container.innerHTML = '';
+        PROGRAMS.forEach(function (p) {
+          container.appendChild(buildProgramCard(p));
+        });
       }
 
       // Current show banner
-      const banner = document.getElementById('currentShowBanner');
+      var banner = document.getElementById('currentShowBanner');
       if (typeof PROGRAMS !== 'undefined' && PROGRAMS.length) {
-        const now = new Date();
-        const hour = now.getHours();
-        const current = PROGRAMS.find(function (p) {
-          const t = parseInt(p.time);
-          const ampm = p.time.toLowerCase();
-          let h = ampm.includes('pm') && t !== 12 ? t + 12 : t;
+        var hour = new Date().getHours();
+        var current = PROGRAMS.find(function (p) {
+          var h = parseHour(p.time);
           return hour >= h && hour < h + 1;
         }) || PROGRAMS[0];
         banner.textContent = '🔴 On Air Now: ' + current.name + ' (' + current.time + ') — ' + current.description;
@@ -424,12 +470,14 @@
       }
 
       // Newsletter form
-      const form = document.getElementById('newsletterForm');
-      form && form.addEventListener('submit', function (e) {
-        e.preventDefault();
-        document.getElementById('newsletterStatus').textContent = '✅ Thank you for subscribing!';
-        form.reset();
-      });
+      var form = document.getElementById('newsletterForm');
+      if (form) {
+        form.addEventListener('submit', function (e) {
+          e.preventDefault();
+          document.getElementById('newsletterStatus').textContent = '✅ Thank you for subscribing!';
+          form.reset();
+        });
+      }
     });
   </script>
 </body>
