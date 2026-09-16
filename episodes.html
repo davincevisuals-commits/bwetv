@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BWE TV Episodes</title>
+  <meta name="description" content="Watch BWE TV episodes on demand.">
+  <link rel="preconnect" href="https://cdn.jsdelivr.net">
+  <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link href="site.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50 text-gray-900">
+  <header class="brand-header sticky top-0 z-50 text-white shadow-lg">
+    <div class="site-shell flex items-center justify-between p-4">
+      <a href="index.html" class="text-2xl font-bold">BWE <span class="bg-red-600 px-2">TV</span></a>
+      <nav class="hidden md:flex space-x-6" aria-label="Primary navigation">
+        <a href="index.html" class="hover:text-yellow-200">Home</a>
+        <a href="shows.html" class="hover:text-yellow-200">Shows</a>
+        <a href="episodes.html" aria-current="page" class="hover:text-yellow-200">Episodes</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main-content" class="site-shell px-6 py-10">
+    <section class="mb-8 rounded-2xl bg-gradient-to-r from-red-600 to-red-800 p-8 text-white">
+      <h1 class="text-4xl font-bold">Watch Episodes</h1>
+      <p class="mt-2">Browse published BWE TV episodes and watch them on YouTube.</p>
+    </section>
+
+    <div class="mb-6 grid gap-4 md:grid-cols-2">
+      <label class="block">
+        <span class="mb-2 block font-semibold">Search episodes</span>
+        <input id="episodeSearch" type="search" placeholder="Search by title or show..." class="w-full rounded border px-4 py-3">
+      </label>
+      <label class="block">
+        <span class="mb-2 block font-semibold">Show ID (optional)</span>
+        <input id="showFilter" type="text" placeholder="Example: morning-rise" class="w-full rounded border px-4 py-3">
+      </label>
+    </div>
+
+    <p id="episodeStatus" class="mb-4 text-gray-600" aria-live="polite">Loading episodes...</p>
+    <section id="episodesContainer" class="grid gap-6 md:grid-cols-2 lg:grid-cols-3"></section>
+  </main>
+
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+  <script src="content.js"></script>
+  <script src="firestore-catalog.js"></script>
+</body>
+</html>
