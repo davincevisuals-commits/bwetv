@@ -22,7 +22,8 @@
     "wellness-warriors": ["wellness-warriors", "wellness warriors"],
     "youth-voices": ["youth-voices", "youth voices"],
     "entertainment-express": ["entertainment-express", "entertainment express"],
-    "business-update": ["business-update", "business update"]
+    "business-update": ["business-update", "business update"],
+    "community-news": ["community-news", "community news"]
   };
 
   function escapeText(value) {
@@ -110,6 +111,19 @@
     card.appendChild(section);
   }
 
+  function createMissingShowCard(container, showName, episodes) {
+    const card = document.createElement("article");
+    card.className = "show-card relative overflow-hidden rounded-xl border border-gray-100 bg-white p-6 shadow-sm";
+    card.innerHTML = `
+      <span class="mb-4 inline-flex rounded-full bg-red-50 px-3 py-1 text-sm font-semibold text-red-600">News</span>
+      <div class="mb-4 text-4xl" aria-hidden="true">📰</div>
+      <h3 class="mb-2 text-2xl font-bold text-gray-900">${escapeText(showName)}</h3>
+      <p class="mb-4 text-sm text-gray-600">Community news and local updates from Bweyale and Kiryandongo.</p>
+    `;
+    renderEpisodes(card, showName, episodes);
+    container.appendChild(card);
+  }
+
   async function loadShowEpisodes() {
     const container = document.getElementById("showsContainer");
     if (!container) return;
@@ -118,11 +132,13 @@
       const db = await ensureFirebase();
       const snapshot = await db.collection("episodes").where("status", "==", "published").limit(50).get();
       const episodes = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      const usedKeys = new Set();
 
       container.querySelectorAll("article.show-card").forEach((card) => {
         const heading = card.querySelector("h3");
         const showName = heading ? heading.textContent.trim() : "";
         const showKey = key(showName);
+        usedKeys.add(showKey);
         const aliases = showAliases[showKey] || [showKey, showName.toLowerCase()];
         const matching = episodes.filter((episode) => {
           const episodeShow = String(episode.showId || episode.show || "").trim().toLowerCase();
@@ -130,13 +146,26 @@
         }).sort((a, b) => timestamp(b.publishedAt) - timestamp(a.publishedAt));
         renderEpisodes(card, showName, matching);
       });
+
+      const unmatched = {};
+      episodes.forEach((episode) => {
+        const episodeKey = key(episode.showId || episode.show);
+        if (episodeKey && !usedKeys.has(episodeKey)) {
+          if (!unmatched[episodeKey]) unmatched[episodeKey] = [];
+          unmatched[episodeKey].push(episode);
+        }
+      });
+
+      Object.entries(unmatched).forEach(([episodeKey, items]) => {
+        const showName = episodeKey === "community-news" ? "Community News" : (items[0].showId || "More Episodes");
+        createMissingShowCard(container, showName, items.sort((a, b) => timestamp(b.publishedAt) - timestamp(a.publishedAt)));
+      });
     } catch (error) {
       console.error("Unable to load show episodes.", error);
     }
   }
 
   function start() {
-    // content.js creates the cards in its DOMContentLoaded handler.
     window.setTimeout(loadShowEpisodes, 100);
   }
 
