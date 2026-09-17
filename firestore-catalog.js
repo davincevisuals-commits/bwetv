@@ -8,7 +8,7 @@
       episodeNumber: 1,
       title: "Add your first YouTube episode",
       description: "Create an episode document in Firestore and replace the videoId with your YouTube video ID.",
-      videoId: "dQw4w9WgXcQ",
+      videoId: "dkaURz1bsLo",
       status: "published"
     }
   ];
