@@ -164,12 +164,16 @@
         <!-- Player column -->
         <div class="lg:col-span-2">
           <div class="hero-copy mb-5">
-            <p class="mb-2 text-sm font-semibold uppercase tracking-[0.2em]" style="color:#D4A96A;">Live now from Bweyale</p>
-            <h1 class="mb-3 text-3xl font-bold md:text-4xl">Watch BWE TV live and stay connected with your community</h1>
-            <p class="text-base md:text-lg" style="color:rgba(237,224,200,0.85);">Stream the latest programming, keep up with what is airing today, and join the live conversation without leaving home.</p>
+            <p class="live-now-label">LIVE NOW FROM BWEYALE</p>
+            <h1 class="mb-3">Watch BWE TV live and stay connected with your community</h1>
+            <p class="lead">Stream the latest programming, keep up with what is airing today, and join the live conversation without leaving the page.</p>
+            <div class="live-status-bar" role="status" aria-live="polite">
+              <span class="live-dot" aria-hidden="true"></span>
+              <span><strong>On Air Now:</strong> Local News (10:00 AM) — Latest news and updates from our community</span>
+            </div>
           </div>
 
-          <div class="mb-4 overflow-hidden rounded-xl shadow-2xl" style="background:linear-gradient(145deg,#1A1209,#2a1a08);border:1px solid rgba(160,96,58,0.3);">
+          <div class="live-player-shell mb-4">
             <video id="livePlayer" class="video-js vjs-default-skin w-full h-auto" controls preload="metadata"
                    aria-label="BWE TV live stream player" data-setup='{"fluid": true, "aspectRatio": "16:9"}'>
               <source src="https://stream.bwetv.live/hls/bwetv/index.m3u8" type="application/x-mpegURL">
