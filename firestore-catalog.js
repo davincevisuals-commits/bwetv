@@ -25,7 +25,7 @@
   }
 
   function escapeText(value) {
-    return String(value ?? "").replace(/[&<>'"]/g, (character) => ({
+    return String(value ?? "").replace(/[&<>\'\"]/g, (character) => ({
       "&": "&amp;",
       "<": "&lt;",
       ">": "&gt;",
@@ -94,19 +94,29 @@
     const number = episode.episodeNumber ? `E${episode.episodeNumber}` : "";
     const episodeNumber = `${season}${number}`.trim();
     const publishedDate = formatPublishedDate(episode);
+    const watchUrl = youtubeVideoId ? `https://www.youtube.com/watch?v=${encodeURIComponent(youtubeVideoId)}` : "";
+    const thumbnailUrl = youtubeVideoId ? `https://img.youtube.com/vi/${youtubeVideoId}/maxresdefault.jpg` : "";
 
     const player = youtubeVideoId
       ? `
-        <div class="overflow-hidden rounded-t-xl bg-black">
-          <iframe
-            class="h-56 w-full"
-            src="https://www.youtube-nocookie.com/embed/${encodeURIComponent(youtubeVideoId)}"
-            title="${escapeText(title)}"
+        <a href="${escapeText(watchUrl)}" target="_blank" rel="noopener noreferrer" class="group relative block overflow-hidden rounded-t-xl bg-black">
+          <img
+            src="${escapeText(thumbnailUrl)}"
+            alt="${escapeText(title)}"
+            class="h-56 w-full object-cover transition-transform duration-200 group-hover:scale-105"
             loading="lazy"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowfullscreen>
-          </iframe>
-        </div>
+          >
+          <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent"></div>
+          <div class="absolute left-4 top-4 flex items-center gap-2 rounded bg-red-600 px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-white">
+            <span class="inline-block h-3 w-3 rounded-full bg-white"></span>
+            YouTube
+          </div>
+          <div class="absolute inset-x-0 bottom-0 flex justify-center pb-4">
+            <span class="rounded-full bg-white/90 px-4 py-2 text-sm font-semibold text-gray-900 shadow-sm">
+              Watch on YouTube
+            </span>
+          </div>
+        </a>
       `
       : `
         <div class="flex h-56 items-center justify-center rounded-t-xl bg-gray-900 text-white">
