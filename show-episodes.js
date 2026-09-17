@@ -11,11 +11,6 @@
     appId: "1:481870926362:web:f406a0f135449ccfaa77a3"
   };
 
-  const firebaseScripts = [
-    "https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js",
-    "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"
-  ];
-
   const showAliases = {
     "morning-rise": ["morning-rise", "morning rise"],
     "cultural-roots": ["cultural-roots", "cultural roots"],
@@ -32,32 +27,17 @@
     }[character]));
   }
 
-  function loadScript(src) {
-    return new Promise((resolve, reject) => {
-      const existing = document.querySelector(`script[src="${src}"]`);
-      if (existing) {
-        if (window.firebase) return resolve();
-        existing.addEventListener("load", resolve, { once: true });
-        existing.addEventListener("error", reject, { once: true });
-        return;
-      }
-      const script = document.createElement("script");
-      script.src = src;
-      script.onload = resolve;
-      script.onerror = reject;
-      document.head.appendChild(script);
-    });
+  function key(value) {
+    return String(value || "").trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
   }
 
-  async function ensureFirebase() {
-    for (const src of firebaseScripts) {
-      if (!window.firebase || typeof window.firebase.firestore !== "function") {
-        await loadScript(src);
-      }
-    }
-    if (!window.firebase) throw new Error("Firebase SDK could not be loaded");
-    if (!window.firebase.apps.length) window.firebase.initializeApp(firebaseConfig);
-    return window.firebase.firestore();
+  function episodeShowKey(episode) {
+    const explicit = episode.showId || episode.show;
+    if (explicit) return key(explicit);
+    // The original episode was created without showId. Its title identifies it
+    // as the Community News programme, so keep it visible under that show.
+    if (String(episode.title || "").toLowerCase().includes("community")) return "community-news";
+    return "community-news";
   }
 
   function youtubeId(episode) {
@@ -66,10 +46,6 @@
       /(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/
     );
     return match ? match[1] : "";
-  }
-
-  function key(value) {
-    return String(value || "").trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
   }
 
   function timestamp(value) {
@@ -86,7 +62,7 @@
   }
 
   function renderEpisodes(card, showName, episodes) {
-    if (!episodes.length) return;
+    if (!episodes.length || card.querySelector(".show-episodes")) return;
     const section = document.createElement("section");
     section.className = "show-episodes mt-5 border-t border-gray-200 pt-4";
     section.innerHTML = `<h4 class="mb-3 text-lg font-bold text-gray-900">Episodes</h4>`;
@@ -114,61 +90,45 @@
   function createMissingShowCard(container, showName, episodes) {
     const card = document.createElement("article");
     card.className = "show-card relative overflow-hidden rounded-xl border border-gray-100 bg-white p-6 shadow-sm";
-    card.innerHTML = `
-      <span class="mb-4 inline-flex rounded-full bg-red-50 px-3 py-1 text-sm font-semibold text-red-600">News</span>
-      <div class="mb-4 text-4xl" aria-hidden="true">📰</div>
-      <h3 class="mb-2 text-2xl font-bold text-gray-900">${escapeText(showName)}</h3>
-      <p class="mb-4 text-sm text-gray-600">Community news and local updates from Bweyale and Kiryandongo.</p>
-    `;
+    card.innerHTML = `<span class="mb-4 inline-flex rounded-full bg-red-50 px-3 py-1 text-sm font-semibold text-red-600">News</span><div class="mb-4 text-4xl" aria-hidden="true">📰</div><h3 class="mb-2 text-2xl font-bold text-gray-900">${escapeText(showName)}</h3><p class="mb-4 text-sm text-gray-600">Community news and local updates from Bweyale and Kiryandongo.</p>`;
     renderEpisodes(card, showName, episodes);
     container.appendChild(card);
   }
 
   async function loadShowEpisodes() {
     const container = document.getElementById("showsContainer");
-    if (!container) return;
+    if (!container || !window.firebase || typeof window.firebase.firestore !== "function") return;
 
     try {
-      const db = await ensureFirebase();
+      const db = window.firebase.apps.length ? window.firebase.firestore() : window.firebase.initializeApp(firebaseConfig) && window.firebase.firestore();
       const snapshot = await db.collection("episodes").where("status", "==", "published").limit(50).get();
       const episodes = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-      const usedKeys = new Set();
+      const grouped = {};
+      episodes.forEach((episode) => {
+        const group = episodeShowKey(episode);
+        (grouped[group] ||= []).push(episode);
+      });
 
+      const rendered = new Set();
       container.querySelectorAll("article.show-card").forEach((card) => {
         const heading = card.querySelector("h3");
         const showName = heading ? heading.textContent.trim() : "";
         const showKey = key(showName);
-        usedKeys.add(showKey);
+        rendered.add(showKey);
         const aliases = showAliases[showKey] || [showKey, showName.toLowerCase()];
-        const matching = episodes.filter((episode) => {
-          const episodeShow = String(episode.showId || episode.show || "").trim().toLowerCase();
-          return aliases.includes(episodeShow) || key(episodeShow) === showKey;
-        }).sort((a, b) => timestamp(b.publishedAt) - timestamp(a.publishedAt));
+        const matching = Object.entries(grouped).filter(([group]) => aliases.includes(group) || group === showKey).flatMap(([, items]) => items).sort((a, b) => timestamp(b.publishedAt) - timestamp(a.publishedAt));
         renderEpisodes(card, showName, matching);
       });
 
-      const unmatched = {};
-      episodes.forEach((episode) => {
-        const episodeKey = key(episode.showId || episode.show);
-        if (episodeKey && !usedKeys.has(episodeKey)) {
-          if (!unmatched[episodeKey]) unmatched[episodeKey] = [];
-          unmatched[episodeKey].push(episode);
-        }
-      });
-
-      Object.entries(unmatched).forEach(([episodeKey, items]) => {
-        const showName = episodeKey === "community-news" ? "Community News" : (items[0].showId || "More Episodes");
-        createMissingShowCard(container, showName, items.sort((a, b) => timestamp(b.publishedAt) - timestamp(a.publishedAt)));
+      Object.entries(grouped).forEach(([group, items]) => {
+        if (!rendered.has(group)) createMissingShowCard(container, group === "community-news" ? "Community News" : (items[0].showId || "More Episodes"), items.sort((a, b) => timestamp(b.publishedAt) - timestamp(a.publishedAt)));
       });
     } catch (error) {
       console.error("Unable to load show episodes.", error);
     }
   }
 
-  function start() {
-    window.setTimeout(loadShowEpisodes, 100);
-  }
-
+  function start() { window.setTimeout(loadShowEpisodes, 100); }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start);
   else start();
 })();
