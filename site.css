@@ -122,6 +122,37 @@ main { display: block; }
   background: var(--grad-radio) !important;
 }
 
+/* ── Live player shell / bevel edge ── */
+.live-player-shell {
+  position: relative;
+  padding: 0.45rem;
+  border-radius: 1.1rem;
+  background: linear-gradient(145deg, rgba(87, 56, 27, 0.95), rgba(18, 14, 11, 0.96));
+  border: 1px solid rgba(160,96,58,0.38);
+  box-shadow:
+    inset 1px 1px 0 rgba(255,255,255,0.15),
+    inset -1px -1px 0 rgba(0,0,0,0.28),
+    0 14px 20px rgba(14, 8, 6, 0.48),
+    0 0 0 1px rgba(212,169,106,0.08);
+}
+
+.live-player-shell::before {
+  content: "";
+  position: absolute;
+  inset: 0.45rem;
+  border-radius: 0.8rem;
+  border: 1px solid rgba(255,255,255,0.08);
+  pointer-events: none;
+}
+
+.live-player-shell .video-js,
+.live-player-shell video {
+  display: block;
+  border-radius: 0.8rem;
+  overflow: hidden;
+  background: #090909;
+}
+
 /* ── Chat shell ── */
 .chat-shell {
   height: 28rem;
