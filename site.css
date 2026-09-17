@@ -29,7 +29,7 @@
   --grad-btn-prim:  linear-gradient(135deg, #BF1506 0%, #8C2B0A 100%);
   --grad-btn-acc:   linear-gradient(135deg, #3D5A73 0%, #6E8FAB 100%);
   --grad-btn-succ:  linear-gradient(135deg, #4A4D30 0%, #6B714C 100%);
-  --grad-chat:      linear-gradient(180deg, #1A1209 0%, #2a1a08 100%);
+  --grad-chat:      linear-gradient(to bottom right, rgba(20, 28, 34, 0.58), rgba(20, 16, 13, 0.72)), url("./20260602_190647(1).jpg") center / cover no-repeat;
   --grad-member:    linear-gradient(160deg, rgba(237,224,200,0.85) 0%, rgba(110,143,171,0.25) 100%);
   --grad-radio:     linear-gradient(145deg, rgba(248,245,240,0.95) 0%, rgba(237,224,200,0.7) 100%);
 
