@@ -11,41 +11,67 @@
     appId: "1:481870926362:web:f406a0f135449ccfaa77a3"
   };
 
-  const showIds = {
-    "Morning Rise": "morning-rise",
-    "Cultural Roots": "cultural-roots",
-    "Wellness Warriors": "wellness-warriors",
-    "Youth Voices": "youth-voices",
-    "Entertainment Express": "entertainment-express",
-    "Business Update": "business-update"
+  const firebaseScripts = [
+    "https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js",
+    "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"
+  ];
+
+  const showAliases = {
+    "morning-rise": ["morning-rise", "morning rise"],
+    "cultural-roots": ["cultural-roots", "cultural roots"],
+    "wellness-warriors": ["wellness-warriors", "wellness warriors"],
+    "youth-voices": ["youth-voices", "youth voices"],
+    "entertainment-express": ["entertainment-express", "entertainment express"],
+    "business-update": ["business-update", "business update"]
   };
 
   function escapeText(value) {
     return String(value ?? "").replace(/[&<>\'\"]/g, (character) => ({
-      "&": "&amp;",
-      "<": "&lt;",
-      ">": "&gt;",
-      "'": "&#39;",
-      '"': "&quot;"
+      "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;"
     }[character]));
   }
 
-  function getYouTubeId(episode) {
+  function loadScript(src) {
+    return new Promise((resolve, reject) => {
+      const existing = document.querySelector(`script[src="${src}"]`);
+      if (existing) {
+        if (window.firebase) return resolve();
+        existing.addEventListener("load", resolve, { once: true });
+        existing.addEventListener("error", reject, { once: true });
+        return;
+      }
+      const script = document.createElement("script");
+      script.src = src;
+      script.onload = resolve;
+      script.onerror = reject;
+      document.head.appendChild(script);
+    });
+  }
+
+  async function ensureFirebase() {
+    for (const src of firebaseScripts) {
+      if (!window.firebase || typeof window.firebase.firestore !== "function") {
+        await loadScript(src);
+      }
+    }
+    if (!window.firebase) throw new Error("Firebase SDK could not be loaded");
+    if (!window.firebase.apps.length) window.firebase.initializeApp(firebaseConfig);
+    return window.firebase.firestore();
+  }
+
+  function youtubeId(episode) {
     if (episode.videoId) return String(episode.videoId).trim();
-    const url = String(episode.videoUrl || "");
-    const match = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/);
+    const match = String(episode.videoUrl || "").match(
+      /(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/
+    );
     return match ? match[1] : "";
   }
 
-  function showKey(value) {
-    return String(value || "")
-      .trim()
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-|-$/g, "");
+  function key(value) {
+    return String(value || "").trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
   }
 
-  function dateValue(value) {
+  function timestamp(value) {
     if (!value) return 0;
     if (typeof value.toMillis === "function") return value.toMillis();
     if (value.seconds) return value.seconds * 1000;
@@ -54,72 +80,55 @@
   }
 
   function dateText(value) {
-    const timestamp = dateValue(value);
-    return timestamp
-      ? new Date(timestamp).toLocaleDateString("en-UG", { year: "numeric", month: "short", day: "numeric" })
-      : "";
+    const time = timestamp(value);
+    return time ? new Date(time).toLocaleDateString("en-UG", { year: "numeric", month: "short", day: "numeric" }) : "";
   }
 
-  function renderEpisodeList(card, showName, episodes) {
-    const existing = card.querySelector(".show-episodes");
-    if (existing) existing.remove();
+  function renderEpisodes(card, showName, episodes) {
     if (!episodes.length) return;
-
     const section = document.createElement("section");
     section.className = "show-episodes mt-5 border-t border-gray-200 pt-4";
     section.innerHTML = `<h4 class="mb-3 text-lg font-bold text-gray-900">Episodes</h4>`;
 
     episodes.forEach((episode) => {
-      const id = getYouTubeId(episode);
+      const id = youtubeId(episode);
       const title = episode.title || "Untitled episode";
-      const label = [episode.seasonNumber ? `S${episode.seasonNumber}` : "", episode.episodeNumber ? `E${episode.episodeNumber}` : ""]
-        .filter(Boolean)
-        .join("");
-      const thumbnail = id ? `https://img.youtube.com/vi/${encodeURIComponent(id)}/hqdefault.jpg` : "";
+      const number = [episode.seasonNumber ? `S${episode.seasonNumber}` : "", episode.episodeNumber ? `E${episode.episodeNumber}` : ""].filter(Boolean).join("");
       const watchUrl = id ? `https://www.youtube.com/watch?v=${encodeURIComponent(id)}` : "";
       const item = document.createElement("article");
       item.className = "mb-3 overflow-hidden rounded-lg border border-gray-200 bg-gray-50";
       item.innerHTML = `
-        ${id ? `<a href="${escapeText(watchUrl)}" target="_blank" rel="noopener noreferrer" class="block"><img src="${escapeText(thumbnail)}" alt="${escapeText(title)}" class="h-36 w-full object-cover" loading="lazy"></a>` : ""}
+        ${id ? `<a href="${escapeText(watchUrl)}" target="_blank" rel="noopener noreferrer"><img src="https://img.youtube.com/vi/${encodeURIComponent(id)}/hqdefault.jpg" alt="${escapeText(title)}" class="h-36 w-full object-cover" loading="lazy"></a>` : ""}
         <div class="p-3">
-          <p class="text-xs font-semibold uppercase tracking-wide text-red-600">${escapeText(label || showName)}</p>
+          <p class="text-xs font-semibold uppercase tracking-wide text-red-600">${escapeText(number || showName)}</p>
           <h5 class="font-bold text-gray-900">${escapeText(title)}</h5>
           ${dateText(episode.publishedAt) ? `<p class="mt-1 text-xs text-gray-500">Published ${escapeText(dateText(episode.publishedAt))}</p>` : ""}
           ${id ? `<a href="${escapeText(watchUrl)}" target="_blank" rel="noopener noreferrer" class="mt-2 inline-block text-sm font-semibold text-red-600 hover:underline">Watch episode on YouTube →</a>` : ""}
-        </div>
-      `;
+        </div>`;
       section.appendChild(item);
     });
-
     card.appendChild(section);
   }
 
   async function loadShowEpisodes() {
     const container = document.getElementById("showsContainer");
-    if (!container || !window.firebase) return;
+    if (!container) return;
 
     try {
-      if (!window.firebase.apps.length) window.firebase.initializeApp(firebaseConfig);
-      const snapshot = await window.firebase.firestore()
-        .collection("episodes")
-        .where("status", "==", "published")
-        .limit(50)
-        .get();
-
-      const grouped = {};
-      snapshot.forEach((document) => {
-        const episode = { id: document.id, ...document.data() };
-        const key = showKey(episode.showId);
-        if (!grouped[key]) grouped[key] = [];
-        grouped[key].push(episode);
-      });
+      const db = await ensureFirebase();
+      const snapshot = await db.collection("episodes").where("status", "==", "published").limit(50).get();
+      const episodes = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 
       container.querySelectorAll("article.show-card").forEach((card) => {
         const heading = card.querySelector("h3");
         const showName = heading ? heading.textContent.trim() : "";
-        const key = showIds[showName] || showKey(showName);
-        const episodes = (grouped[key] || []).sort((a, b) => dateValue(b.publishedAt) - dateValue(a.publishedAt));
-        renderEpisodeList(card, showName, episodes);
+        const showKey = key(showName);
+        const aliases = showAliases[showKey] || [showKey, showName.toLowerCase()];
+        const matching = episodes.filter((episode) => {
+          const episodeShow = String(episode.showId || episode.show || "").trim().toLowerCase();
+          return aliases.includes(episodeShow) || key(episodeShow) === showKey;
+        }).sort((a, b) => timestamp(b.publishedAt) - timestamp(a.publishedAt));
+        renderEpisodes(card, showName, matching);
       });
     } catch (error) {
       console.error("Unable to load show episodes.", error);
@@ -127,13 +136,10 @@
   }
 
   function start() {
-    // content.js renders the show cards during DOMContentLoaded.
-    window.setTimeout(loadShowEpisodes, 0);
+    // content.js creates the cards in its DOMContentLoaded handler.
+    window.setTimeout(loadShowEpisodes, 100);
   }
 
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", start);
-  } else {
-    start();
-  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start);
+  else start();
 })();
