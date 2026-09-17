@@ -1,17 +1,6 @@
 /* Firestore-backed episode catalogue for the static GitHub Pages frontend. */
 (function () {
-  const fallbackEpisodes = [
-    {
-      id: "demo-episode",
-      showId: "morning-rise",
-      seasonNumber: 1,
-      episodeNumber: 1,
-      title: "Add your first YouTube episode",
-      description: "Create an episode document in Firestore and replace the videoId with your YouTube video ID.",
-      videoId: "dkaURz1bsLo",
-      status: "published"
-    }
-  ];
+  "use strict";
 
   const config = window.FIREBASE_CONFIG || {
     apiKey: "AIzaSyCg9fxgrXlEuKW_m5MvDnG26Uf6lLdiYik",
@@ -27,56 +16,252 @@
   const status = document.getElementById("episodeStatus");
   const search = document.getElementById("episodeSearch");
   const showFilter = document.getElementById("showFilter");
+
   let episodes = [];
 
-  function escapeText(value) {
-    return String(value || "").replace(/[&<>'"]/g, (char) => ({
-      "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;"
-    }[char]));
+  if (!container || !status || !search || !showFilter) {
+    console.error("Episode catalogue elements were not found in the page.");
+    return;
   }
 
-  function youtubeId(episode) {
-    if (episode.videoId) return episode.videoId;
-    const match = String(episode.videoUrl || "").match(/(?:youtu\.be\/|v=|embed\/)([\w-]{11})/);
+  function escapeText(value) {
+    return String(value ?? "").replace(/[&<>'"]/g, (character) => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      "'": "&#39;",
+      '"': "&quot;"
+    }[character]));
+  }
+
+  function getYouTubeId(episode) {
+    if (episode.videoId) {
+      return String(episode.videoId).trim();
+    }
+
+    if (!episode.videoUrl) {
+      return "";
+    }
+
+    const value = String(episode.videoUrl).trim();
+
+    const match = value.match(
+      /(?:youtube\.com\/watch\?v=|youtube\.com\/embed\/|youtube\.com\/shorts\/|youtu\.be\/)([\w-]{11})/
+    );
+
     return match ? match[1] : "";
   }
 
-  function render() {
+  function getPublishedTime(episode) {
+    const publishedAt = episode.publishedAt;
+
+    if (!publishedAt) {
+      return 0;
+    }
+
+    if (typeof publishedAt.toMillis === "function") {
+      return publishedAt.toMillis();
+    }
+
+    if (publishedAt.seconds) {
+      return publishedAt.seconds * 1000;
+    }
+
+    const parsed = new Date(publishedAt).getTime();
+    return Number.isNaN(parsed) ? 0 : parsed;
+  }
+
+  function formatPublishedDate(episode) {
+    const timestamp = getPublishedTime(episode);
+
+    if (!timestamp) {
+      return "";
+    }
+
+    return new Date(timestamp).toLocaleDateString("en-UG", {
+      year: "numeric",
+      month: "short",
+      day: "numeric"
+    });
+  }
+
+  function createEpisodeCard(episode) {
+    const youtubeVideoId = getYouTubeId(episode);
+    const showId = episode.showId || "BWE TV";
+    const title = episode.title || "Untitled episode";
+    const description = episode.description || "";
+    const season = episode.seasonNumber ? `S${episode.seasonNumber}` : "";
+    const number = episode.episodeNumber ? `E${episode.episodeNumber}` : "";
+    const episodeNumber = `${season}${number}`.trim();
+    const publishedDate = formatPublishedDate(episode);
+
+    const player = youtubeVideoId
+      ? `
+        <div class="overflow-hidden rounded-t-xl bg-black">
+          <iframe
+            class="h-56 w-full"
+            src="https://www.youtube-nocookie.com/embed/${encodeURIComponent(youtubeVideoId)}"
+            title="${escapeText(title)}"
+            loading="lazy"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen>
+          </iframe>
+        </div>
+      `
+      : `
+        <div class="flex h-56 items-center justify-center rounded-t-xl bg-gray-900 text-white">
+          Video unavailable
+        </div>
+      `;
+
+    const label = [showId, episodeNumber].filter(Boolean).join(" ");
+
+    return `
+      <article class="overflow-hidden rounded-xl bg-white shadow-sm">
+        ${player}
+
+        <div class="p-5">
+          <p class="text-sm font-semibold text-red-600">
+            ${escapeText(label)}
+          </p>
+
+          <h2 class="mt-1 text-xl font-bold text-gray-900">
+            ${escapeText(title)}
+          </h2>
+
+          ${
+            description
+              ? `<p class="mt-2 text-sm text-gray-600">${escapeText(description)}</p>`
+              : ""
+          }
+
+          ${
+            publishedDate
+              ? `<p class="mt-3 text-xs text-gray-500">Published ${escapeText(publishedDate)}</p>`
+              : ""
+          }
+        </div>
+      </article>
+    `;
+  }
+
+  function renderEpisodes() {
     const query = search.value.trim().toLowerCase();
     const selectedShow = showFilter.value.trim().toLowerCase();
-    const visible = episodes.filter((episode) => {
-      const haystack = `${episode.title || ""} ${episode.description || ""} ${episode.showId || ""}`.toLowerCase();
-      return (!query || haystack.includes(query)) && (!selectedShow || String(episode.showId || "").toLowerCase() === selectedShow);
+
+    const visibleEpisodes = episodes.filter((episode) => {
+      const searchableText = [
+        episode.title,
+        episode.description,
+        episode.showId
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+
+      const matchesSearch =
+        !query || searchableText.includes(query);
+
+      const matchesShow =
+        !selectedShow ||
+        String(episode.showId || "").toLowerCase() === selectedShow;
+
+      return matchesSearch && matchesShow;
     });
 
-    container.innerHTML = visible.map((episode) => {
-      const id = youtubeId(episode);
-      const player = id
-        ? `<div class="aspect-w-16 aspect-h-9 overflow-hidden rounded-t-xl bg-black"><iframe class="h-56 w-full" src="https://www.youtube-nocookie.com/embed/${encodeURIComponent(id)}" title="${escapeText(episode.title)}" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`
-        : `<div class="flex h-56 items-center justify-center rounded-t-xl bg-gray-900 text-white">Video unavailable</div>`;
-      const season = episode.seasonNumber ? `S${episode.seasonNumber}` : "";
-      const number = episode.episodeNumber ? `E${episode.episodeNumber}` : "";
-      return `<article class="overflow-hidden rounded-xl bg-white shadow-sm">${player}<div class="p-5"><p class="text-sm font-semibold text-red-600">${escapeText(episode.showId)} ${season}${number}</p><h2 class="mt-1 text-xl font-bold">${escapeText(episode.title)}</h2><p class="mt-2 text-sm text-gray-600">${escapeText(episode.description)}</p></div></article>`;
-    }).join("");
-    status.textContent = `${visible.length} published episode${visible.length === 1 ? "" : "s"}`;
+    if (!visibleEpisodes.length) {
+      container.innerHTML = `
+        <div class="rounded-xl bg-white p-6 text-gray-600 shadow-sm">
+          No published episodes match your search.
+        </div>
+      `;
+    } else {
+      container.innerHTML = visibleEpisodes
+        .map(createEpisodeCard)
+        .join("");
+    }
+
+    status.textContent =
+      `${visibleEpisodes.length} published episode` +
+      `${visibleEpisodes.length === 1 ? "" : "s"}`;
+  }
+
+  function sortEpisodes() {
+    episodes.sort((first, second) => {
+      return getPublishedTime(second) - getPublishedTime(first);
+    });
   }
 
   async function loadEpisodes() {
-    try {
-      if (!window.firebase.apps.length) window.firebase.initializeApp(config);
-      const snapshot = await window.firebase.firestore().collection("episodes")
-        .where("status", "==", "published").orderBy("publishedAt", "desc").limit(50).get();
-      episodes = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-      if (!episodes.length) episodes = fallbackEpisodes;
-    } catch (error) {
-      console.error("Unable to load Firestore episodes", error);
-      episodes = fallbackEpisodes;
-      status.textContent = "Firestore is not available; showing the setup example.";
+    if (!window.firebase) {
+      status.textContent = "Firebase SDK could not be loaded.";
+      console.error("window.firebase is unavailable.");
+      return;
     }
-    render();
+
+    try {
+      if (!window.firebase.apps.length) {
+        window.firebase.initializeApp(config);
+      }
+
+      const firestore = window.firebase.firestore();
+
+      /*
+       * Deliberately do not use orderBy("publishedAt") here.
+       * Sorting in JavaScript avoids requiring a composite Firestore index
+       * for status + publishedAt.
+       */
+      const snapshot = await firestore
+        .collection("episodes")
+        .where("status", "==", "published")
+        .limit(50)
+        .get();
+
+      episodes = snapshot.docs.map((document) => ({
+        id: document.id,
+        ...document.data()
+      }));
+
+      sortEpisodes();
+
+      if (!episodes.length) {
+        status.textContent =
+          "No published episodes were found in the Firestore episodes collection.";
+        container.innerHTML = `
+          <div class="rounded-xl bg-white p-6 text-gray-600 shadow-sm">
+            No published episodes are available yet.
+          </div>
+        `;
+        return;
+      }
+
+      renderEpisodes();
+    } catch (error) {
+      console.error("Unable to load Firestore episodes.", error);
+
+      const errorCode = error && error.code ? error.code : "unknown-error";
+      const errorMessage = error && error.message
+        ? error.message
+        : "Unknown Firestore error.";
+
+      status.textContent = `Unable to load episodes: ${errorCode}`;
+
+      container.innerHTML = `
+        <div class="rounded-xl border border-red-200 bg-red-50 p-6 text-red-800 shadow-sm">
+          <h2 class="font-bold">Episode catalogue unavailable</h2>
+          <p class="mt-2 text-sm">
+            Check the browser console for the complete Firebase error.
+          </p>
+          <p class="mt-2 break-words text-xs">
+            ${escapeText(errorMessage)}
+          </p>
+        </div>
+      `;
+    }
   }
 
-  search.addEventListener("input", render);
-  showFilter.addEventListener("input", render);
+  search.addEventListener("input", renderEpisodes);
+  showFilter.addEventListener("input", renderEpisodes);
+
   loadEpisodes();
 })();
