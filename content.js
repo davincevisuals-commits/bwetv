@@ -230,7 +230,7 @@ const FEATURED_SHOWS = [
 // ============================================
 const STREAM_CONFIG = {
   primary: {
-    url: "http://yourserverip:8080/live/streamkey.m3u8",
+    url: "https://stream.bwetv.live/hls/bwetv/index.m3u8",
     type: "application/x-mpegURL",
     qualities: ["720p", "480p", "360p", "240p"]
   },
