@@ -40,7 +40,10 @@
 
   <header class="brand-header sticky top-0 z-50 text-white shadow-lg">
     <div class="site-shell flex items-center justify-between p-4">
-      <a href="index.html" class="text-2xl font-bold">BWE <span class="bg-red-600 px-2">TV</span></a>
+      <a href="index.html" class="brand-mark" aria-label="BWE TV home">
+        <img src="assets/images/logo%201.png" alt="BWE TV logo" class="brand-logo">
+        <span class="brand-wordmark">BWE TV</span>
+      </a>
       <nav class="hidden md:flex space-x-6" aria-label="Primary navigation">
         <a href="index.html" data-nav-link class="hover:text-yellow-200 transition">Home</a>
         <a href="schedule.html" data-nav-link class="hover:text-yellow-200 transition">Programs</a>
@@ -50,6 +53,7 @@
       </nav>
       <button id="mobileMenuBtn" class="md:hidden rounded p-2 text-2xl transition hover:bg-yellow-800" aria-expanded="false" aria-controls="mobileMenu" aria-label="Open navigation menu">☰</button>
     </div>
+
     <nav id="mobileMenu" class="mobile-menu hidden brand-header-sub md:hidden" aria-label="Mobile navigation">
       <div class="site-shell flex flex-col space-y-3 p-4">
         <a href="index.html" data-nav-link class="hover:text-yellow-200 transition">Home</a>
@@ -61,53 +65,14 @@
     </nav>
   </header>
 
-  <main id="main-content">
-    <section class="bg-gradient-to-r from-red-600 to-red-800 p-6 text-center text-white">
-      <div class="site-shell">
-        <h1 class="mb-2 text-4xl font-bold">Our Shows</h1>
-        <p class="text-lg opacity-90">Browse our complete catalog of engaging programs and discover what to watch next.</p>
-      </div>
+  <main id="main-content" class="site-shell px-6 py-10">
+    <section class="mb-8 rounded-2xl bg-gradient-to-r from-red-600 to-red-800 p-8 text-white">
+      <h1 class="text-4xl font-bold">BWE TV Shows</h1>
+      <p class="mt-2">Browse our catalog and find the programs that match your viewing interests.</p>
     </section>
 
-    <section class="section-surface border-b p-6">
-      <div class="site-shell">
-        <div class="mb-6">
-          <label for="searchInput" class="mb-2 block text-sm font-bold text-gray-700">Search the catalog</label>
-          <input type="text" id="searchInput" placeholder="Search shows by title, host, or description..." class="w-full rounded border-2 border-gray-300 px-4 py-3 transition focus:border-red-600 focus:outline-none" oninput="filterShows()">
-        </div>
-        <div class="mb-4">
-          <h2 class="mb-3 text-sm font-bold text-gray-700">Filter by Category</h2>
-          <div class="flex flex-wrap gap-2">
-            <button onclick="filterByCategory(event, 'All')" class="category-filter active btn btn-primary" type="button">All</button>
-            <button onclick="filterByCategory(event, 'News')" class="category-filter btn btn-secondary" type="button">News</button>
-            <button onclick="filterByCategory(event, 'Culture')" class="category-filter btn btn-secondary" type="button">Culture</button>
-            <button onclick="filterByCategory(event, 'Health')" class="category-filter btn btn-secondary" type="button">Health</button>
-            <button onclick="filterByCategory(event, 'Education')" class="category-filter btn btn-secondary" type="button">Education</button>
-            <button onclick="filterByCategory(event, 'Entertainment')" class="category-filter btn btn-secondary" type="button">Entertainment</button>
-            <button onclick="filterByCategory(event, 'Business')" class="category-filter btn btn-secondary" type="button">Business</button>
-          </div>
-        </div>
-        <div>
-          <label for="sortSelect" class="mb-3 block text-sm font-bold text-gray-700">Sort by</label>
-          <select id="sortSelect" onchange="sortShows()" class="rounded border-2 border-gray-300 px-4 py-2 transition focus:border-red-600 focus:outline-none">
-            <option value="rating">Rating (High to Low)</option>
-            <option value="episodes">Episodes (Most to Least)</option>
-            <option value="name">Name (A to Z)</option>
-          </select>
-        </div>
-      </div>
-    </section>
-
-    <section class="bg-white p-6">
-      <div class="site-shell">
-        <div id="resultsInfo" class="mb-4 font-semibold text-gray-600">Loading shows...</div>
-        <div id="showsContainer" class="grid gap-6 md:grid-cols-2 lg:grid-cols-3"></div>
-        <div id="noResults" class="hidden py-12 text-center">
-          <p class="mb-4 text-2xl text-gray-500">No shows found</p>
-          <button onclick="location.reload()" class="btn btn-primary" type="button">Reset Filters</button>
-        </div>
-      </div>
-    </section>
+    <div id="showFilters" class="mb-6 flex flex-wrap gap-2"></div>
+    <section id="showsContainer" class="grid gap-6 md:grid-cols-2 xl:grid-cols-3"></section>
   </main>
 
   <footer class="brand-header mt-8 p-4 text-center text-white">
@@ -117,7 +82,6 @@
         <a href="about.html" class="hover:text-yellow-200 transition">About</a>
         <a href="privacy.html" class="hover:text-yellow-200 transition">Privacy</a>
         <a href="contact.html" class="hover:text-yellow-200 transition">Contact</a>
-        <a href="schedule.html" class="hover:text-yellow-200 transition">Programs</a>
         <a href="community.html" class="hover:text-yellow-200 transition">Community</a>
       </div>
     </div>

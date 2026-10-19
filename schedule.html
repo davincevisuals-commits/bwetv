@@ -67,7 +67,10 @@
 
   <header class="brand-header sticky top-0 z-50 text-white shadow-lg">
     <div class="site-shell flex items-center justify-between p-4">
-      <a href="index.html" class="text-2xl font-bold">BWE <span class="bg-red-600 px-2">TV</span></a>
+      <a href="index.html" class="brand-mark" aria-label="BWE TV home">
+        <img src="assets/images/logo%201.png" alt="BWE TV logo" class="brand-logo">
+        <span class="brand-wordmark">BWE TV</span>
+      </a>
       <nav class="hidden md:flex space-x-6" aria-label="Primary navigation">
         <a href="index.html" data-nav-link class="hover:text-yellow-200 transition">Home</a>
         <a href="schedule.html" data-nav-link class="hover:text-yellow-200 transition">Programs</a>
@@ -96,7 +99,7 @@
         <p class="mx-auto mb-6 max-w-3xl text-lg opacity-90">See what is on air now, plan your viewing, and share the daily lineup with your audience.</p>
         <div id="currentShowInfo" class="mb-6"><p class="text-lg font-semibold">Loading...</p></div>
         <div class="mx-auto mb-4 max-w-4xl overflow-hidden rounded-xl shadow-2xl">
-          <video id="livePlayer" class="video-js vjs-default-skin w-full h-auto" controls preload="metadata" aria-label="BWE TV live stream player" data-setup='{"fluid": true, "aspectRatio": "16:9"}'>
+          <video id="livePlayer" class="video-js vjs-default-skin w-full h-auto" controls preload="metadata" aria-label="BWE TV live stream player" data-setup='{"fluid": true, "aspectRatio": "16:9"}' poster="./20260602_190647(1).jpg">
             <source src="https://stream.bwetv.live/hls/bwetv/index.m3u8" type="application/x-mpegURL">
             <source src="video.mp4" type="video/mp4">
           </video>
