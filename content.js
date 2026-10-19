@@ -12,11 +12,11 @@
 // Timezone offset (hours) relative to UTC. Set to Kampala/East Africa: +3
 const SITE_TZ_OFFSET = 3;
 
-// ─────────────────────────────────────────────────────────────────---------
+// ────────────────────────────────────────────────────────────────�[...]
 // PROGRAM DATA — edit these entries to match your real schedule.
 // Use 24-hour format for start/end (e.g. "14:30") or include AM/PM (e.g. "2:30 PM").
 // Provide `image` paths relative to site root (e.g. "assets/images/bweyale-hero.svg").
-// ─────────────────────���───────────────────────────────────────────---------
+// ─────────────────────���────────────────────────────────────────�[...]
 const PROGRAMS = [
   {
     id: "local-news",
@@ -43,13 +43,13 @@ const PROGRAMS = [
     end: "16:00",
     description: "Educational and fun programming for children.",
     category: "Kids",
-    image: "assets/images/logo 2.png"
+    image: "assets/images/logo 1.png"
   }
 ];
 
-// ─────────────────────────────────────────────────────────────────---------
+// ────────────────────────────────────────────────────────────────�[...]
 // Time helpers
-// ─────────────────────────────────────────────────────────────────---------
+// ────────────────────────────────────────────────────────────────�[...]
 function parseTimeToMinutes(timeStr) {
   if (!timeStr || typeof timeStr !== 'string') return null;
   // Match patterns like "14:30" or "2:30 PM"
@@ -73,9 +73,9 @@ function getLocalMinutesSinceMidnight() {
   return local.getHours() * 60 + local.getMinutes();
 }
 
-// ─────────────────────────────────────────────────────────────────---------
+// ────────────────────────────────────────────────────────────────�[...]
 // Program selection
-// ─────────────────────────────────────────────────────────────────---------
+// ────────────────────────────────────────────────────────────────�[...]
 function findCurrentProgram() {
   const nowM = getLocalMinutesSinceMidnight();
   for (let p of PROGRAMS) {
@@ -110,9 +110,9 @@ function findNextProgram() {
   return items.length ? items[0].p : null;
 }
 
-// ─────────────────────────────────────────────────────────────────---------
+// ────────────────────────────────────────────────────────────────[...]
 // Rendering
-// ─────────────────────────────────────────────────────────────────---------
+// ────────────────────────────────────────────────────────────────[...]
 function escapeHtml(str) {
   if (typeof str !== 'string') return '';
   return str.replace(/[&<>"'`]/g, function (s) {
