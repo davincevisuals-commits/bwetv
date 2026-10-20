@@ -1,301 +1,204 @@
-/**
- * BWE TV - Firebase Configuration & Initialization
- * This file sets up Firebase for real-time database and authentication
- * 
- * SETUP INSTRUCTIONS:
- * 1. Go to https://console.firebase.google.com
- * 2. Create a new project (or use existing one)
- * 3. Enable Realtime Database (in test mode for development)
- * 4. Enable Authentication (Email/Anonymous)
- * 5. Copy your Firebase config from Project Settings
- * 6. Replace the config below with your credentials
- */
+(function () {
+  const DEFAULT_CHAT_PATH = "channels/live-chat/messages";
+  const DEFAULT_LIMIT = 60;
+  const DEFAULT_MAX_LENGTH = 300;
 
-// Firebase Configuration - REPLACE WITH YOUR OWN
-const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "your-project.firebaseapp.com",
-  projectId: "your-project-id",
-  storageBucket: "your-project.appspot.com",
-  messagingSenderId: "YOUR_MESSAGING_ID",
-  appId: "YOUR_APP_ID"
-};
-
-// For development/testing, use these test credentials:
-// const firebaseConfig = {
-//   apiKey: "AIzaSyDemoKeyForTesting",
-//   authDomain: "bwetv-demo.firebaseapp.com",
-//   projectId: "bwetv-demo",
-//   storageBucket: "bwetv-demo.appspot.com",
-//   messagingSenderId: "123456789",
-//   appId: "1:123456789:web:abc123def456"
-// };
-
-// Initialize Firebase (only if SDK is loaded)
-let db = null;
-let auth = null;
-
-function initializeFirebase() {
-  if (typeof firebase !== 'undefined') {
-    // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
-    
-    // Get reference to database
-    db = firebase.database();
-    auth = firebase.auth();
-    
-    console.log('✅ Firebase initialized successfully');
-    return true;
-  } else {
-    console.warn('⚠️ Firebase SDK not loaded. Load it from: https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js');
-    return false;
+  function formatTime(ts) {
+    const time = Number(ts) || Date.now();
+    const d = new Date(time);
+    return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   }
-}
 
-/**
- * Firebase Chat Manager Class
- * Handles real-time messaging with Firebase Realtime Database
- */
-class FirebaseChat {
-  constructor(channelId = 'live-chat') {
-    this.channelId = channelId;
-    this.channelRef = null;
-    this.messagesRef = null;
-    this.usersRef = null;
-    this.messages = [];
-    this.listeners = [];
-    
-    if (db) {
-      this.setupReferences();
-      this.setupListeners();
+  function getStoredName() {
+    try {
+      const saved = localStorage.getItem("bwetv-chat-name");
+      if (saved) return saved;
+    } catch (error) {}
+
+    const name = "Guest" + String(Math.random()).toString().slice(2, 6);
+    try {
+      localStorage.setItem("bwetv-chat-name", name);
+    } catch (error) {}
+    return name;
+  }
+
+  function getStoredUserId() {
+    try {
+      const saved = localStorage.getItem("bwetv-chat-user");
+      if (saved) return saved;
+    } catch (error) {}
+
+    const id = "guest-" + Date.now() + Math.random().toString(16).slice(2, 8);
+    try {
+      localStorage.setItem("bwetv-chat-user", id);
+    } catch (error) {}
+    return id;
+  }
+
+  function normalizeMessage(text) {
+    return String(text || "")
+      .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, "")
+      .trim();
+  }
+
+  function isNearBottom(el) {
+    return el.scrollHeight - el.scrollTop - el.clientHeight < 80;
+  }
+
+  function initLiveChat(options = {}) {
+    const chatContainer = document.getElementById(options.chatContainerId || "liveChat" || "chatMessages" || "chatContainer");
+    const chatInput = document.getElementById(options.chatInputId || "chatInput");
+    const chatButton = document.getElementById(options.chatButtonId || options.chatBtnId || "chatBtn");
+    const chatStatus = document.getElementById(options.chatStatusId || "chatStatus");
+    const rtdb = options.rtdb || (window.firebase && window.firebase.database ? window.firebase.database() : null);
+
+    if (!chatContainer || !chatInput || !chatButton || !rtdb) {
+      return null;
     }
-  }
 
-  setupReferences() {
-    this.channelRef = db.ref(`channels/${this.channelId}`);
-    this.messagesRef = db.ref(`channels/${this.channelId}/messages`);
-    this.usersRef = db.ref(`channels/${this.channelId}/users`);
-  }
+    const maxLength = options.maxLength || DEFAULT_MAX_LENGTH;
+    const chatPath = options.chatPath || DEFAULT_CHAT_PATH;
+    const limit = options.limit || DEFAULT_LIMIT;
+    const userName = getStoredName();
+    const userId = getStoredUserId();
+    const roomRef = rtdb.ref(chatPath);
+    const messagesRef = roomRef.limitToLast(limit);
 
-  setupListeners() {
-    if (!this.messagesRef) return;
+    function setStatus(text) {
+      if (chatStatus) {
+        chatStatus.textContent = text;
+      }
+    }
 
-    // Listen for new messages
-    this.messagesRef.limitToLast(50).on('child_added', (snapshot) => {
-      const message = snapshot.val();
-      if (message) {
-        this.messages.push({
-          id: snapshot.key,
-          ...message
+    function scrollToBottom() {
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    function updateButtonState() {
+      const value = normalizeMessage(chatInput.value);
+      chatButton.disabled = !value || value.length > maxLength;
+    }
+
+    function renderMessage(message) {
+      if (!message || typeof message !== "object") return;
+
+      const author = message.user || message.author || "Guest";
+      const text = message.text || "";
+      const timestamp = message.timestamp || Date.now();
+      const isMe = author === userName || message.userId === userId;
+
+      const row = document.createElement("div");
+      row.className = "mb-3 flex " + (isMe ? "justify-end" : "justify-start");
+
+      const bubble = document.createElement("div");
+      bubble.className = "max-w-[85%] rounded-xl border px-3 py-2 shadow-sm " + (
+        isMe ? "border-red-200 bg-red-600 text-white" : "border-gray-200 bg-white text-gray-900"
+      );
+
+      const meta = document.createElement("div");
+      meta.className = "mb-1 text-[11px] font-medium " + (isMe ? "text-red-100" : "text-gray-500");
+      meta.textContent = author + " • " + formatTime(timestamp);
+
+      const body = document.createElement("div");
+      body.className = "text-sm whitespace-pre-wrap break-words";
+      body.textContent = text;
+
+      bubble.appendChild(meta);
+      bubble.appendChild(body);
+      row.appendChild(bubble);
+      chatContainer.appendChild(row);
+
+      if (isNearBottom(chatContainer)) {
+        scrollToBottom();
+      }
+    }
+
+    function sendMessage() {
+      const value = normalizeMessage(chatInput.value);
+      if (!value || value.length > maxLength) {
+        return;
+      }
+
+      const payload = {
+        text: value,
+        user: userName,
+        userId,
+        timestamp: Date.now()
+      };
+
+      setStatus("Sending...");
+      chatButton.disabled = true;
+
+      roomRef.push(payload)
+        .then(() => {
+          chatInput.value = "";
+          updateButtonState();
+          setStatus("Connected");
+          scrollToBottom();
+        })
+        .catch((error) => {
+          console.error("Chat send error:", error);
+          setStatus("Send failed. Please try again.");
+          updateButtonState();
         });
-        this.notifyListeners('messageAdded', message);
+    }
+
+    function attachExistingMessages() {
+      const existingMessages = Array.from(chatContainer.querySelectorAll(".bwe-chat-message"));
+      if (existingMessages.length) {
+        existingMessages.forEach((node) => node.remove());
+      }
+
+      messagesRef.once("value").then((snapshot) => {
+        const data = snapshot.val() || {};
+        const items = Object.entries(data).sort((a, b) => Number(a[1].timestamp || 0) - Number(b[1].timestamp || 0));
+        items.forEach(([_, message]) => renderMessage(message));
+        scrollToBottom();
+      }).catch(() => {
+        setStatus("Connected");
+      });
+    }
+
+    roomRef.on("value", (snapshot) => {
+      const data = snapshot.val() || {};
+      const hasMessages = Object.keys(data).length > 0;
+      if (!hasMessages) {
+        chatContainer.innerHTML = '<div class="rounded-lg bg-white p-4 text-sm text-gray-600 shadow-sm">No messages yet. Start the conversation.</div>';
       }
     });
 
-    // Listen for user count
-    this.usersRef.on('value', (snapshot) => {
-      const count = snapshot.numChildren();
-      this.notifyListeners('usersUpdated', count);
+    messagesRef.on("child_added", (snapshot) => {
+      const message = snapshot.val();
+      if (!message) return;
+      renderMessage(message);
+      scrollToBottom();
     });
-  }
 
-  /**
-   * Send a message to Firebase
-   */
-  async sendMessage(username, text, userId) {
-    if (!this.messagesRef) {
-      console.error('Messages reference not initialized');
-      return false;
-    }
-
-    try {
-      const messageData = {
-        author: username,
-        userId: userId,
-        text: text,
-        timestamp: firebase.database.ServerValue.TIMESTAMP,
-        likes: 0,
-        isModerator: false
-      };
-
-      await this.messagesRef.push(messageData);
-      console.log('✅ Message sent successfully');
-      return true;
-    } catch (error) {
-      console.error('❌ Error sending message:', error);
-      return false;
-    }
-  }
-
-  /**
-   * Add or update user in online users list
-   */
-  async addUser(username, userId) {
-    if (!this.usersRef) return false;
-
-    try {
-      await this.usersRef.child(userId).set({
-        username: username,
-        joinedAt: firebase.database.ServerValue.TIMESTAMP,
-        status: 'online'
-      });
-      return true;
-    } catch (error) {
-      console.error('Error adding user:', error);
-      return false;
-    }
-  }
-
-  /**
-   * Remove user from online list
-   */
-  async removeUser(userId) {
-    if (!this.usersRef) return false;
-
-    try {
-      await this.usersRef.child(userId).remove();
-      return true;
-    } catch (error) {
-      console.error('Error removing user:', error);
-      return false;
-    }
-  }
-
-  /**
-   * Like a message
-   */
-  async likeMessage(messageId) {
-    if (!this.messagesRef) return false;
-
-    try {
-      const messageRef = this.messagesRef.child(messageId);
-      await messageRef.update({
-        likes: firebase.database.ServerValue.increment(1)
-      });
-      return true;
-    } catch (error) {
-      console.error('Error liking message:', error);
-      return false;
-    }
-  }
-
-  /**
-   * Delete a message (for moderators)
-   */
-  async deleteMessage(messageId) {
-    if (!this.messagesRef) return false;
-
-    try {
-      await this.messagesRef.child(messageId).remove();
-      console.log('✅ Message deleted');
-      return true;
-    } catch (error) {
-      console.error('Error deleting message:', error);
-      return false;
-    }
-  }
-
-  /**
-   * Subscribe to chat events
-   */
-  subscribe(callback) {
-    this.listeners.push(callback);
-  }
-
-  /**
-   * Notify all subscribers
-   */
-  notifyListeners(event, data) {
-    this.listeners.forEach(callback => {
-      callback(event, data);
+    chatInput.addEventListener("input", updateButtonState);
+    chatButton.addEventListener("click", (event) => {
+      event.preventDefault();
+      sendMessage();
     });
+
+    chatInput.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" && !event.shiftKey) {
+        event.preventDefault();
+        sendMessage();
+      }
+    });
+
+    updateButtonState();
+    setStatus("Connected");
+    attachExistingMessages();
+
+    return {
+      sendMessage,
+      destroy() {
+        roomRef.off();
+        messagesRef.off();
+      }
+    };
   }
 
-  /**
-   * Disconnect and cleanup
-   */
-  disconnect() {
-    if (this.channelRef) {
-      this.channelRef.off();
-    }
-    this.listeners = [];
-  }
-}
-
-// Firebase Authentication Helper
-const FirebaseAuth = {
-  /**
-   * Anonymous sign-in
-   */
-  signInAnonymously: async () => {
-    if (!auth) return null;
-    try {
-      const result = await auth.signInAnonymously();
-      console.log('✅ Signed in anonymously as:', result.user.uid);
-      return result.user;
-    } catch (error) {
-      console.error('❌ Error signing in:', error);
-      return null;
-    }
-  },
-
-  /**
-   * Sign in with email
-   */
-  signInWithEmail: async (email, password) => {
-    if (!auth) return null;
-    try {
-      const result = await auth.signInWithEmailAndPassword(email, password);
-      console.log('✅ Signed in as:', result.user.email);
-      return result.user;
-    } catch (error) {
-      console.error('❌ Error signing in:', error);
-      return null;
-    }
-  },
-
-  /**
-   * Create user account
-   */
-  createUser: async (email, password) => {
-    if (!auth) return null;
-    try {
-      const result = await auth.createUserWithEmailAndPassword(email, password);
-      console.log('✅ Account created:', result.user.email);
-      return result.user;
-    } catch (error) {
-      console.error('❌ Error creating account:', error);
-      return null;
-    }
-  },
-
-  /**
-   * Sign out
-   */
-  signOut: async () => {
-    if (!auth) return;
-    try {
-      await auth.signOut();
-      console.log('✅ Signed out');
-    } catch (error) {
-      console.error('❌ Error signing out:', error);
-    }
-  },
-
-  /**
-   * Get current user
-   */
-  getCurrentUser: () => {
-    return auth ? auth.currentUser : null;
-  }
-};
-
-// Export for use in other files
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = {
-    initializeFirebase,
-    FirebaseChat,
-    FirebaseAuth,
-    firebaseConfig
-  };
-}
+  window.BWELiveChat = { init: initLiveChat };
+})();

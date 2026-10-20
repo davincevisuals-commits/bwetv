@@ -3,33 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BWE TV Shows | Browse the Program Catalog</title>
-  <meta name="description" content="Explore the BWE TV show catalog, filter by category, and discover your next programme to watch.">
+  <title>BWE TV Schedule</title>
+  <meta name="description" content="See the BWE TV daily lineup and track the current show on air.">
   <link rel="preconnect" href="https://cdn.jsdelivr.net">
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <link href="site.css" rel="stylesheet">
   <style>
     :root {
-      --bwe-surface: #f8fafc;
-      --bwe-text: #111827;
       --bwe-brand: #7c2d12;
       --bwe-brand-strong: #78350f;
       --bwe-primary: #dc2626;
-      --bwe-primary-hover: #b91c1c;
-      --bwe-border: #d1d5db;
-      --bwe-radius: 0.5rem;
+      --bwe-success: #1f8a4c;
+      --bwe-success-hover: #166c3d;
+      --bwe-surface: #f8fafc;
     }
-    body { font-family: "Inter", "Segoe UI", Roboto, Arial, sans-serif; color: var(--bwe-text); line-height: 1.6; }
-    .mobile-menu { transition: all 0.3s ease; }
-    .show-card { transition: all 0.3s ease; }
-    .show-card:hover { transform: translateY(-8px); box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12); }
-    .btn { display: inline-flex; align-items: center; justify-content: center; border-radius: var(--bwe-radius); padding: 0.625rem 1rem; font-weight: 700; transition: background-color 0.2s ease, transform 0.2s ease; }
-    .btn:hover { transform: translateY(-1px); }
-    .btn-primary { background: var(--bwe-primary); color: #fff; }
-    .btn-primary:hover { background: var(--bwe-primary-hover); }
-    .btn-secondary { background: #fff; color: var(--bwe-text); border-color: var(--bwe-border); }
-    .btn-secondary:hover { background: #f9fafb; }
-    .category-filter.active { background: var(--bwe-primary); color: #fff; border-color: var(--bwe-primary); }
+    .btn-success { background: var(--bwe-success); color: #fff; }
+    .btn-success:hover { background: var(--bwe-success-hover); }
     .brand-header { background: var(--bwe-brand); }
     .brand-header-sub { background: var(--bwe-brand-strong); }
     .section-surface { background: var(--bwe-surface); }
@@ -67,14 +56,23 @@
     </nav>
   </header>
 
-  <main id="main-content" class="site-shell px-6 py-10">
-    <section class="mb-8 rounded-2xl bg-gradient-to-r from-red-600 to-red-800 p-8 text-white">
-      <h1 class="text-4xl font-bold">BWE TV Shows</h1>
-      <p class="mt-2">Browse our catalog and find the programs that match your viewing interests.</p>
+  <main id="main-content">
+    <section class="bg-gradient-to-r from-red-600 to-red-800 px-6 py-8 text-center text-white">
+      <div class="site-shell">
+        <h1 class="mb-4 text-3xl font-bold md:text-4xl">BWE TV Schedule</h1>
+        <p class="mx-auto mb-6 max-w-3xl text-lg opacity-90">See what is on air now, plan your viewing, and share the daily lineup with your audience.</p>
+        <div id="currentShowInfo" class="mb-6"><p class="text-lg font-semibold">Loading...</p></div>
+        <div class="mx-auto mb-4 max-w-4xl overflow-hidden rounded-xl shadow-2xl">
+          <img src="assets/images/logo 1.png" alt="BWE TV schedule preview" class="w-full object-cover" style="max-height: 240px;">
+        </div>
+      </div>
     </section>
 
-    <div id="showFilters" class="mb-6 flex flex-wrap gap-2"></div>
-    <section id="showsContainer" class="grid gap-6 md:grid-cols-2 xl:grid-cols-3"></section>
+    <section class="section-surface px-6 py-8">
+      <div class="site-shell">
+        <div id="programsContainer" class="grid gap-5 md:grid-cols-2 xl:grid-cols-3"></div>
+      </div>
+    </section>
   </main>
 
   <footer class="brand-header mt-8 p-4 text-center text-white">
@@ -84,7 +82,7 @@
         <a href="about.html" class="hover:text-yellow-200 transition">About</a>
         <a href="privacy.html" class="hover:text-yellow-200 transition">Privacy</a>
         <a href="contact.html" class="hover:text-yellow-200 transition">Contact</a>
-        <a href="schedule.html" class="hover:text-yellow-200 transition">Programs</a>
+        <a href="community.html" class="hover:text-yellow-200 transition">Community</a>
         <a href="episodes.html" class="hover:text-yellow-200 transition">Episodes</a>
       </div>
     </div>
