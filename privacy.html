@@ -18,10 +18,7 @@
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <link href="site.css" rel="stylesheet">
   <style>
-    :root {
-      --bwe-brand: #7c2d12;
-      --bwe-brand-strong: #78350f;
-    }
+    :root { --bwe-brand: #7c2d12; --bwe-brand-strong: #78350f; }
     .brand-header { background: var(--bwe-brand); }
     .brand-header-sub { background: var(--bwe-brand-strong); }
   </style>
@@ -31,15 +28,11 @@
 
   <header class="brand-header sticky top-0 z-50 text-white shadow-lg">
     <div class="site-shell flex items-center justify-between p-4">
-      <a href="index.html" class="brand-mark" aria-label="BWE TV home">
-        <img src="assets/images/logo%201.png" alt="BWE TV logo" class="brand-logo">
-        <span class="brand-wordmark">BWE TV</span>
-      </a>
+      <a href="index.html" class="text-2xl font-bold">BWE <span class="bg-red-600 px-2">TV</span></a>
       <nav class="hidden md:flex space-x-6" aria-label="Primary navigation">
         <a href="index.html" data-nav-link class="hover:text-yellow-200 transition">Home</a>
         <a href="schedule.html" data-nav-link class="hover:text-yellow-200 transition">Programs</a>
         <a href="shows.html" data-nav-link class="hover:text-yellow-200 transition">Shows</a>
-        <a href="episodes.html" data-nav-link class="hover:text-yellow-200 transition">Episodes</a>
         <a href="community.html" data-nav-link class="hover:text-yellow-200 transition">Community</a>
         <a href="live-chat.html" data-nav-link class="hover:text-yellow-200 transition">Live Chat</a>
       </nav>
@@ -51,30 +44,19 @@
         <a href="index.html" data-nav-link class="hover:text-yellow-200 transition">Home</a>
         <a href="schedule.html" data-nav-link class="hover:text-yellow-200 transition">Programs</a>
         <a href="shows.html" data-nav-link class="hover:text-yellow-200 transition">Shows</a>
-        <a href="episodes.html" data-nav-link class="hover:text-yellow-200 transition">Episodes</a>
         <a href="community.html" data-nav-link class="hover:text-yellow-200 transition">Community</a>
         <a href="live-chat.html" data-nav-link class="hover:text-yellow-200 transition">Live Chat</a>
       </div>
     </nav>
   </header>
 
-  <main id="main-content" class="site-shell px-6 py-10">
-    <div class="max-w-4xl rounded-2xl bg-white p-8 shadow-sm">
+  <main id="main-content" class="px-6 py-10">
+    <div class="site-shell max-w-4xl rounded-2xl bg-white p-8 shadow-sm">
       <h1 class="text-3xl font-bold text-gray-900">Privacy Notice</h1>
-      <p class="mt-4 text-gray-600">We respect the privacy of visitors, community members, and live chat participants. This notice explains how information is handled on BWE TV.</p>
-      <div class="mt-8 space-y-6 text-gray-700">
-        <section>
-          <h2 class="text-xl font-bold text-gray-900">Information we collect</h2>
-          <p class="mt-2">We may collect basic usage details, contact information you choose to share, and chat content when you participate in interactive features.</p>
-        </section>
-        <section>
-          <h2 class="text-xl font-bold text-gray-900">How we use it</h2>
-          <p class="mt-2">Information is used to improve the viewing experience, support the live community, and provide a safer, more relevant platform.</p>
-        </section>
-        <section>
-          <h2 class="text-xl font-bold text-gray-900">Your choices</h2>
-          <p class="mt-2">You can choose not to share personal details and can avoid posting sensitive information in public features such as live chat.</p>
-        </section>
+      <div class="mt-4 space-y-4 text-gray-600">
+        <p>BWE TV uses basic website technologies and community tools to support live chat, account access, and site updates.</p>
+        <p>If you join the live chat or community area, your selected guest name or signed-in email identifier may be shown alongside your messages.</p>
+        <p>Use the contact page for privacy questions or to request follow-up regarding published community content.</p>
       </div>
     </div>
   </main>
@@ -87,7 +69,6 @@
         <a href="contact.html" class="hover:text-yellow-200 transition">Contact</a>
         <a href="schedule.html" class="hover:text-yellow-200 transition">Programs</a>
         <a href="community.html" class="hover:text-yellow-200 transition">Community</a>
-        <a href="episodes.html" class="hover:text-yellow-200 transition">Episodes</a>
       </div>
     </div>
   </footer>

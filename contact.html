@@ -18,10 +18,7 @@
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <link href="site.css" rel="stylesheet">
   <style>
-    :root {
-      --bwe-brand: #7c2d12;
-      --bwe-brand-strong: #78350f;
-    }
+    :root { --bwe-brand: #7c2d12; --bwe-brand-strong: #78350f; }
     .brand-header { background: var(--bwe-brand); }
     .brand-header-sub { background: var(--bwe-brand-strong); }
   </style>
@@ -31,15 +28,11 @@
 
   <header class="brand-header sticky top-0 z-50 text-white shadow-lg">
     <div class="site-shell flex items-center justify-between p-4">
-      <a href="index.html" class="brand-mark" aria-label="BWE TV home">
-        <img src="assets/images/logo%201.png" alt="BWE TV logo" class="brand-logo">
-        <span class="brand-wordmark">BWE TV</span>
-      </a>
+      <a href="index.html" class="text-2xl font-bold">BWE <span class="bg-red-600 px-2">TV</span></a>
       <nav class="hidden md:flex space-x-6" aria-label="Primary navigation">
         <a href="index.html" data-nav-link class="hover:text-yellow-200 transition">Home</a>
         <a href="schedule.html" data-nav-link class="hover:text-yellow-200 transition">Programs</a>
         <a href="shows.html" data-nav-link class="hover:text-yellow-200 transition">Shows</a>
-        <a href="episodes.html" data-nav-link class="hover:text-yellow-200 transition">Episodes</a>
         <a href="community.html" data-nav-link class="hover:text-yellow-200 transition">Community</a>
         <a href="live-chat.html" data-nav-link class="hover:text-yellow-200 transition">Live Chat</a>
       </nav>
@@ -51,21 +44,25 @@
         <a href="index.html" data-nav-link class="hover:text-yellow-200 transition">Home</a>
         <a href="schedule.html" data-nav-link class="hover:text-yellow-200 transition">Programs</a>
         <a href="shows.html" data-nav-link class="hover:text-yellow-200 transition">Shows</a>
-        <a href="episodes.html" data-nav-link class="hover:text-yellow-200 transition">Episodes</a>
         <a href="community.html" data-nav-link class="hover:text-yellow-200 transition">Community</a>
         <a href="live-chat.html" data-nav-link class="hover:text-yellow-200 transition">Live Chat</a>
       </div>
     </nav>
   </header>
 
-  <main id="main-content" class="site-shell px-6 py-10">
-    <div class="max-w-3xl rounded-2xl bg-white p-8 shadow-sm">
+  <main id="main-content" class="px-6 py-10">
+    <div class="site-shell max-w-4xl rounded-2xl bg-white p-8 shadow-sm">
       <h1 class="text-3xl font-bold text-gray-900">Contact BWE TV</h1>
-      <p class="mt-4 text-gray-600">We welcome partnerships, feedback, inquiries, and support conversations from viewers, sponsors, and community members.</p>
-      <div class="mt-8 space-y-4 text-gray-700">
-        <p><strong>Email:</strong> hello@bwetv.live</p>
-        <p><strong>Location:</strong> Bweyale Town Council, Kiryandongo District, Uganda</p>
-        <p><strong>Support:</strong> Reach out for program requests, collaboration opportunities, and community questions.</p>
+      <div class="mt-6 grid gap-6 md:grid-cols-2">
+        <section class="rounded-xl bg-gray-50 p-5">
+          <h2 class="text-xl font-bold text-gray-900">General enquiries</h2>
+          <p class="mt-3 text-gray-600">For feedback, programme questions, or community follow-up, please reach out through the support channels already shared by BWE TV.</p>
+        </section>
+        <section class="rounded-xl bg-gray-50 p-5">
+          <h2 class="text-xl font-bold text-gray-900">Support the mission</h2>
+          <p class="mt-3 text-gray-600">Visit the community page for donation and partnership options, including PayPal.Me and MTN MoMo support.</p>
+          <a href="community.html" class="mt-4 inline-flex rounded bg-red-600 px-4 py-3 font-semibold text-white">Go to Community Support</a>
+        </section>
       </div>
     </div>
   </main>
@@ -78,7 +75,6 @@
         <a href="privacy.html" class="hover:text-yellow-200 transition">Privacy</a>
         <a href="schedule.html" class="hover:text-yellow-200 transition">Programs</a>
         <a href="community.html" class="hover:text-yellow-200 transition">Community</a>
-        <a href="episodes.html" class="hover:text-yellow-200 transition">Episodes</a>
       </div>
     </div>
   </footer>

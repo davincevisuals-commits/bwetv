@@ -1,168 +1,120 @@
-/**
- * BWE TV - Firebase Configuration & Initialization
- * Shared across the website so the live chat and community features all use the same backend.
- */
-
-const firebaseConfig = {
-  apiKey: "AIzaSyCg9fxgrXlEuKW_m5MvDnG26Uf6lLdiYik",
-  authDomain: "bwetv-ug.firebaseapp.com",
-  databaseURL: "https://bwetv-ug-default-rtdb.firebaseio.com",
-  projectId: "bwetv-ug",
-  storageBucket: "bwetv-ug.firebasestorage.app",
-  messagingSenderId: "481870926362",
-  appId: "1:481870926362:web:f406a0f135449ccfaa77a3"
-};
-
-window.FIREBASE_CONFIG = firebaseConfig;
-
-let db = null;
-let auth = null;
-
-function initializeFirebase() {
-  if (typeof window === "undefined") {
-    return false;
-  }
-
-  const firebase = window.firebase;
-  if (!firebase) {
-    console.warn("Firebase SDK not loaded yet. Please include firebase-app-compat, firebase-auth-compat, and firebase-database-compat before this script.");
-    return false;
-  }
-
-  if (!firebase.apps || !firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
-  }
-
-  if (typeof firebase.database !== "function" || typeof firebase.auth !== "function") {
-    console.warn("Firebase database/auth API not available. Please include firebase-auth-compat and firebase-database-compat.");
-    return false;
-  }
-
-  db = firebase.database();
-  auth = firebase.auth();
-  console.log("Firebase initialized for BWE TV");
-  return true;
-}
-
-class FirebaseChat {
-  constructor(channelId = "live-chat") {
-    this.channelId = channelId;
-    this.channelRef = null;
-    this.messagesRef = null;
-    this.usersRef = null;
-    this.messages = [];
-    this.listeners = [];
-
-    if (db) {
-      this.setupReferences();
-      this.setupListeners();
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BWE TV Community | Chat, Discussions & Support</title>
+  <meta name="description" content="Join the BWE TV community to chat live, share discussion posts, and support the network.">
+  <meta property="og:title" content="BWE TV Community | Chat, Discussions & Support">
+  <meta property="og:description" content="Join the BWE TV community to chat live, share discussion posts, and support the network.">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="BWE TV">
+  <meta property="og:url" content="https://davincevisuals-commits.github.io/bwetv/community.html">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="BWE TV Community | Chat, Discussions & Support">
+  <meta name="twitter:description" content="Join the BWE TV community to chat live, share discussion posts, and support the network.">
+  <link rel="canonical" href="https://davincevisuals-commits.github.io/bwetv/community.html">
+  <link rel="preconnect" href="https://cdn.jsdelivr.net">
+  <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link href="site.css" rel="stylesheet">
+  <style>
+    :root {
+      --bwe-brand: #7c2d12;
+      --bwe-brand-strong: #78350f;
+      --bwe-primary: #dc2626;
+      --bwe-accent: #2563eb;
+      --bwe-surface: #f8fafc;
     }
-  }
+    .brand-header { background: var(--bwe-brand); }
+    .brand-header-sub { background: var(--bwe-brand-strong); }
+  </style>
+</head>
+<body class="bg-white text-black">
+  <a class="skip-link" href="#main-content">Skip to main content</a>
 
-  setupReferences() {
-    this.channelRef = db.ref(`channels/${this.channelId}`);
-    this.messagesRef = db.ref(`channels/${this.channelId}/messages`);
-    this.usersRef = db.ref(`channels/${this.channelId}/users`);
-  }
+  <header class="brand-header sticky top-0 z-50 text-white shadow-lg">
+    <div class="site-shell flex items-center justify-between p-4">
+      <a href="index.html" class="text-2xl font-bold">BWE <span class="bg-red-600 px-2">TV</span></a>
+      <nav class="hidden md:flex space-x-6" aria-label="Primary navigation">
+        <a href="index.html" data-nav-link class="hover:text-yellow-200 transition">Home</a>
+        <a href="schedule.html" data-nav-link class="hover:text-yellow-200 transition">Programs</a>
+        <a href="shows.html" data-nav-link class="hover:text-yellow-200 transition">Shows</a>
+        <a href="community.html" data-nav-link class="hover:text-yellow-200 transition">Community</a>
+        <a href="live-chat.html" data-nav-link class="hover:text-yellow-200 transition">Live Chat</a>
+      </nav>
+      <button id="mobileMenuBtn" class="md:hidden rounded p-2 text-2xl transition hover:bg-yellow-800" aria-expanded="false" aria-controls="mobileMenu" aria-label="Open navigation menu">☰</button>
+    </div>
+    <nav id="mobileMenu" class="mobile-menu hidden brand-header-sub md:hidden" aria-label="Mobile navigation">
+      <div class="site-shell flex flex-col space-y-3 p-4">
+        <a href="index.html" data-nav-link class="hover:text-yellow-200 transition">Home</a>
+        <a href="schedule.html" data-nav-link class="hover:text-yellow-200 transition">Programs</a>
+        <a href="shows.html" data-nav-link class="hover:text-yellow-200 transition">Shows</a>
+        <a href="community.html" data-nav-link class="hover:text-yellow-200 transition">Community</a>
+        <a href="live-chat.html" data-nav-link class="hover:text-yellow-200 transition">Live Chat</a>
+      </div>
+    </nav>
+  </header>
 
-  setupListeners() {
-    if (!this.messagesRef) return;
+  <main id="main-content">
+    <section class="bg-gradient-to-r from-red-600 to-red-800 px-6 py-10 text-center text-white">
+      <div class="site-shell">
+        <h1 class="mb-3 text-4xl font-bold">Join the BWE TV Community</h1>
+        <p class="mx-auto max-w-3xl text-lg opacity-90">Chat with viewers in real time, share your thoughts on the latest programmes, and support the mission behind BWE TV.</p>
+      </div>
+    </section>
 
-    this.messagesRef.limitToLast(50).on("child_added", (snapshot) => {
-      const message = snapshot.val();
-      if (message) {
-        this.messages.push({ id: snapshot.key, ...message });
-        this.notifyListeners("messageAdded", message);
-      }
-    });
+    <section id="loginSection" class="bg-gray-100 px-6 py-8">
+      <div class="site-shell max-w-3xl rounded-2xl bg-white p-6 shadow-sm">
+        <h2 class="text-2xl font-bold text-gray-900">Access the community</h2>
+        <p class="mt-2 text-gray-600">Sign in with email, create an account, or continue as a guest to join the live chat and discussions.</p>
 
-    if (this.usersRef) {
-      this.usersRef.on("value", (snapshot) => {
-        this.notifyListeners("usersUpdated", snapshot.numChildren());
-      });
-    }
-  }
+        <div class="mt-6 grid gap-4 md:grid-cols-2">
+          <div>
+            <label for="emailInput" class="mb-1 block text-sm font-semibold text-gray-700">Email address</label>
+            <input id="emailInput" type="email" placeholder="you@example.com" class="w-full rounded border p-3">
+          </div>
+          <div>
+            <label for="passwordInput" class="mb-1 block text-sm font-semibold text-gray-700">Password</label>
+            <input id="passwordInput" type="password" placeholder="Enter your password" class="w-full rounded border p-3">
+          </div>
+        </div>
 
-  async sendMessage(username, text, userId) {
-    if (!this.messagesRef) {
-      console.error("Messages reference not initialized");
-      return false;
-    }
+        <div class="mt-5 flex flex-col gap-3 md:flex-row">
+          <button id="loginBtn" class="rounded bg-blue-600 px-4 py-3 font-semibold text-white">Login</button>
+          <button id="signupBtn" class="rounded bg-green-600 px-4 py-3 font-semibold text-white">Create account</button>
+          <button id="anonBtn" class="rounded border border-gray-300 px-4 py-3 font-semibold text-gray-700">Continue as Guest</button>
+        </div>
 
-    try {
-      await this.messagesRef.push({
-        author: username,
-        userId,
-        text,
-        timestamp: window.firebase.database.ServerValue.TIMESTAMP,
-        likes: 0,
-        isModerator: false
-      });
-      return true;
-    } catch (error) {
-      console.error("Error sending message:", error);
-      return false;
-    }
-  }
+        <p id="communityStatus" class="mt-4 text-sm text-gray-600">Choose how you would like to participate.</p>
+      </div>
+    </section>
 
-  async addUser(username, userId) {
-    if (!this.usersRef) return false;
-    try {
-      await this.usersRef.child(userId).set({
-        username,
-        joinedAt: window.firebase.database.ServerValue.TIMESTAMP,
-        status: "online"
-      });
-      return true;
-    } catch (error) {
-      console.error("Error adding user:", error);
-      return false;
-    }
-  }
+    <section id="communitySection" class="hidden bg-gray-50 px-6 py-8">
+      <div class="site-shell space-y-8">
+        <div class="flex flex-col gap-3 rounded-2xl bg-white p-5 shadow-sm md:flex-row md:items-center md:justify-between">
+          <div>
+            <h2 class="text-2xl font-bold text-gray-900">Welcome to the community space</h2>
+            <p class="mt-1 text-sm text-gray-600">You are connected as <span id="currentViewer" class="font-semibold text-gray-900">Guest</span>.</p>
+          </div>
+          <button id="signOutBtn" class="rounded border border-gray-300 px-4 py-2 font-semibold text-gray-700" type="button">Sign out</button>
+        </div>
+      </div>
+    </section>
+  </main>
 
-  subscribe(callback) {
-    this.listeners.push(callback);
-  }
+  <footer class="brand-header mt-8 p-4 text-center text-white">
+    <div class="site-shell">
+      <p>© 2026 BWE TV</p>
+      <div class="footer-link-grid mt-3 text-sm font-semibold">
+        <a href="about.html" class="hover:text-yellow-200 transition">About</a>
+        <a href="privacy.html" class="hover:text-yellow-200 transition">Privacy</a>
+        <a href="contact.html" class="hover:text-yellow-200 transition">Contact</a>
+        <a href="schedule.html" class="hover:text-yellow-200 transition">Programs</a>
+      </div>
+    </div>
+  </footer>
 
-  notifyListeners(event, data) {
-    this.listeners.forEach((callback) => callback(event, data));
-  }
-
-  disconnect() {
-    if (this.channelRef) {
-      this.channelRef.off();
-    }
-    this.listeners = [];
-  }
-}
-
-const FirebaseAuth = {
-  async signInAnonymously() {
-    if (!auth) return null;
-    try {
-      const result = await auth.signInAnonymously();
-      return result.user;
-    } catch (error) {
-      console.error("Anonymous sign-in failed:", error);
-      return null;
-    }
-  },
-
-  getCurrentUser() {
-    return auth ? auth.currentUser : null;
-  }
-};
-
-window.initializeFirebase = initializeFirebase;
-window.FirebaseChat = FirebaseChat;
-window.FirebaseAuth = FirebaseAuth;
-window.FIREBASE_CONFIG = firebaseConfig;
-
-if (typeof module !== "undefined" && module.exports) {
-  module.exports = {
-    initializeFirebase,
-    FirebaseChat,
-    FirebaseAuth,
-    firebaseConfig
-  };
-}
+  <script src="content.js" defer></script>
+</body>
+</html>
