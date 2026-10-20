@@ -59,7 +59,8 @@ main { display: block; }
 .brand-mark {
   display: inline-flex;
   align-items: center;
-  gap: 0.7rem;
+  justify-content: center;
+  gap: 0;
   color: #fff;
   text-decoration: none;
   white-space: nowrap;
@@ -69,23 +70,19 @@ main { display: block; }
 .brand-mark:hover { color: #fff; }
 .brand-logo {
   display: block;
-  width: clamp(2.5rem, 3vw, 3.5rem);
+  width: clamp(3rem, 3.7vw, 4.25rem);
   height: auto;
-  max-height: 3.5rem;
+  max-height: 4.25rem;
   object-fit: contain;
-  border-radius: 0.75rem;
-  background: rgba(255,255,255,0.08);
-  padding: 0.2rem;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.18);
+  border-radius: 0;
+  background: transparent;
+  padding: 0;
+  box-shadow: none;
+  filter: drop-shadow(0 6px 12px rgba(0,0,0,0.18));
   flex-shrink: 0;
 }
 .brand-wordmark {
-  display: inline-block;
-  font-size: clamp(1.1rem, 1.8vw, 2rem);
-  font-weight: 900;
-  letter-spacing: -0.06em;
-  line-height: 1;
-  white-space: nowrap;
+  display: none;
 }
 
 /* ── Header / Nav ── */
@@ -100,7 +97,7 @@ main { display: block; }
 .hero-section::before { content: ''; position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,0.10), rgba(0,0,0,0.24)); pointer-events: none; }
 .hero-section > * { position: relative; z-index: 1; }
 .hero-copy { max-width: 40rem; }
-.hero-copy .live-now-label { display: inline-block; margin: 0 0 1rem; font-size: 0.98rem; font-weight: 800; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(234,195,125,0.98); text-shadow: 0 3px 18px rgba(0,0,0,0.25); }
+.hero-copy .live-now-label { display: inline-block; margin: 0 0 1rem; font-size: 0.98rem; font-weight: 800; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(234,195,125,0.98); text-shadow: 0 3px 10px rgba(0,0,0,0.28); }
 .hero-copy h1 { max-width: 1180px; margin: 0 0 1.2rem; font-size: clamp(2.8rem, 5.1vw, 6rem); line-height: 0.98; font-weight: 900; letter-spacing: -0.05em; color: #fff; text-shadow: 0 3px 12px rgba(0,0,0,0.5); }
 .hero-copy .lead { max-width: 70rem; margin: 0 0 1.7rem; font-size: clamp(1.25rem, 2vw, 2.05rem); line-height: 1.25; color: rgba(255,255,255,0.86); font-weight: 400; text-shadow: 0 2px 8px rgba(0,0,0,0.22); }
 .hero-copy .live-status-bar { display: inline-flex; align-items: center; gap: 0.85rem; width: min(100%, 86rem); padding: 1.1rem 1.35rem; border-radius: 0.9rem; background: linear-gradient(135deg, rgba(61,31,14,0.92), rgba(43,39,47,0.68)); border: 1px solid rgba(255,255,255,0.18); backdrop-filter: blur(10px); box-shadow: 0 14px 28px rgba(0,0,0,0.15); }
@@ -132,8 +129,8 @@ main { display: block; }
 .bwe-footer-inner { display: grid; grid-template-columns: 1.2fr 1.8fr 1.2fr; align-items: center; gap: 1.5rem; min-height: 11rem; padding: 2.2rem 0 1.6rem; }
 .bwe-footer-brand { display: flex; justify-content: center; }
 .bwe-footer-logo { display: inline-flex; align-items: center; justify-content: center; gap: 0.65rem; font-weight: 900; font-size: clamp(1.7rem,2.1vw,3rem); letter-spacing: -0.06em; color: #fff; }
-.bwe-footer-logo img { width: clamp(2.5rem, 3vw, 3.5rem); height: auto; max-height: 3.5rem; object-fit: contain; border-radius: 0.7rem; background: rgba(255,255,255,0.08); padding: 0.2rem; }
-.bwe-footer-logo span { display: inline-block; margin-left: 0.1rem; padding: 0.15rem 0.55rem; border-radius: 0.3rem; background: linear-gradient(135deg,#ff5d4d,#dc2b1b); box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
+.bwe-footer-logo img { width: clamp(3rem, 3.8vw, 4.25rem); height: auto; max-height: 4.25rem; object-fit: contain; border-radius: 0; background: transparent; padding: 0; box-shadow: none; filter: drop-shadow(0 6px 10px rgba(0,0,0,0.18)); }
+.bwe-footer-logo span { display: none; }
 .bwe-footer-center { text-align: center; }
 .bwe-footer-tagline { margin: 0 0 1.1rem; font-size: clamp(1rem,1.4vw,1.75rem); line-height: 1.3; color: rgba(255,255,255,0.92); font-weight: 400; font-style: italic; }
 .bwe-footer-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.9rem 1.7rem; font-size: clamp(0.95rem,1vw,1.35rem); font-weight: 700; }
@@ -154,8 +151,7 @@ main { display: block; }
 
 /* ── Responsive ── */
 @media (max-width: 767px) {
-  .brand-logo { width: clamp(2.2rem, 7vw, 2.9rem); max-height: 2.9rem; }
-  .brand-wordmark { font-size: clamp(1rem, 4vw, 1.4rem); }
+  .brand-logo { width: clamp(2.6rem, 8vw, 3.3rem); max-height: 3.3rem; }
   .chat-shell { height: 24rem; max-height: 24rem; }
   .stack-mobile { flex-direction: column; align-items: stretch; }
   .footer-link-grid { gap: 0.75rem 1rem; }
