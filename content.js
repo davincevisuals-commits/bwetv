@@ -1,29 +1,31 @@
 const SITE_TZ_OFFSET = 3;
 const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 const CHAT_STORAGE_KEY = "bwetv-live-chat";
+const COMMUNITY_USER_KEY = "bwetv-community-user";
+const COMMUNITY_STATS_KEY = "bwetv-community-stats";
 
 const PROGRAMS = [
-  { id: "morning-news", day: "Monday", title: "Morning News", start: "08:00", end: "09:00", category: "News", description: "Local stories, updates, and voices from Bweyale and nearby communities.", image: "assets/images/bweyale-hero.svg" },
-  { id: "community-hour", day: "Monday", title: "Community Hour", start: "11:00", end: "12:00", category: "Talk", description: "A space for local voices, conversations, and community updates.", image: "assets/images/logo 1.png" },
-  { id: "kids-corner", day: "Monday", title: "Kids Corner", start: "15:00", end: "16:00", category: "Kids", description: "Fun, educational, and age-appropriate content for children.", image: "assets/images/logo 1.png" },
-  { id: "farm-focus", day: "Tuesday", title: "Farm Focus", start: "09:00", end: "10:00", category: "Agriculture", description: "Practical farming advice and local agricultural discussions.", image: "assets/images/bweyale-hero.svg" },
-  { id: "community-hour", day: "Tuesday", title: "Community Hour", start: "11:00", end: "12:00", category: "Talk", description: "Open dialogue around local issues, opportunities, and everyday life.", image: "assets/images/logo 1.png" },
-  { id: "culture-show", day: "Tuesday", title: "Culture Show", start: "18:00", end: "19:00", category: "Culture", description: "Music, heritage, and stories that celebrate local identity.", image: "assets/images/logo 2.png" },
-  { id: "morning-news", day: "Wednesday", title: "Morning News", start: "08:00", end: "09:00", category: "News", description: "The latest local headlines and community reporting.", image: "assets/images/bweyale-hero.svg" },
-  { id: "youth-voice", day: "Wednesday", title: "Youth Voice", start: "13:00", end: "14:00", category: "Youth", description: "Youth perspectives, creativity, and community leadership.", image: "assets/images/logo 2.png" },
-  { id: "evening-chat", day: "Wednesday", title: "Evening Chat", start: "19:00", end: "20:00", category: "Talk", description: "A relaxed conversation show connecting community ideas and stories.", image: "assets/images/logo 1.png" },
-  { id: "health-watch", day: "Thursday", title: "Health Watch", start: "09:30", end: "10:30", category: "Health", description: "Health awareness, wellness, and local care information.", image: "assets/images/bweyale-hero.svg" },
-  { id: "community-hour", day: "Thursday", title: "Community Hour", start: "11:00", end: "12:00", category: "Talk", description: "A community forum for public conversation and engagement.", image: "assets/images/logo 1.png" },
-  { id: "music-mix", day: "Thursday", title: "Music Mix", start: "17:00", end: "18:00", category: "Music", description: "A lively mix of local and regional music and entertainment.", image: "assets/images/logo 2.png" },
-  { id: "morning-news", day: "Friday", title: "Morning News", start: "08:00", end: "09:00", category: "News", description: "Daily headlines and updates from the local community.", image: "assets/images/bweyale-hero.svg" },
-  { id: "school-zone", day: "Friday", title: "School Zone", start: "10:00", end: "11:00", category: "Education", description: "Academic news, students, and school community stories.", image: "assets/images/logo 2.png" },
-  { id: "weekend-preview", day: "Friday", title: "Weekend Preview", start: "18:00", end: "19:00", category: "Preview", description: "A preview of the weekend programs and community highlights.", image: "assets/images/logo 1.png" },
-  { id: "day-break", day: "Saturday", title: "Day Break", start: "08:30", end: "09:30", category: "Lifestyle", description: "A relaxing start to the weekend with local perspectives and updates.", image: "assets/images/bweyale-hero.svg" },
-  { id: "sports-hour", day: "Saturday", title: "Sports Hour", start: "12:00", end: "13:00", category: "Sports", description: "Community sports, competition, and local sporting stories.", image: "assets/images/logo 2.png" },
-  { id: "family-night", day: "Saturday", title: "Family Night", start: "19:00", end: "20:30", category: "Entertainment", description: "Family-friendly entertainment and engaging community stories.", image: "assets/images/logo 1.png" },
-  { id: "faith-focus", day: "Sunday", title: "Faith Focus", start: "08:00", end: "09:00", category: "Faith", description: "Community reflection, faith, and spiritual conversation.", image: "assets/images/logo 2.png" },
-  { id: "family-hour", day: "Sunday", title: "Family Hour", start: "12:00", end: "13:00", category: "Family", description: "A warm and friendly family-centered program for the whole community.", image: "assets/images/logo 1.png" },
-  { id: "week-in-review", day: "Sunday", title: "Week in Review", start: "18:00", end: "19:00", category: "Review", description: "A recap of major stories, events, and community highlights from the week.", image: "assets/images/bweyale-hero.svg" }
+  { id: "morning-news", day: "Monday", title: "Morning News", start: "08:00", end: "09:00", category: "News", description: "Local stories, updates, and voices from Bweyale and nearby communities.", image: "assets/intro.jpg" },
+  { id: "community-hour", day: "Monday", title: "Community Hour", start: "11:00", end: "12:00", category: "Talk", description: "A space for local voices, conversations, and community updates.", image: "assets/community.jpg" },
+  { id: "kids-corner", day: "Monday", title: "Kids Corner", start: "15:00", end: "16:00", category: "Kids", description: "Fun, educational, and age-appropriate content for children.", image: "assets/kids.jpg" },
+  { id: "farm-focus", day: "Tuesday", title: "Farm Focus", start: "09:00", end: "10:00", category: "Agriculture", description: "Practical farming advice and local agricultural discussions.", image: "assets/farm.jpg" },
+  { id: "community-hour", day: "Tuesday", title: "Community Hour", start: "11:00", end: "12:00", category: "Talk", description: "Open dialogue around local issues, opportunities, and everyday life.", image: "assets/community.jpg" },
+  { id: "culture-show", day: "Tuesday", title: "Culture Show", start: "18:00", end: "19:00", category: "Culture", description: "Music, heritage, and stories that celebrate local identity.", image: "assets/culture.jpg" },
+  { id: "morning-news", day: "Wednesday", title: "Morning News", start: "08:00", end: "09:00", category: "News", description: "The latest local headlines and community reporting.", image: "assets/intro.jpg" },
+  { id: "youth-voice", day: "Wednesday", title: "Youth Voice", start: "13:00", end: "14:00", category: "Youth", description: "Youth perspectives, creativity, and community leadership.", image: "assets/youth.jpg" },
+  { id: "evening-chat", day: "Wednesday", title: "Evening Chat", start: "19:00", end: "20:00", category: "Talk", description: "A relaxed conversation show connecting community ideas and stories.", image: "assets/community.jpg" },
+  { id: "health-watch", day: "Thursday", title: "Health Watch", start: "09:30", end: "10:30", category: "Health", description: "Health awareness, wellness, and local care information.", image: "assets/health.jpg" },
+  { id: "community-hour", day: "Thursday", title: "Community Hour", start: "11:00", end: "12:00", category: "Talk", description: "A community forum for public conversation and engagement.", image: "assets/community.jpg" },
+  { id: "music-mix", day: "Thursday", title: "Music Mix", start: "17:00", end: "18:00", category: "Music", description: "A lively mix of local and regional music and entertainment.", image: "assets/music.jpg" },
+  { id: "morning-news", day: "Friday", title: "Morning News", start: "08:00", end: "09:00", category: "News", description: "Daily headlines and updates from the local community.", image: "assets/intro.jpg" },
+  { id: "school-zone", day: "Friday", title: "School Zone", start: "10:00", end: "11:00", category: "Education", description: "Academic news, students, and school community stories.", image: "assets/school.jpg" },
+  { id: "weekend-preview", day: "Friday", title: "Weekend Preview", start: "18:00", end: "19:00", category: "Preview", description: "A preview of the weekend programs and community highlights.", image: "assets/weekend.jpg" },
+  { id: "day-break", day: "Saturday", title: "Day Break", start: "08:30", end: "09:30", category: "Lifestyle", description: "A relaxing start to the weekend with local perspectives and updates.", image: "assets/lifestyle.jpg" },
+  { id: "sports-hour", day: "Saturday", title: "Sports Hour", start: "12:00", end: "13:00", category: "Sports", description: "Community sports, competition, and local sporting stories.", image: "assets/sports.jpg" },
+  { id: "family-night", day: "Saturday", title: "Family Night", start: "19:00", end: "20:30", category: "Entertainment", description: "Family-friendly entertainment and engaging community stories.", image: "assets/family.jpg" },
+  { id: "faith-focus", day: "Sunday", title: "Faith Focus", start: "08:00", end: "09:00", category: "Faith", description: "Community reflection, faith, and spiritual conversation.", image: "assets/faith.jpg" },
+  { id: "family-hour", day: "Sunday", title: "Family Hour", start: "12:00", end: "13:00", category: "Family", description: "A warm and friendly family-centered program for the whole community.", image: "assets/family.jpg" },
+  { id: "week-in-review", day: "Sunday", title: "Week in Review", start: "18:00", end: "19:00", category: "Review", description: "A recap of major stories, events, and community highlights from the week.", image: "assets/review.jpg" }
 ];
 
 const COMMUNITY_POSTS = [
@@ -46,11 +48,11 @@ function getLocalDayName() {
 
 function parseTimeToMinutes(timeStr) {
   if (!timeStr || typeof timeStr !== "string") return null;
-  const match = timeStr.trim().match(/^(\d{1,2}):(\d{2})\s*(AM|PM)?$/i);
+  const match = timeStr.trim().match(/^((\d{1,2}):(\d{2}))\s*(AM|PM)?$/i);
   if (!match) return null;
-  let hours = Number(match[1]);
-  const minutes = Number(match[2]);
-  const meridiem = match[3] ? match[3].toUpperCase() : null;
+  let hours = Number(match[2]);
+  const minutes = Number(match[3]);
+  const meridiem = match[4] ? match[4].toUpperCase() : null;
 
   if (meridiem) {
     if (meridiem === "PM" && hours < 12) hours += 12;
@@ -250,7 +252,7 @@ function setReminder() {
 
 function shareSchedule() {
   const selectedDay = document.getElementById("scheduleTitle")?.textContent?.replace(" Schedule", "") || getLocalDayName();
-  const schedule = getProgramsForDay(selectedDay); 
+  const schedule = getProgramsForDay(selectedDay);
   const text = schedule.length
     ? `BWE TV ${selectedDay} schedule:\n${schedule.map((item) => `${item.start} – ${item.end}: ${item.title}`).join("\n")}`
     : `BWE TV ${selectedDay} schedule is currently unavailable.`;
@@ -313,7 +315,7 @@ function renderShows() {
 
     showsContainer.innerHTML = uniqueProgramEntries.map((program) => `
       <article class="show-card overflow-hidden rounded-xl bg-white p-4 shadow-sm ring-1 ring-gray-200">
-        ${program.image ? `<div class="mb-4 h-40 overflow-hidden rounded-lg"><img src="${escapeHtml(program.image)}" alt="${escapeHtml(program.title)}" style="width:100%;height:100%;object-fit:cover;display:block"></div>` : '<div class="mb-4 h-40 rounded-lg bg-gray-100 flex items-center justify-center text-sm text-gray-500">Program</div>'}
+        ${program.image ? `<div class="mb-4 h-40 overflow-hidden rounded-lg"><img src="${escapeHtml(program.image)}" alt="${escapeHtml(program.title)}" style="width:100%;height:100%;object-fit:cover;display:block"></div>` : ''}
         <div class="mb-2 text-xs font-bold uppercase tracking-wide text-red-600">${escapeHtml(program.category || "Program")}</div>
         <h3 class="text-xl font-bold text-gray-900">${escapeHtml(program.title)}</h3>
         <p class="mt-2 text-sm text-gray-600">${escapeHtml(program.description)}</p>
@@ -366,7 +368,122 @@ function readSavedChatMessages() {
 }
 
 function writeSavedChatMessages(messages) {
-  localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(messages.slice(-50)));
+  localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(messages.slice(-50))); 
+}
+
+function syncCommunityStats() {
+  const membersCount = document.getElementById("membersCount");
+  const onlineCount = document.getElementById("onlineCount");
+  const chatCount = document.getElementById("chatCount");
+  const postsCount = document.getElementById("postsCount");
+
+  if (!membersCount && !onlineCount && !chatCount && !postsCount) return;
+
+  const savedUser = JSON.parse(localStorage.getItem(COMMUNITY_USER_KEY) || "null");
+  const baseMembers = 245;
+  const communityBoost = savedUser ? 18 : 0;
+  const memberTotal = baseMembers + communityBoost + Math.max(0, readSavedChatMessages().length - 12);
+  const onlineTotal = Math.max(12, Math.min(80, Math.round(memberTotal * 0.18)));
+  const chatTotal = readSavedChatMessages().length;
+  const topicTotal = COMMUNITY_POSTS.length;
+
+  if (membersCount) membersCount.textContent = String(memberTotal);
+  if (onlineCount) onlineCount.textContent = String(onlineTotal);
+  if (chatCount) chatCount.textContent = String(chatTotal);
+  if (postsCount) postsCount.textContent = String(topicTotal);
+}
+
+function setCommunityUser(user) {
+  const loginSection = document.getElementById("loginSection");
+  const communitySection = document.getElementById("communitySection");
+  const currentViewer = document.getElementById("currentViewer");
+  const communityStatus = document.getElementById("communityStatus");
+
+  localStorage.setItem(COMMUNITY_USER_KEY, JSON.stringify(user));
+
+  if (currentViewer) currentViewer.textContent = user.name || "Guest";
+  if (loginSection) loginSection.classList.add("hidden");
+  if (communitySection) communitySection.classList.remove("hidden");
+  if (communityStatus) communityStatus.textContent = `Welcome back, ${user.name || "community member"}. You are now connected.`;
+
+  syncCommunityStats();
+}
+
+function initializeCommunityAccess() {
+  const loginBtn = document.getElementById("loginBtn");
+  const signupBtn = document.getElementById("signupBtn");
+  const anonBtn = document.getElementById("anonBtn");
+  const signOutBtn = document.getElementById("signOutBtn");
+  const emailInput = document.getElementById("emailInput");
+  const passwordInput = document.getElementById("passwordInput");
+  const communityStatus = document.getElementById("communityStatus");
+
+  const savedUser = JSON.parse(localStorage.getItem(COMMUNITY_USER_KEY) || "null");
+  if (savedUser) {
+    const currentViewer = document.getElementById("currentViewer");
+    const loginSection = document.getElementById("loginSection");
+    const communitySection = document.getElementById("communitySection");
+    if (currentViewer) currentViewer.textContent = savedUser.name || "Guest";
+    if (loginSection) loginSection.classList.add("hidden");
+    if (communitySection) communitySection.classList.remove("hidden");
+  }
+
+  function buildUser(name, email, type = "member") {
+    return {
+      name,
+      email,
+      type,
+      joinedAt: new Date().toISOString()
+    };
+  }
+
+  if (loginBtn) {
+    loginBtn.addEventListener("click", () => {
+      const email = emailInput ? emailInput.value.trim() : "";
+      const password = passwordInput ? passwordInput.value.trim() : "";
+      if (!email || !password) {
+        if (communityStatus) communityStatus.textContent = "Please enter your email and password to sign in.";
+        return;
+      }
+      const userName = email.split("@")[0] || "Community Member";
+      setCommunityUser(buildUser(userName, email, "member"));
+    });
+  }
+
+  if (signupBtn) {
+    signupBtn.addEventListener("click", () => {
+      const email = emailInput ? emailInput.value.trim() : "";
+      const password = passwordInput ? passwordInput.value.trim() : "";
+      const userName = email ? email.split("@")[0] : "New Member";
+      if (!email || !password) {
+        if (communityStatus) communityStatus.textContent = "Create an account with an email and password to join the community.";
+        return;
+      }
+      setCommunityUser(buildUser(userName, email, "member"));
+    });
+  }
+
+  if (anonBtn) {
+    anonBtn.addEventListener("click", () => {
+      setCommunityUser(buildUser("Guest", "guest@bwetv.local", "guest"));
+    });
+  }
+
+  if (signOutBtn) {
+    signOutBtn.addEventListener("click", () => {
+      localStorage.removeItem(COMMUNITY_USER_KEY);
+      const loginSection = document.getElementById("loginSection");
+      const communitySection = document.getElementById("communitySection");
+      const currentViewer = document.getElementById("currentViewer");
+      if (loginSection) loginSection.classList.remove("hidden");
+      if (communitySection) communitySection.classList.add("hidden");
+      if (currentViewer) currentViewer.textContent = "Guest";
+      if (communityStatus) communityStatus.textContent = "You have signed out. Choose how you would like to participate.";
+      syncCommunityStats();
+    });
+  }
+
+  syncCommunityStats();
 }
 
 function renderChatMessages() {
@@ -376,6 +493,7 @@ function renderChatMessages() {
   const messages = readSavedChatMessages();
   if (!messages.length) {
     liveChat.innerHTML = '<div class="rounded-lg bg-white p-4 text-sm text-gray-600 shadow-sm">No messages yet. Start the conversation.</div>';
+    syncCommunityStats();
     return;
   }
 
@@ -390,6 +508,7 @@ function renderChatMessages() {
   `).join("");
 
   liveChat.scrollTop = liveChat.scrollHeight;
+  syncCommunityStats();
 }
 
 function initializeChat() {
@@ -452,6 +571,7 @@ function initializeWebsite() {
   renderShows();
   renderCommunityPosts();
   initializeChat();
+  initializeCommunityAccess();
   initializeMobileNavigation();
   markActiveNavigation();
 
@@ -484,7 +604,9 @@ window.BWE = {
   renderShows,
   renderCommunityPosts,
   initializeChat,
-  initializeMobileNavigation
+  initializeMobileNavigation,
+  syncCommunityStats,
+  initializeCommunityAccess
 };
 
 window.addEventListener("load", () => {
@@ -492,6 +614,7 @@ window.addEventListener("load", () => {
   if (scriptContext.page === "schedule") {
     renderSchedulePage(getLocalDayName());
   }
+  syncCommunityStats();
 });
 
 if (typeof window !== "undefined") {
