@@ -19,17 +19,27 @@ let db = null;
 let auth = null;
 
 function initializeFirebase() {
-  if (typeof window === "undefined" || !window.firebase) {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  const firebase = window.firebase;
+  if (!firebase) {
     console.warn("Firebase SDK not loaded yet. Please include firebase-app-compat, firebase-auth-compat, and firebase-database-compat before this script.");
     return false;
   }
 
-  if (!window.firebase.apps || !window.firebase.apps.length) {
-    window.firebase.initializeApp(firebaseConfig);
+  if (!firebase.apps || !firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
   }
 
-  db = window.firebase.database();
-  auth = window.firebase.auth();
+  if (typeof firebase.database !== "function" || typeof firebase.auth !== "function") {
+    console.warn("Firebase database/auth API not available. Please include firebase-auth-compat and firebase-database-compat.");
+    return false;
+  }
+
+  db = firebase.database();
+  auth = firebase.auth();
   console.log("Firebase initialized for BWE TV");
   return true;
 }
