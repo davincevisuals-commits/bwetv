@@ -1,83 +1,195 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BWE TV Shows</title>
-  <meta name="description" content="Browse the BWE TV shows and discover the programs available on the network.">
-  <link rel="preconnect" href="https://cdn.jsdelivr.net">
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-  <link href="site.css" rel="stylesheet">
-  <style>
-    :root {
-      --bwe-brand: #7c2d12;
-      --bwe-brand-strong: #78350f;
-      --bwe-primary: #dc2626;
-      --bwe-accent: #2563eb;
-      --bwe-surface: #f8fafc;
+(function () {
+  const DEFAULT_CHAT_PATH = 'channels/live-chat/messages';
+  const DEFAULT_LIMIT = 50;
+  const DEFAULT_MAX_LENGTH = 260;
+
+  function getStoredName() {
+    try {
+      const saved = localStorage.getItem('bwetv-chat-name');
+      if (saved) return saved;
+    } catch (error) {}
+
+    const name = 'Guest' + String(Math.random()).toString().slice(2, 6);
+    try {
+      localStorage.setItem('bwetv-chat-name', name);
+    } catch (error) {}
+    return name;
+  }
+
+  function getStoredUserId() {
+    try {
+      const saved = localStorage.getItem('bwetv-chat-user');
+      if (saved) return saved;
+    } catch (error) {}
+
+    const id = 'guest-' + Date.now() + Math.random().toString(16).slice(2, 8);
+    try {
+      localStorage.setItem('bwetv-chat-user', id);
+    } catch (error) {}
+    return id;
+  }
+
+  function normalizeMessage(text) {
+    return String(text || '').replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, '').trim();
+  }
+
+  function formatTime(ts) {
+    const timestamp = Number(ts) || Date.now();
+    const date = new Date(timestamp);
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
+
+  function buildMessageNode(message, userName, userId) {
+    const row = document.createElement('div');
+    const isMe = message.user === userName || message.userId === userId;
+    row.className = 'mb-3 flex ' + (isMe ? 'justify-end' : 'justify-start');
+
+    const bubble = document.createElement('div');
+    bubble.className = 'max-w-[85%] rounded-xl border px-3 py-2 shadow-sm ' + (
+      isMe ? 'border-red-200 bg-red-600 text-white' : 'border-gray-200 bg-white text-gray-900'
+    );
+
+    const meta = document.createElement('div');
+    meta.className = 'mb-1 text-[11px] font-medium ' + (isMe ? 'text-red-100' : 'text-gray-500');
+    meta.textContent = (message.user || message.author || 'Guest') + ' • ' + formatTime(message.timestamp || Date.now());
+
+    const body = document.createElement('div');
+    body.className = 'text-sm whitespace-pre-wrap break-words';
+    body.textContent = message.text || '';
+
+    bubble.appendChild(meta);
+    bubble.appendChild(body);
+    row.appendChild(bubble);
+    return row;
+  }
+
+  function setupSharedChat(options = {}) {
+    const chatContainer = document.getElementById(options.chatContainerId || 'liveChat');
+    const chatInput = document.getElementById(options.chatInputId || 'chatInput');
+    const chatButton = document.getElementById(options.chatButtonId || 'chatBtn');
+    const chatStatus = document.getElementById(options.chatStatusId || 'chatStatus');
+    const chatForm = document.getElementById(options.chatFormId || 'chatForm');
+    const chatPath = options.chatPath || DEFAULT_CHAT_PATH;
+    const maxLength = options.maxLength || DEFAULT_MAX_LENGTH;
+    const limit = options.limit || DEFAULT_LIMIT;
+
+    if (!chatContainer || !chatInput || !chatButton || !chatStatus) {
+      return null;
     }
-    .category-filter { border: 1px solid rgba(124,45,18,.2); }
-    .category-filter.active { background: var(--bwe-primary); color: #fff; border-color: var(--bwe-primary); }
-    .brand-header { background: var(--bwe-brand); }
-    .brand-header-sub { background: var(--bwe-brand-strong); }
-    .section-surface { background: var(--bwe-surface); }
-  </style>
-</head>
-<body class="bg-white text-black">
-  <a class="skip-link" href="#main-content">Skip to main content</a>
 
-  <header class="brand-header sticky top-0 z-50 text-white shadow-lg">
-    <div class="site-shell flex items-center justify-between p-4">
-      <a href="index.html" class="brand-mark" aria-label="BWE TV home">
-        <img src="assets/images/logo%201.png" alt="BWE TV logo" class="brand-logo">
-        <span class="brand-wordmark">BWE TV</span>
-      </a>
-      <nav class="hidden md:flex space-x-6" aria-label="Primary navigation">
-        <a href="index.html" data-nav-link class="hover:text-yellow-200 transition">Home</a>
-        <a href="schedule.html" data-nav-link class="hover:text-yellow-200 transition">Programs</a>
-        <a href="shows.html" data-nav-link class="hover:text-yellow-200 transition">Shows</a>
-        <a href="episodes.html" data-nav-link class="hover:text-yellow-200 transition">Episodes</a>
-        <a href="community.html" data-nav-link class="hover:text-yellow-200 transition">Community</a>
-        <a href="live-chat.html" data-nav-link class="hover:text-yellow-200 transition">Live Chat</a>
-      </nav>
-      <button id="mobileMenuBtn" class="md:hidden rounded p-2 text-2xl transition hover:bg-yellow-800" aria-expanded="false" aria-controls="mobileMenu" aria-label="Open navigation menu">☰</button>
-    </div>
+    const userName = getStoredName();
+    const userId = getStoredUserId();
 
-    <nav id="mobileMenu" class="mobile-menu hidden brand-header-sub md:hidden" aria-label="Mobile navigation">
-      <div class="site-shell flex flex-col space-y-3 p-4">
-        <a href="index.html" data-nav-link class="hover:text-yellow-200 transition">Home</a>
-        <a href="schedule.html" data-nav-link class="hover:text-yellow-200 transition">Programs</a>
-        <a href="shows.html" data-nav-link class="hover:text-yellow-200 transition">Shows</a>
-        <a href="episodes.html" data-nav-link class="hover:text-yellow-200 transition">Episodes</a>
-        <a href="community.html" data-nav-link class="hover:text-yellow-200 transition">Community</a>
-        <a href="live-chat.html" data-nav-link class="hover:text-yellow-200 transition">Live Chat</a>
-      </div>
-    </nav>
-  </header>
+    function setStatus(message, isError = false) {
+      chatStatus.textContent = message;
+      chatStatus.style.color = isError ? '#b91c1c' : '#5a4a38';
+    }
 
-  <main id="main-content" class="site-shell px-6 py-10">
-    <section class="mb-8 rounded-2xl bg-gradient-to-r from-red-600 to-red-800 p-8 text-white">
-      <h1 class="text-4xl font-bold">BWE TV Shows</h1>
-      <p class="mt-2">Browse our catalog and find the programs that match your viewing interests.</p>
-    </section>
+    function updateButtonState() {
+      const value = normalizeMessage(chatInput.value);
+      chatButton.disabled = !value || value.length > maxLength;
+    }
 
-    <div id="showFilters" class="mb-6 flex flex-wrap gap-2"></div>
-    <section id="showsContainer" class="grid gap-6 md:grid-cols-2 xl:grid-cols-3"></section>
-  </main>
+    function renderMessages(snapshot) {
+      const messages = snapshot ? Object.values(snapshot.val() || {}) : [];
+      const sorted = messages.sort((a, b) => Number(a.timestamp || 0) - Number(b.timestamp || 0));
 
-  <footer class="brand-header mt-8 p-4 text-center text-white">
-    <div class="site-shell">
-      <p>© 2026 BWE TV</p>
-      <div class="footer-link-grid mt-3 text-sm font-semibold">
-        <a href="about.html" class="hover:text-yellow-200 transition">About</a>
-        <a href="privacy.html" class="hover:text-yellow-200 transition">Privacy</a>
-        <a href="contact.html" class="hover:text-yellow-200 transition">Contact</a>
-        <a href="community.html" class="hover:text-yellow-200 transition">Community</a>
-        <a href="episodes.html" class="hover:text-yellow-200 transition">Episodes</a>
-      </div>
-    </div>
-  </footer>
+      chatContainer.innerHTML = '';
 
-  <script src="content.js" defer></script>
-</body>
-</html>
+      if (!sorted.length) {
+        chatContainer.innerHTML = '<div class="rounded-lg bg-white p-4 text-sm text-gray-600 shadow-sm">No messages yet. Start the conversation.</div>';
+        return;
+      }
+
+      sorted.forEach((message) => {
+        if (!message || typeof message !== 'object') return;
+        chatContainer.appendChild(buildMessageNode(message, userName, userId));
+      });
+
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    function getDatabase() {
+      if (window.initializeFirebase) {
+        window.initializeFirebase();
+      }
+      if (window.firebase && window.firebase.database) {
+        return window.firebase.database();
+      }
+      return null;
+    }
+
+    const db = getDatabase();
+    if (!db) {
+      setStatus('Live chat unavailable: Firebase database is not loaded.', true);
+      return null;
+    }
+
+    const chatRef = db.ref(chatPath).limitToLast(limit);
+
+    chatRef.on('value', (snapshot) => {
+      renderMessages(snapshot);
+      setStatus('Connected');
+    });
+
+    function sendMessage() {
+      const text = normalizeMessage(chatInput.value);
+      if (!text || text.length > maxLength) {
+        return;
+      }
+
+      const payload = {
+        text,
+        user: userName,
+        userId,
+        timestamp: Date.now()
+      };
+
+      setStatus('Sending...');
+      chatButton.disabled = true;
+
+      chatRef.push(payload)
+        .then(() => {
+          chatInput.value = '';
+          updateButtonState();
+          setStatus('Connected');
+        })
+        .catch((error) => {
+          console.error('BWE chat send error:', error);
+          setStatus('Send failed. Please try again.', true);
+          updateButtonState();
+        });
+    }
+
+    chatInput.addEventListener('input', updateButtonState);
+    chatButton.addEventListener('click', (event) => {
+      event.preventDefault();
+      sendMessage();
+    });
+    if (chatForm) {
+      chatForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+        sendMessage();
+      });
+    }
+    chatInput.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
+        sendMessage();
+      }
+    });
+
+    updateButtonState();
+    setStatus('Connecting...');
+
+    window.addEventListener('beforeunload', () => {
+      try {
+        chatRef.off('value');
+      } catch (error) {}
+    });
+
+    return { chatRef, sendMessage };
+  }
+
+  window.BWELiveChat = { init: setupSharedChat };
+})();
