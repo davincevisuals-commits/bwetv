@@ -3,17 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BWE TV Community | Chat, Discussions & Support</title>
-  <meta name="description" content="Join the BWE TV community to chat live, share discussion posts, and support the network.">
-  <meta property="og:title" content="BWE TV Community | Chat, Discussions & Support">
-  <meta property="og:description" content="Join the BWE TV community to chat live, share discussion posts, and support the network.">
+  <title>BWE TV Live Chat | Real-Time Viewer Conversation</title>
+  <meta name="description" content="Join the dedicated BWE TV live chat room and follow the same conversation shown on the home and community pages.">
+  <meta property="og:title" content="BWE TV Live Chat | Real-Time Viewer Conversation">
+  <meta property="og:description" content="Join the dedicated BWE TV live chat room and follow the same conversation shown on the home and community pages.">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="BWE TV">
-  <meta property="og:url" content="https://davincevisuals-commits.github.io/bwetv/community.html">
+  <meta property="og:url" content="https://davincevisuals-commits.github.io/bwetv/live-chat.html">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="BWE TV Community | Chat, Discussions & Support">
-  <meta name="twitter:description" content="Join the BWE TV community to chat live, share discussion posts, and support the network.">
-  <link rel="canonical" href="https://davincevisuals-commits.github.io/bwetv/community.html">
+  <meta name="twitter:title" content="BWE TV Live Chat | Real-Time Viewer Conversation">
+  <meta name="twitter:description" content="Join the dedicated BWE TV live chat room and follow the same conversation shown on the home and community pages.">
+  <link rel="canonical" href="https://davincevisuals-commits.github.io/bwetv/live-chat.html">
   <link rel="preconnect" href="https://cdn.jsdelivr.net">
   <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
@@ -22,16 +22,12 @@
     :root {
       --bwe-brand: #7c2d12;
       --bwe-brand-strong: #78350f;
-      --bwe-primary: #dc2626;
-      --bwe-accent: #2563eb;
-      --bwe-surface: #f8fafc;
     }
-
     .brand-header { background: var(--bwe-brand); }
     .brand-header-sub { background: var(--bwe-brand-strong); }
   </style>
 </head>
-<body class="bg-white text-black">
+<body class="bg-gray-50 text-gray-900">
   <a class="skip-link" href="#main-content">Skip to main content</a>
 
   <header class="brand-header sticky top-0 z-50 text-white shadow-lg">
@@ -65,35 +61,17 @@
 
   <main id="main-content" class="site-shell px-6 py-10">
     <section class="mb-8 rounded-2xl bg-gradient-to-r from-red-600 to-red-800 p-8 text-white">
-      <h1 class="text-4xl font-bold">BWE TV Community</h1>
-      <p class="mt-2">Connect, chat, and stay part of the conversation with viewers and hosts across the network.</p>
+      <h1 class="text-4xl font-bold">BWE TV Live Chat</h1>
+      <p class="mt-2">Join the live conversation while major shows and community moments are happening.</p>
     </section>
 
-    <div class="grid gap-6 lg:grid-cols-[1.5fr_1fr]">
-      <section class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-200">
-        <h2 class="mb-4 text-2xl font-bold text-gray-900">Community Highlights</h2>
-        <div id="communityPosts" class="space-y-4"></div>
-      </section>
-      <aside class="rounded-2xl bg-gray-50 p-6 shadow-sm ring-1 ring-gray-200">
-        <h2 class="mb-4 text-2xl font-bold text-gray-900">Join the conversation</h2>
-        <a href="live-chat.html" class="btn btn-primary w-full">Open live chat</a>
-
-        <div class="mt-6 rounded-xl border border-gray-200 bg-white p-4">
-          <h3 class="mb-3 text-lg font-bold text-gray-900">Live community feed</h3>
-          <div id="communityLiveChat" class="mb-3 max-h-64 min-h-[10rem] overflow-y-auto rounded-lg bg-gray-50 p-3"></div>
-          <form id="communityChatForm" class="flex gap-2">
-            <input
-              id="communityChatInput"
-              type="text"
-              maxlength="180"
-              placeholder="Share your message..."
-              class="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
-            >
-            <button id="communityChatBtn" type="submit" class="btn btn-primary">Send</button>
-          </form>
-          <p id="communityChatStatus" class="mt-2 text-xs text-gray-500">Connecting...</p>
-        </div>
-      </aside>
+    <div class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-200">
+      <div id="liveChat" class="mb-4 max-h-[26rem] min-h-[18rem] overflow-y-auto rounded-xl bg-gray-50 p-4"></div>
+      <form id="chatForm" class="flex gap-3">
+        <input id="chatInput" type="text" maxlength="180" placeholder="Share your message..." class="w-full rounded border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-red-500">
+        <button type="submit" id="chatBtn" class="btn btn-primary">Send</button>
+      </form>
+      <p id="chatStatus" class="mt-2 text-sm text-gray-500">Connecting...</p>
     </div>
   </main>
 
@@ -121,10 +99,10 @@
       if (window.initializeFirebase) window.initializeFirebase();
       if (window.BWELiveChat && window.BWELiveChat.init) {
         window.BWELiveChat.init({
-          chatContainerId: 'communityLiveChat',
-          chatInputId: 'communityChatInput',
-          chatButtonId: 'communityChatBtn',
-          chatStatusId: 'communityChatStatus',
+          chatContainerId: 'liveChat',
+          chatInputId: 'chatInput',
+          chatButtonId: 'chatBtn',
+          chatStatusId: 'chatStatus',
           chatPath: 'channels/live-chat/messages'
         });
       }
