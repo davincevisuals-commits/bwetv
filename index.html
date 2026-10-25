@@ -47,27 +47,115 @@
         <img src="assets/images/logo 1.png" alt="BWE TV logo" class="brand-logo-image" />
       </a>
       <nav class="hidden md:flex space-x-6" aria-label="Primary navigation">
-        <a href="index.html" data-nav-link class="hover:text-yellow-200 transition">Home</a><a href="schedule.html" data-nav-link class="hover:text-yellow-200 transition">Programs</a><a href="shows.html" data-nav-link class="hover:text-yellow-200 transition">Shows</a><a href="community.html" data-nav-link class="hover:text-yellow-200 transition">Community</a><a href="live-chat.html" data-nav-link class="hover:text-yellow-200 transition">Live Chat</a>
+        <a href="index.html" data-nav-link class="hover:text-yellow-200 transition">Home</a>
+        <a href="schedule.html" data-nav-link class="hover:text-yellow-200 transition">Programs</a>
+        <a href="shows.html" data-nav-link class="hover:text-yellow-200 transition">Shows</a>
+        <a href="community.html" data-nav-link class="hover:text-yellow-200 transition">Community</a>
+        <a href="live-chat.html" data-nav-link class="hover:text-yellow-200 transition">Live Chat</a>
       </nav>
-      <button id="mobileMenuBtn" class="md:hidden rounded p-2 text-2xl transition" aria-expanded="false" aria-controls="mobileMenu" aria-label="Open navigation menu" style="background:rgba(255,255,255,.12);">☰</button>
+      <button id="mobileMenuBtn" class="md:hidden rounded p-2 text-2xl transition" aria-expanded="false" aria-controls="mobileMenu" aria-label="Open navigation menu" style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.18);">☰</button>
     </div>
-    <nav id="mobileMenu" class="mobile-menu hidden brand-header-sub md:hidden" aria-label="Mobile navigation"><div class="site-shell flex flex-col space-y-3 p-4"><a href="index.html" data-nav-link class="hover:text-yellow-200 transition">Home</a><a href="schedule.html" data-nav-link class="hover:text-yellow-200 transition">Programs</a><a href="shows.html" data-nav-link class="hover:text-yellow-200 transition">Shows</a><a href="community.html" data-nav-link class="hover:text-yellow-200 transition">Community</a><a href="live-chat.html" data-nav-link class="hover:text-yellow-200 transition">Live Chat</a></div></nav>
+    <nav id="mobileMenu" class="mobile-menu hidden brand-header-sub md:hidden" aria-label="Mobile navigation">
+      <div class="site-shell flex flex-col space-y-3 p-4">
+        <a href="index.html" data-nav-link class="hover:text-yellow-200 transition">Home</a>
+        <a href="schedule.html" data-nav-link class="hover:text-yellow-200 transition">Programs</a>
+        <a href="shows.html" data-nav-link class="hover:text-yellow-200 transition">Shows</a>
+        <a href="community.html" data-nav-link class="hover:text-yellow-200 transition">Community</a>
+        <a href="live-chat.html" data-nav-link class="hover:text-yellow-200 transition">Live Chat</a>
+      </div>
+    </nav>
   </header>
 
   <main id="main-content">
-    <section class="hero-section px-6 py-8 text-white"><div class="site-shell grid grid-cols-1 gap-6 lg:grid-cols-3 lg:items-start">
-      <div class="lg:col-span-2"><div class="hero-copy mb-5"><p class="live-now-label">LIVE NOW FROM BWEYALE</p><h1 class="mb-3">Watch BWE TV live and stay connected with your community</h1><p class="lead">Stream the latest programming, keep up with what's airing today, and join the live conversation without leaving the page.</p><div class="live-status-bar" role="status" aria-live="polite"><span class="live-dot" aria-hidden="true"></span><span><strong>On Air Now:</strong> Local News (10:00 AM)</span></div></div>
-        <div class="live-player-shell mb-4"><video id="livePlayer" class="video-js vjs-default-skin w-full h-auto" controls preload="metadata" aria-label="BWE TV live stream player" data-setup='{"fluid": true, "aspectRatio": "16:9"}'><source src="https://stream.bwetv.live/hls/bwetv/index.m3u8" type="application/x-mpegURL"><source src="video.mp4" type="video/mp4"></video></div>
-        <div class="stack-mobile flex flex-wrap gap-3"><a href="schedule.html" class="btn btn-primary">Watch today's lineup</a><a href="community.html" class="btn btn-secondary">Join the Community</a><button onclick="shareVideo()" class="btn btn-accent" type="button">Share this live stream</button></div>
+    <section class="hero-section px-6 py-8 text-white">
+      <div class="site-shell grid grid-cols-1 gap-6 lg:grid-cols-3 lg:items-start">
+        <div class="lg:col-span-2">
+          <div class="hero-copy mb-5">
+            <p class="live-now-label">LIVE NOW FROM BWEYALE</p>
+            <h1 class="mb-3">Watch BWE TV live and stay connected with your community</h1>
+            <p class="lead">Stream the latest local stories, live programs, and community updates from Bweyale and beyond.</p>
+            <div class="live-status-bar">
+              <span class="live-dot" aria-hidden="true"></span>
+              <div>
+                <strong>Live</strong> from BWE TV studio
+              </div>
+            </div>
+          </div>
+          <div class="live-player-shell mb-4">
+            <video id="livePlayer" class="video-js vjs-default-skin w-full h-auto" controls preload="metadata" aria-label="BWE TV live stream player" data-setup='{"fluid": true, "aspectRatio": "16:9"}'></video>
+          </div>
+          <div class="stack-mobile flex flex-wrap gap-3">
+            <a href="schedule.html" class="btn btn-primary">Watch today's lineup</a>
+            <a href="community.html" class="btn btn-secondary">Join the Community</a>
+          </div>
+        </div>
+        <aside class="chat-shell flex flex-col rounded-xl" aria-labelledby="home-chat-heading">
+          <div class="flex items-center justify-between p-3" style="border-bottom:1px solid rgba(160,96,58,.3);">
+            <h2 id="home-chat-heading" class="text-lg font-bold text-white">Community Chat</h2>
+            <span class="rounded-full bg-red-500/80 px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-white">Live</span>
+          </div>
+          <div class="chat-scroll flex-1 p-3">
+            <div class="surface-card rounded-xl p-3 mb-3">
+              <p class="text-sm text-gray-800"><span class="font-semibold">Sarah:</span> Loving the live coverage today!</p>
+            </div>
+            <div class="surface-card rounded-xl p-3 mb-3">
+              <p class="text-sm text-gray-800"><span class="font-semibold">Moses:</span> Great to see local stories and community updates.</p>
+            </div>
+            <div class="surface-card rounded-xl p-3 mb-3">
+              <p class="text-sm text-gray-800"><span class="font-semibold">Rose:</span> This is exactly what Bweyale needs.</p>
+            </div>
+          </div>
+        </aside>
       </div>
-      <aside class="chat-shell flex flex-col rounded-xl" aria-labelledby="home-chat-heading"><div class="flex items-center justify-between p-3" style="border-bottom:1px solid rgba(160,96,58,.3);"><h2 id="home-chat-heading" class="text-sm font-bold uppercase tracking-wide text-white">Live Chat</h2><span id="chatStatus" class="text-xs" style="color:rgba(255,255,255,.75);">Connecting...</span></div><div id="chatContainer" class="chat-scroll flex-1 overflow-y-auto p-3" aria-live="polite"></div><div class="p-3" style="border-top:1px solid rgba(160,96,58,.3);"><label for="chatInput" class="mb-2 block text-xs font-semibold uppercase tracking-wide text-white">Message</label><textarea id="chatInput" rows="3" maxlength="300" placeholder="Say something to the BWE TV audience..." class="w-full rounded bg-white/10 p-3 text-white placeholder:text-white/70"></textarea><div class="mt-2 flex items-center justify-between gap-2"><span id="charCount" class="text-xs text-white/70">0/300</span><button id="chatBtn" type="button" class="rounded bg-red-600 px-4 py-2 text-sm font-semibold text-white">Send</button></div></div></aside>
-    </div></section>
-    <section class="section-surface p-6"><div class="site-shell"><h2 class="text-3xl font-bold">Today's Programs</h2><p class="mt-2" style="color:#5a4a38;">Catch what is on now and what is coming up next across the day.</p><div id="programList" class="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3"></div></div></section>
-    <section class="radio-section p-6"><div class="site-shell grid gap-6 lg:grid-cols-[2fr_1fr] lg:items-start"><div><h2 class="mb-4 text-3xl font-bold text-brand">Partner Radio Stations</h2><div class="grid gap-4 md:grid-cols-2"><div class="surface-card rounded-xl p-4"><h3 class="text-xl font-bold text-brand">KFM Uganda</h3><p class="mt-2 text-sm">Community news, music, and civic programming across Uganda.</p></div><div class="surface-card rounded-xl p-4"><h3 class="text-xl font-bold text-brand">BWE Community Radio</h3><p class="mt-2 text-sm">Local voices, culture, and community updates from the region.</p></div></div></div><div class="surface-card rounded-xl p-5"><h3 class="text-xl font-bold text-brand">Community Snapshot</h3><ul class="mt-4 space-y-3 text-sm text-gray-700"><li>• Community-first programming</li><li>• Live stream and chat access</li><li>• Local news and culture updates</li><li>• Mobile-friendly guest access</li></ul></div></div></section>
+    </section>
+
+    <section class="section-surface p-6">
+      <div class="site-shell">
+        <h2 class="text-3xl font-bold">Today's Programs</h2>
+        <p class="mt-2" style="color:#5a4a38;">Catch what is on now and what is coming up next.</p>
+      </div>
+    </section>
+
+    <section class="radio-section p-6">
+      <div class="site-shell grid gap-6 lg:grid-cols-[2fr_1fr] lg:items-start">
+        <div>
+          <h2 class="mb-4 text-3xl font-bold text-brand">Partner Radio Stations</h2>
+          <div class="grid gap-4 md:grid-cols-2"></div>
+        </div>
+      </div>
+    </section>
   </main>
 
-  <footer class="brand-footer"><div class="site-shell bwe-footer-inner"><div class="bwe-footer-brand"><img src="assets/images/logo 1.png" alt="BWE TV logo" class="brand-logo-image" /></div><div class="bwe-footer-center"><p>© 2026 BWE TV</p></div><div class="bwe-footer-links"><a href="about.html">About</a><a href="privacy.html">Privacy</a><a href="contact.html">Contact</a></div></div></footer>
+  <footer class="brand-footer">
+    <div class="site-shell bwe-footer-inner">
+      <div class="bwe-footer-brand">
+        <img src="assets/images/logo 1.png" alt="BWE TV logo" class="brand-logo-image" />
+      </div>
+      <div class="bwe-footer-center">
+        <p class="bwe-footer-tagline">Bringing Bweyale to the world.</p>
+        <div class="footer-link-grid">
+          <a href="index.html">Home</a>
+          <a href="schedule.html">Programs</a>
+          <a href="shows.html">Shows</a>
+          <a href="community.html">Community</a>
+          <a href="live-chat.html">Live Chat</a>
+        </div>
+      </div>
+      <div class="bwe-footer-right">
+        <p class="bwe-footer-label">Follow us</p>
+        <ul class="bwe-footer-social" aria-label="BWE TV social media links">
+          <li><a href="https://www.facebook.com/bwetv" target="_blank" rel="noreferrer" aria-label="Facebook">Facebook</a></li>
+          <li><a href="https://x.com/bwetv" target="_blank" rel="noreferrer" aria-label="X">X</a></li>
+          <li><a href="https://www.youtube.com/@bwetv" target="_blank" rel="noreferrer" aria-label="YouTube">YouTube</a></li>
+          <li><a href="https://www.tiktok.com/@bwetv" target="_blank" rel="noreferrer" aria-label="TikTok">TikTok</a></li>
+        </ul>
+        <span class="rights">© 2026 BWE TV</span>
+      </div>
+    </div>
+  </footer>
 
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js" defer></script><script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js" defer></script><script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js" defer></script><script src="content.js" defer></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js" defer></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js" defer></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js" defer></script>
 </body>
 </html>
