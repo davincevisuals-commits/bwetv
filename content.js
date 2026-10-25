@@ -476,6 +476,48 @@ function getDisplayName(user) {
   return fallback;
 }
 
+function getStoredProfileData() {
+  try {
+    const name = window.localStorage.getItem("bwetvProfileName") || "";
+    const image = window.localStorage.getItem("bwetvProfileImage") || "";
+    return { name: name.trim(), image };
+  } catch (error) {
+    return { name: "", image: "" };
+  }
+}
+
+function getProfileDisplayName(user) {
+  const customName = getStoredProfileData().name;
+  if (customName) {
+    return customName;
+  }
+  return getDisplayName(user);
+}
+
+function getDefaultProfileImage() {
+  return "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' fill='%23e5e7eb'/%3E%3Ccircle cx='60' cy='45' r='24' fill='%236b7280'/%3E%3Cpath d='M30 100c5-18 21-28 30-28s25 10 30 28' fill='%236b7280'/%3E%3C/svg%3E";
+}
+
+function applyProfileAppearance(user) {
+  const profileNameInput = document.getElementById("profileNameInput");
+  const profilePreview = document.getElementById("profilePreview");
+  const currentViewer = document.getElementById("currentViewer");
+  const profileData = getStoredProfileData();
+  const activeName = getProfileDisplayName(user);
+
+  if (profileNameInput) {
+    profileNameInput.value = profileData.name || activeName;
+  }
+
+  if (profilePreview) {
+    profilePreview.src = profileData.image || getDefaultProfileImage();
+  }
+
+  if (currentViewer) {
+    currentViewer.textContent = activeName;
+  }
+}
+
 function setText(id, value) {
   const element = document.getElementById(id);
   if (element) {
@@ -559,14 +601,23 @@ function renderChatMessage({ chatContainer, newMessageButton, auth }, message) {
       isCurrentUser ? "border-blue-700 bg-blue-600 text-white" : "border-gray-200 bg-white text-gray-900"
     }`
   );
+  const top = createElement("div", "mb-1 flex items-center gap-2");
+  const avatar = message.avatar ? document.createElement("img") : null;
+  if (avatar) {
+    avatar.src = message.avatar;
+    avatar.alt = `${message.user || "Guest"} profile"`;
+    avatar.className = "h-6 w-6 rounded-full object-cover border border-white/50";
+    top.appendChild(avatar);
+  }
   const meta = createElement(
     "p",
-    `mb-1 text-[11px] ${isCurrentUser ? "text-blue-100" : "text-gray-500"}`,
+    `text-[11px] ${isCurrentUser ? "text-blue-100" : "text-gray-500"}`,
     `${message.user || "Guest"} • ${formatTime(new Date(message.timestamp || Date.now()))}`
   );
+  top.appendChild(meta);
   const body = createElement("p", "text-sm whitespace-pre-wrap break-words", message.text || "");
 
-  bubble.appendChild(meta);
+  bubble.appendChild(top);
   bubble.appendChild(body);
   row.appendChild(bubble);
   chatContainer.appendChild(row);
@@ -657,8 +708,9 @@ function setupSharedChat(services, options = {}) {
 
     const payload = {
       text,
-      user: getDisplayName(currentUser),
+      user: getProfileDisplayName(currentUser),
       userId: currentUser.uid,
+      avatar: getStoredProfileData().image || "",
       timestamp: Date.now()
     };
 
@@ -718,7 +770,7 @@ function setupSharedChat(services, options = {}) {
     auth.onAuthStateChanged((user) => {
       updateAuthDependentState();
       if (user) {
-        setChatStatus(chatStatus, `Connected as ${getDisplayName(user)}`, "success", options.statusToneClasses);
+        setChatStatus(chatStatus, `Connected as ${getProfileDisplayName(user)}`, "success", options.statusToneClasses);
       } else if (requireAuth) {
         setChatStatus(chatStatus, "Sign in to chat", "default", options.statusToneClasses);
       }
@@ -800,7 +852,7 @@ function setupHomeAuth(services) {
       }
     }
 
-    setAuthStatus(user.isAnonymous ? `Chatting as ${getDisplayName(user)}` : `Signed in as ${getDisplayName(user)}`);
+    setAuthStatus(user.isAnonymous ? `Chatting as ${getProfileDisplayName(user)}` : `Signed in as ${getProfileDisplayName(user)}`);
   });
 }
 
@@ -818,6 +870,9 @@ function setupCommunityAuth(services) {
   const communityStatus = document.getElementById("communityStatus");
   const currentViewer = document.getElementById("currentViewer");
   const signOutButton = document.getElementById("signOutBtn");
+  const profileNameInput = document.getElementById("profileNameInput");
+  const profilePicInput = document.getElementById("profilePicInput");
+  const profilePreview = document.getElementById("profilePreview");
 
   const updateCommunityStatus = (message, tone = "default") => {
     if (!communityStatus) return;
@@ -860,13 +915,60 @@ function setupCommunityAuth(services) {
     }));
   }
 
+  if (profileNameInput) {
+    profileNameInput.addEventListener("input", () => {
+      const value = profileNameInput.value.trim();
+      if (value) {
+        try {
+          window.localStorage.setItem("bwetvProfileName", value);
+        } catch (error) {
+          // Ignore storage failures.
+        }
+      } else {
+        try {
+          window.localStorage.removeItem("bwetvProfileName");
+        } catch (error) {
+          // Ignore storage failures.
+        }
+      }
+      if (auth.currentUser) {
+        const active = getProfileDisplayName(auth.currentUser);
+        if (currentViewer) {
+          currentViewer.textContent = active;
+        }
+      }
+    });
+  }
+
+  if (profilePicInput) {
+    profilePicInput.addEventListener("change", (event) => {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        const imageData = String(reader.result || "");
+        try {
+          window.localStorage.setItem("bwetvProfileImage", imageData);
+        } catch (error) {
+          // Ignore storage failures.
+        }
+        if (profilePreview) {
+          profilePreview.src = imageData;
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
   auth.onAuthStateChanged((user) => {
     const isSignedIn = Boolean(user);
     loginSection.classList.toggle("hidden", isSignedIn);
     communitySection.classList.toggle("hidden", !isSignedIn);
 
     if (isSignedIn) {
-      const name = getDisplayName(user);
+      applyProfileAppearance(user);
+      const name = getProfileDisplayName(user);
       if (currentViewer) {
         currentViewer.textContent = name;
       }
@@ -894,7 +996,8 @@ function setupCommunityPosts(services) {
     try {
       await db.collection("posts").add({
         text,
-        user: getDisplayName(auth.currentUser),
+        user: getProfileDisplayName(auth.currentUser),
+        avatar: getStoredProfileData().image || "",
         timestamp: typeof serverTimestamp === "function" ? serverTimestamp() : Date.now()
       });
       postInput.value = "";
@@ -917,7 +1020,15 @@ function setupCommunityPosts(services) {
         snapshot.forEach((doc) => {
           const post = doc.data() || {};
           const card = createElement("article", "rounded-lg border border-gray-200 bg-white p-3 shadow-sm");
-          const meta = createElement("p", "mb-1 text-sm font-semibold text-gray-800", post.user || "Community member");
+          const meta = createElement("div", "mb-2 flex items-center gap-2");
+          const avatar = post.avatar ? document.createElement("img") : null;
+          if (avatar) {
+            avatar.src = post.avatar;
+            avatar.alt = `${post.user || "Community member"} avatar`;
+            avatar.className = "h-8 w-8 rounded-full object-cover border border-gray-200";
+            meta.appendChild(avatar);
+          }
+          meta.appendChild(createElement("p", "text-sm font-semibold text-gray-800", post.user || "Community member"));
           const body = createElement("p", "text-sm text-gray-600 whitespace-pre-wrap", post.text || "");
           card.appendChild(meta);
           card.appendChild(body);
