@@ -22,9 +22,9 @@
   --grad-hero: linear-gradient(135deg, rgba(26,18,9,0.97) 0%, rgba(61,31,14,0.93) 50%, rgba(107,58,34,0.88) 100%);
   --grad-header: linear-gradient(90deg, #3D1F0E 0%, #6B3A22 55%, #A0603A 100%);
   --grad-surface: linear-gradient(160deg, #EDE0C8 0%, #D6C9A8 60%, #c4b48e 100%);
-  --grad-footer: linear-gradient(135deg, #6D4A35 0%, #897358 38%, #65859A 72%, #3F5969 100%);
-  --footer-grad: linear-gradient(135deg, #6D4A35 0%, #897358 38%, #65859A 72%, #3F5969 100%);
-  --footer-border: rgba(255,255,255,0.18);
+  --grad-footer: linear-gradient(135deg, #4A4D30 0%, #697552 32%, #8D7A5E 68%, #5F6E4A 100%);
+  --footer-grad: linear-gradient(135deg, #4A4D30 0%, #697552 32%, #8D7A5E 68%, #5F6E4A 100%);
+  --footer-border: rgba(255,255,255,0.16);
   --footer-text: #fff;
   --grad-card: linear-gradient(145deg, rgba(237,224,200,0.9) 0%, rgba(214,201,168,0.7) 100%);
   --grad-btn-prim: linear-gradient(135deg, #BF1506 0%, #8C2B0A 100%);
