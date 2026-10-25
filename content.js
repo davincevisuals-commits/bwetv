@@ -1,624 +1,1301 @@
-const SITE_TZ_OFFSET = 3;
-const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-const CHAT_STORAGE_KEY = "bwetv-live-chat";
-const COMMUNITY_USER_KEY = "bwetv-community-user";
-const COMMUNITY_STATS_KEY = "bwetv-community-stats";
+/**
+ * BWE TV - Dynamic Content Management
+ * Centralized data management for shows, schedules, and programs
+ * Update this file to manage all content across the site
+ */
 
+// ============================================
+// PROGRAMS DATA - Today's Programming
+// ============================================
 const PROGRAMS = [
-  { id: "morning-news", day: "Monday", title: "Morning News", start: "08:00", end: "09:00", category: "News", description: "Local stories, updates, and voices from Bweyale and nearby communities.", image: "assets/intro.jpg" },
-  { id: "community-hour", day: "Monday", title: "Community Hour", start: "11:00", end: "12:00", category: "Talk", description: "A space for local voices, conversations, and community updates.", image: "assets/community.jpg" },
-  { id: "kids-corner", day: "Monday", title: "Kids Corner", start: "15:00", end: "16:00", category: "Kids", description: "Fun, educational, and age-appropriate content for children.", image: "assets/kids.jpg" },
-  { id: "farm-focus", day: "Tuesday", title: "Farm Focus", start: "09:00", end: "10:00", category: "Agriculture", description: "Practical farming advice and local agricultural discussions.", image: "assets/farm.jpg" },
-  { id: "community-hour", day: "Tuesday", title: "Community Hour", start: "11:00", end: "12:00", category: "Talk", description: "Open dialogue around local issues, opportunities, and everyday life.", image: "assets/community.jpg" },
-  { id: "culture-show", day: "Tuesday", title: "Culture Show", start: "18:00", end: "19:00", category: "Culture", description: "Music, heritage, and stories that celebrate local identity.", image: "assets/culture.jpg" },
-  { id: "morning-news", day: "Wednesday", title: "Morning News", start: "08:00", end: "09:00", category: "News", description: "The latest local headlines and community reporting.", image: "assets/intro.jpg" },
-  { id: "youth-voice", day: "Wednesday", title: "Youth Voice", start: "13:00", end: "14:00", category: "Youth", description: "Youth perspectives, creativity, and community leadership.", image: "assets/youth.jpg" },
-  { id: "evening-chat", day: "Wednesday", title: "Evening Chat", start: "19:00", end: "20:00", category: "Talk", description: "A relaxed conversation show connecting community ideas and stories.", image: "assets/community.jpg" },
-  { id: "health-watch", day: "Thursday", title: "Health Watch", start: "09:30", end: "10:30", category: "Health", description: "Health awareness, wellness, and local care information.", image: "assets/health.jpg" },
-  { id: "community-hour", day: "Thursday", title: "Community Hour", start: "11:00", end: "12:00", category: "Talk", description: "A community forum for public conversation and engagement.", image: "assets/community.jpg" },
-  { id: "music-mix", day: "Thursday", title: "Music Mix", start: "17:00", end: "18:00", category: "Music", description: "A lively mix of local and regional music and entertainment.", image: "assets/music.jpg" },
-  { id: "morning-news", day: "Friday", title: "Morning News", start: "08:00", end: "09:00", category: "News", description: "Daily headlines and updates from the local community.", image: "assets/intro.jpg" },
-  { id: "school-zone", day: "Friday", title: "School Zone", start: "10:00", end: "11:00", category: "Education", description: "Academic news, students, and school community stories.", image: "assets/school.jpg" },
-  { id: "weekend-preview", day: "Friday", title: "Weekend Preview", start: "18:00", end: "19:00", category: "Preview", description: "A preview of the weekend programs and community highlights.", image: "assets/weekend.jpg" },
-  { id: "day-break", day: "Saturday", title: "Day Break", start: "08:30", end: "09:30", category: "Lifestyle", description: "A relaxing start to the weekend with local perspectives and updates.", image: "assets/lifestyle.jpg" },
-  { id: "sports-hour", day: "Saturday", title: "Sports Hour", start: "12:00", end: "13:00", category: "Sports", description: "Community sports, competition, and local sporting stories.", image: "assets/sports.jpg" },
-  { id: "family-night", day: "Saturday", title: "Family Night", start: "19:00", end: "20:30", category: "Entertainment", description: "Family-friendly entertainment and engaging community stories.", image: "assets/family.jpg" },
-  { id: "faith-focus", day: "Sunday", title: "Faith Focus", start: "08:00", end: "09:00", category: "Faith", description: "Community reflection, faith, and spiritual conversation.", image: "assets/faith.jpg" },
-  { id: "family-hour", day: "Sunday", title: "Family Hour", start: "12:00", end: "13:00", category: "Family", description: "A warm and friendly family-centered program for the whole community.", image: "assets/family.jpg" },
-  { id: "week-in-review", day: "Sunday", title: "Week in Review", start: "18:00", end: "19:00", category: "Review", description: "A recap of major stories, events, and community highlights from the week.", image: "assets/review.jpg" }
-];
-
-const COMMUNITY_POSTS = [
-  { title: "Live community stories", meta: "Community Desk", body: "Neighbors are sharing local wins, updates, and exciting community events across Bweyale and the wider region.", tag: "Highlights" },
-  { title: "Youth voices matter", meta: "Youth Focus", body: "Young people are building space for creative ideas, leadership, and community action through BWE TV programs.", tag: "Youth" },
-  { title: "Farm and food conversations", meta: "Rural Life", body: "Community members are discussing practical ways to grow local food systems, jobs, and agricultural opportunities.", tag: "Agriculture" },
-  { title: "Local faith and family connection", meta: "Community Life", body: "Families and faith communities are engaging in meaningful conversations about care, support, and belonging.", tag: "Family" }
-];
-
-function normalizeDayName(dayName) {
-  if (!dayName) return "";
-  const cleaned = String(dayName).trim();
-  return DAY_NAMES.includes(cleaned) ? cleaned : cleaned.charAt(0).toUpperCase() + cleaned.slice(1).toLowerCase();
-}
-
-function getLocalDayName() {
-  const adjusted = new Date(Date.now() + (new Date().getTimezoneOffset() * 60000) + (SITE_TZ_OFFSET * 60 * 60 * 1000));
-  return DAY_NAMES[adjusted.getDay()];
-}
-
-function parseTimeToMinutes(timeStr) {
-  if (!timeStr || typeof timeStr !== "string") return null;
-  const match = timeStr.trim().match(/^((\d{1,2}):(\d{2}))\s*(AM|PM)?$/i);
-  if (!match) return null;
-  let hours = Number(match[2]);
-  const minutes = Number(match[3]);
-  const meridiem = match[4] ? match[4].toUpperCase() : null;
-
-  if (meridiem) {
-    if (meridiem === "PM" && hours < 12) hours += 12;
-    if (meridiem === "AM" && hours === 12) hours = 0;
+  {
+    id: 1,
+    name: "Local News",
+    time: "10:00 AM",
+    host: "Tonny Blair.",
+    description: "Latest news and updates from our community",
+    duration: "60 min",
+    category: "News"
+  },
+  {
+    id: 2,
+    name: "Culture Show",
+    time: "12:00 PM",
+    host: "Alphonse Secondo.",
+    description: "Explore our rich cultural heritage and traditions",
+    duration: "90 min",
+    category: "Culture"
+  },
+  {
+    id: 3,
+    name: "Health Talk",
+    time: "2:00 PM",
+    host: "Dr. Jimmy Lujang",
+    description: "Health tips and wellness advice from medical experts",
+    duration: "45 min",
+    category: "Health"
+  },
+  {
+    id: 4,
+    name: "Youth Forum",
+    time: "4:00 PM",
+    host: "Charles Khemis.",
+    description: "Discussions on youth empowerment and education",
+    duration: "60 min",
+    category: "Education"
+  },
+  {
+    id: 5,
+    name: "Entertainment Hour",
+    time: "6:00 PM",
+    host: "Jessica L.",
+    description: "Music, comedy, and entertainment highlights",
+    duration: "60 min",
+    category: "Entertainment"
+  },
+  {
+    id: 6,
+    name: "Evening News",
+    time: "8:00 PM",
+    host: "James M.",
+    description: "Recap of the day's most important stories",
+    duration: "30 min",
+    category: "News"
   }
+];
 
-  return hours * 60 + minutes;
+// ============================================
+// SHOWS DATA - Complete Show Catalog
+// ============================================
+const SHOWS = [
+  {
+    id: 1,
+    title: "Morning Rise",
+    category: "News",
+    description: "Start your day with the latest updates",
+    host: "Sarah K.",
+    airTime: "Daily at 10:00 AM",
+    thumbnail: "📺",
+    episodes: 156,
+    rating: 4.8
+  },
+  {
+    id: 2,
+    title: "Cultural Roots",
+    category: "Culture",
+    description: "Explore our rich cultural heritage and traditions",
+    host: "Moses A.",
+    airTime: "Tuesdays & Thursdays at 12:00 PM",
+    thumbnail: "🎭",
+    episodes: 89,
+    rating: 4.7
+  },
+  {
+    id: 3,
+    title: "Wellness Warriors",
+    category: "Health",
+    description: "Health tips and wellness advice from medical experts",
+    host: "Dr. Lydia",
+    airTime: "Wednesdays at 2:00 PM",
+    thumbnail: "💪",
+    episodes: 45,
+    rating: 4.9
+  },
+  {
+    id: 4,
+    title: "Youth Voices",
+    category: "Education",
+    description: "Discussions on youth empowerment and education",
+    host: "Brian T.",
+    airTime: "Saturdays at 4:00 PM",
+    thumbnail: "🎓",
+    episodes: 78,
+    rating: 4.6
+  },
+  {
+    id: 5,
+    title: "Entertainment Express",
+    category: "Entertainment",
+    description: "Music, comedy, and entertainment highlights",
+    host: "Jessica L.",
+    airTime: "Daily at 6:00 PM",
+    thumbnail: "🎬",
+    episodes: 203,
+    rating: 4.5
+  },
+  {
+    id: 6,
+    title: "Business Update",
+    category: "Business",
+    description: "Market trends and business news",
+    host: "Richard P.",
+    airTime: "Fridays at 5:00 PM",
+    thumbnail: "💼",
+    episodes: 62,
+    rating: 4.4
+  }
+];
+
+// ============================================
+// FULL WEEKLY SCHEDULE
+// ============================================
+const WEEKLY_SCHEDULE = {
+  Monday: [
+    { time: "10:00 AM", show: "Local News", host: "Sarah K.", duration: "60 min" },
+    { time: "12:00 PM", show: "Culture Show", host: "Moses A.", duration: "90 min" },
+    { time: "2:00 PM", show: "Health Talk", host: "Dr. Lydia", duration: "45 min" },
+    { time: "4:00 PM", show: "Youth Forum", host: "Brian T.", duration: "60 min" },
+    { time: "6:00 PM", show: "Entertainment Hour", host: "Jessica L.", duration: "60 min" },
+    { time: "8:00 PM", show: "Evening News", host: "James M.", duration: "30 min" }
+  ],
+  Tuesday: [
+    { time: "10:00 AM", show: "Local News", host: "Sarah K.", duration: "60 min" },
+    { time: "12:00 PM", show: "Cultural Roots", host: "Moses A.", duration: "90 min" },
+    { time: "2:00 PM", show: "Health Talk", host: "Dr. Lydia", duration: "45 min" },
+    { time: "4:00 PM", show: "Business Update", host: "Richard P.", duration: "60 min" },
+    { time: "6:00 PM", show: "Entertainment Hour", host: "Jessica L.", duration: "60 min" },
+    { time: "8:00 PM", show: "Evening News", host: "James M.", duration: "30 min" }
+  ],
+  Wednesday: [
+    { time: "10:00 AM", show: "Local News", host: "Sarah K.", duration: "60 min" },
+    { time: "12:00 PM", show: "Culture Show", host: "Moses A.", duration: "90 min" },
+    { time: "2:00 PM", show: "Wellness Warriors", host: "Dr. Lydia", duration: "45 min" },
+    { time: "4:00 PM", show: "Youth Forum", host: "Brian T.", duration: "60 min" },
+    { time: "6:00 PM", show: "Entertainment Hour", host: "Jessica L.", duration: "60 min" },
+    { time: "8:00 PM", show: "Evening News", host: "James M.", duration: "30 min" }
+  ],
+  Thursday: [
+    { time: "10:00 AM", show: "Local News", host: "Sarah K.", duration: "60 min" },
+    { time: "12:00 PM", show: "Cultural Roots", host: "Moses A.", duration: "90 min" },
+    { time: "2:00 PM", show: "Health Talk", host: "Dr. Lydia", duration: "45 min" },
+    { time: "4:00 PM", show: "Youth Forum", host: "Brian T.", duration: "60 min" },
+    { time: "6:00 PM", show: "Entertainment Hour", host: "Jessica L.", duration: "60 min" },
+    { time: "8:00 PM", show: "Evening News", host: "James M.", duration: "30 min" }
+  ],
+  Friday: [
+    { time: "10:00 AM", show: "Local News", host: "Sarah K.", duration: "60 min" },
+    { time: "12:00 PM", show: "Culture Show", host: "Moses A.", duration: "90 min" },
+    { time: "2:00 PM", show: "Health Talk", host: "Dr. Lydia", duration: "45 min" },
+    { time: "5:00 PM", show: "Business Update", host: "Richard P.", duration: "60 min" },
+    { time: "7:00 PM", show: "Entertainment Hour", host: "Jessica L.", duration: "90 min" },
+    { time: "9:00 PM", show: "Late Night News", host: "James M.", duration: "30 min" }
+  ],
+  Saturday: [
+    { time: "9:00 AM", show: "Weekend News", host: "Sarah K.", duration: "60 min" },
+    { time: "11:00 AM", show: "Cultural Roots", host: "Moses A.", duration: "90 min" },
+    { time: "1:00 PM", show: "Wellness Warriors", host: "Dr. Lydia", duration: "60 min" },
+    { time: "4:00 PM", show: "Youth Voices", host: "Brian T.", duration: "90 min" },
+    { time: "6:00 PM", show: "Entertainment Express", host: "Jessica L.", duration: "120 min" },
+    { time: "9:00 PM", show: "Weekend Special", host: "Various", duration: "60 min" }
+  ],
+  Sunday: [
+    { time: "10:00 AM", show: "Local News", host: "Sarah K.", duration: "60 min" },
+    { time: "12:00 PM", show: "Culture Show", host: "Moses A.", duration: "90 min" },
+    { time: "2:00 PM", show: "Wellness Warriors", host: "Dr. Lydia", duration: "60 min" },
+    { time: "4:00 PM", show: "Family Hour", host: "Community", duration: "120 min" },
+    { time: "6:00 PM", show: "Entertainment Hour", host: "Jessica L.", duration: "60 min" },
+    { time: "8:00 PM", show: "Sunday Special", host: "Various", duration: "90 min" }
+  ]
+};
+
+// ============================================
+// FEATURED/TRENDING SHOWS
+// ============================================
+const FEATURED_SHOWS = [
+  {
+    id: 1,
+    title: "Morning Rise",
+    category: "News",
+    featured: true,
+    reason: "Most Watched"
+  },
+  {
+    id: 3,
+    title: "Wellness Warriors",
+    category: "Health",
+    featured: true,
+    reason: "Trending This Week"
+  },
+  {
+    id: 5,
+    title: "Entertainment Express",
+    category: "Entertainment",
+    featured: true,
+    reason: "New Episodes Daily"
+  }
+];
+
+// ============================================
+// LIVE STREAMING CONFIGURATION
+// ============================================
+const STREAM_CONFIG = {
+  primary: {
+    url: "https://stream.bwetv.live/hls/bwetv/index.m3u8",
+    type: "application/x-mpegURL",
+    qualities: ["720p", "480p", "360p", "240p"]
+  },
+  backup: {
+    url: "video.mp4",
+    type: "video/mp4"
+  },
+  currentShow: PROGRAMS[0],
+  isLive: true,
+  viewerCount: Math.floor(Math.random() * 5000) + 1000
+};
+
+// Firebase client config is public; protect the exposed chat/posts paths with
+// Authentication + Security Rules: https://firebase.google.com/docs/rules
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyCg9fxgrXlEuKW_m5MvDnG26Uf6lLdiYik",
+  authDomain: "bwetv-ug.firebaseapp.com",
+  projectId: "bwetv-ug",
+  storageBucket: "bwetv-ug.firebasestorage.app",
+  messagingSenderId: "481870926362",
+  appId: "1:481870926362:web:f406a0f135449ccfaa77a3",
+  measurementId: "G-SJ5YJH2G7C",
+  databaseURL: "https://bwetv-ug-default-rtdb.firebaseio.com/"
+};
+
+const CHAT_MAX_LENGTH = 300;
+const CHAT_NEAR_BOTTOM_THRESHOLD = 80;
+const DEFAULT_CHAT_PATH = "chat";
+const scheduleState = {
+  selectedDay: "Today"
+};
+const showsState = {
+  selectedCategory: "All"
+};
+
+// ============================================
+// UTILITY FUNCTIONS
+// ============================================
+
+/**
+ * Get today's schedule
+ */
+function getTodaySchedule() {
+  const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  const today = new Date().getDay();
+  return WEEKLY_SCHEDULE[days[today]] || [];
 }
 
-function getLocalMinutesSinceMidnight() {
+/**
+ * Get a specific show by ID
+ */
+function getShowById(id) {
+  return SHOWS.find((show) => show.id === id);
+}
+
+/**
+ * Get shows by category
+ */
+function getShowsByCategory(category) {
+  return SHOWS.filter((show) => show.category === category);
+}
+
+/**
+ * Search shows
+ */
+function searchShows(query) {
+  const lower = query.toLowerCase();
+  return SHOWS.filter(
+    (show) =>
+      show.title.toLowerCase().includes(lower) ||
+      show.description.toLowerCase().includes(lower) ||
+      show.host.toLowerCase().includes(lower)
+  );
+}
+
+/**
+ * Get upcoming programs (next N hours)
+ */
+function getUpcomingPrograms(hours = 4) {
+  const schedule = getTodaySchedule();
   const now = new Date();
-  const utcMs = now.getTime() + (now.getTimezoneOffset() * 60000);
-  const localMs = utcMs + (SITE_TZ_OFFSET * 3600000);
-  const local = new Date(localMs);
-  return local.getHours() * 60 + local.getMinutes();
-}
+  const upcoming = [];
 
-function getProgramsForDay(dayName) {
-  const targetDay = normalizeDayName(dayName || getLocalDayName());
-  return PROGRAMS.filter((program) => normalizeDayName(program.day) === targetDay);
-}
-
-function sortProgramList(programs) {
-  return [...programs].sort((a, b) => {
-    const aMinutes = parseTimeToMinutes(a.start) || 0;
-    const bMinutes = parseTimeToMinutes(b.start) || 0;
-    return aMinutes - bMinutes;
+  schedule.forEach((program) => {
+    const programTime = parseProgramTime(program.time, now);
+    if (programTime > now && (programTime - now) / (1000 * 60 * 60) <= hours) {
+      upcoming.push(program);
+    }
   });
+
+  return upcoming;
 }
 
-function findCurrentProgram(dayName) {
-  const programs = sortProgramList(getProgramsForDay(dayName));
-  const nowMinutes = getLocalMinutesSinceMidnight();
+/**
+ * Get current/now playing show
+ */
+function getCurrentShow() {
+  const schedule = getTodaySchedule();
+  const now = new Date();
 
-  for (const program of programs) {
-    const startMinutes = parseTimeToMinutes(program.start);
-    const endMinutes = parseTimeToMinutes(program.end);
-    if (startMinutes == null || endMinutes == null) continue;
+  for (const program of schedule) {
+    const startTime = parseProgramTime(program.time, now);
+    const duration = parseInt(program.duration, 10) || 30;
+    const endTime = new Date(startTime.getTime() + duration * 60000);
 
-    let endValue = endMinutes;
-    if (endValue <= startMinutes) endValue += 24 * 60;
-
-    let currentValue = nowMinutes;
-    if (currentValue < startMinutes && endValue > 24 * 60) currentValue += 24 * 60;
-
-    if (currentValue >= startMinutes && currentValue < endValue) return program;
+    if (now >= startTime && now < endTime) {
+      return program;
+    }
   }
 
   return null;
 }
 
-function findNextProgram(dayName) {
-  const programs = sortProgramList(getProgramsForDay(dayName));
-  const nowMinutes = getLocalMinutesSinceMidnight();
+/**
+ * Format time for display
+ */
+function formatTime(date) {
+  return date.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true });
+}
 
-  for (const program of programs) {
-    const startMinutes = parseTimeToMinutes(program.start);
-    if (startMinutes !== null && startMinutes >= nowMinutes) return program;
+function parseProgramTime(timeString, baseDate = new Date()) {
+  const [time, meridiem] = timeString.split(" ");
+  const [hourString, minuteString] = time.split(":");
+  let hour = parseInt(hourString, 10);
+  const minute = parseInt(minuteString, 10);
+
+  if (meridiem === "PM" && hour !== 12) hour += 12;
+  if (meridiem === "AM" && hour === 12) hour = 0;
+
+  return new Date(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate(), hour, minute);
+}
+
+function getSelectedSchedule() {
+  return scheduleState.selectedDay === "Today"
+    ? getTodaySchedule()
+    : WEEKLY_SCHEDULE[scheduleState.selectedDay] || [];
+}
+
+function createElement(tag, className, text) {
+  const element = document.createElement(tag);
+  if (className) element.className = className;
+  if (typeof text === "string") element.textContent = text;
+  return element;
+}
+
+function updateShareStatus(message) {
+  if (typeof window !== "undefined") {
+    window.setTimeout(() => window.alert(message), 0);
+  }
+}
+
+async function copyText(text) {
+  if (typeof navigator !== "undefined" && navigator.clipboard && navigator.clipboard.writeText) {
+    await navigator.clipboard.writeText(text);
+    return true;
+  }
+  return false;
+}
+
+async function sharePage({ title, text, url }) {
+  if (typeof navigator !== "undefined" && navigator.share) {
+    try {
+      await navigator.share({ title, text, url });
+      return true;
+    } catch (error) {
+      if (error && error.name === "AbortError") {
+        return false;
+      }
+    }
   }
 
-  return programs[0] || null;
+  const copied = await copyText(`${title}\n${text}\n${url}`);
+  updateShareStatus(copied ? "Share details copied to your clipboard." : `Share this link: ${url}`);
+  return copied;
 }
 
-function escapeHtml(value) {
-  if (value === null || value === undefined) return "";
-  return String(value).replace(/[&<>"'`]/g, (character) => ({
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    '"': "&quot;",
-    "'": "&#39;",
-    "`": "&#96;"
-  }[character]));
-}
-
-function renderCurrentShowMessage() {
-  const currentShowInfo = document.getElementById("currentShowInfo");
-  if (!currentShowInfo) return;
-
-  const current = findCurrentProgram();
-  if (current) {
-    currentShowInfo.innerHTML = `
-      <p class="text-lg font-semibold">${escapeHtml(current.title)} (${escapeHtml(current.start)} – ${escapeHtml(current.end)})</p>
-      <p class="text-sm text-gray-700">${escapeHtml(current.description)}</p>
-    `;
-    return;
-  }
-
-  const next = findNextProgram();
-  if (next) {
-    currentShowInfo.innerHTML = `
-      <p class="text-lg font-semibold">Next: ${escapeHtml(next.title)} (${escapeHtml(next.start)})</p>
-      <p class="text-sm text-gray-700">${escapeHtml(next.description)}</p>
-    `;
-    return;
-  }
-
-  currentShowInfo.innerHTML = '<p class="text-lg font-semibold">No programs scheduled</p>';
-}
-
-function renderProgramCards(container, programs) {
-  if (!container) return;
-
-  if (!programs.length) {
-    container.innerHTML = '<p class="text-sm text-gray-600">No programs are scheduled for this day.</p>';
-    return;
-  }
-
-  const current = findCurrentProgram();
-  const cards = sortProgramList(programs).map((program) => {
-    const isCurrent = current && current.id === program.id && current.day === program.day;
-    const imageMarkup = program.image
-      ? `<div class="mb-3 h-24 overflow-hidden rounded"><img src="${escapeHtml(program.image)}" alt="${escapeHtml(program.title)}" style="width:100%;height:100%;object-fit:cover;display:block"></div>`
-      : `<div class="mb-3 h-20 rounded bg-gray-100 flex items-center justify-center text-sm text-gray-500">${escapeHtml(program.category || "Program")}</div>`;
-
-    const badge = isCurrent ? '<span class="inline-block rounded bg-red-600 px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-white">On Air</span>' : '';
-
-    return `
-      <article class="program-card rounded-xl bg-white p-4 shadow-sm ring-1 ring-gray-200" aria-current="${isCurrent ? "true" : "false"}">
-        ${imageMarkup}
-        <div class="flex items-center justify-between gap-3">
-          <h3 class="text-lg font-bold text-gray-900">${escapeHtml(program.title)}</h3>
-          ${badge}
-        </div>
-        <div class="mt-2 text-sm text-gray-700">${escapeHtml(program.start)} – ${escapeHtml(program.end)}</div>
-        <p class="mt-2 text-sm text-gray-600">${escapeHtml(program.description)}</p>
-      </article>
-    `;
-  }).join("");
-
-  container.innerHTML = cards;
-}
-
-function renderHomePrograms() {
-  const homeContainer = document.getElementById("programsContainer");
-  if (!homeContainer) return;
-  renderProgramCards(homeContainer, getProgramsForDay(getLocalDayName()));
-}
-
-function setScheduleDayButtons(selectedDay) {
-  const buttons = document.querySelectorAll(".day-btn");
-  buttons.forEach((button) => {
-    const isSelected = button.dataset.day === selectedDay;
-    button.classList.toggle("btn-primary", isSelected);
-    button.classList.toggle("btn-secondary", !isSelected);
-    button.setAttribute("aria-pressed", String(isSelected));
-  });
-}
-
-function renderSchedulePage(selectedDay) {
-  const scheduleTitle = document.getElementById("scheduleTitle");
-  const scheduleContainer = document.getElementById("scheduleContainer");
-  if (!scheduleTitle || !scheduleContainer) return;
-
-  const normalizedDay = normalizeDayName(selectedDay || getLocalDayName());
-  const items = sortProgramList(getProgramsForDay(normalizedDay));
-
-  scheduleTitle.textContent = `${normalizedDay} Schedule`;
-  setScheduleDayButtons(normalizedDay);
-
-  if (!items.length) {
-    scheduleContainer.innerHTML = '<div class="rounded border border-dashed border-gray-300 bg-gray-50 p-4 text-gray-600">No programming is available for this day yet.</div>';
-    return;
-  }
-
-  scheduleContainer.innerHTML = items.map((program) => `
-    <article class="schedule-item rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-      <div class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-        <div>
-          <div class="text-xs font-bold uppercase tracking-wide text-red-600">${escapeHtml(program.category || "Program")}</div>
-          <h3 class="text-xl font-bold text-gray-900">${escapeHtml(program.title)}</h3>
-        </div>
-        <div class="text-sm font-semibold text-gray-700">${escapeHtml(program.start)} – ${escapeHtml(program.end)}</div>
-      </div>
-      <p class="mt-3 text-sm text-gray-600">${escapeHtml(program.description)}</p>
-    </article>
-  `).join("");
-}
-
-function selectDay(event, dayName) {
-  event.preventDefault();
-  renderSchedulePage(dayName);
-}
-
-function setReminder() {
-  const selectedDay = document.getElementById("scheduleTitle")?.textContent?.replace(" Schedule", "") || getLocalDayName();
-  const programs = getProgramsForDay(selectedDay);
-  const next = programs[0] || null;
-
-  const reminderText = next
-    ? `Reminder saved: ${next.title} starts at ${next.start} on ${selectedDay}.`
-    : `Reminder saved for ${selectedDay}.`;
-
-  localStorage.setItem("bwetv-reminder", JSON.stringify({ day: selectedDay, timestamp: Date.now() }));
-  window.alert(reminderText);
-}
-
-function shareSchedule() {
-  const selectedDay = document.getElementById("scheduleTitle")?.textContent?.replace(" Schedule", "") || getLocalDayName();
-  const schedule = getProgramsForDay(selectedDay);
-  const text = schedule.length
-    ? `BWE TV ${selectedDay} schedule:\n${schedule.map((item) => `${item.start} – ${item.end}: ${item.title}`).join("\n")}`
-    : `BWE TV ${selectedDay} schedule is currently unavailable.`;
-
-  if (navigator.share) {
-    navigator.share({
-      title: `BWE TV ${selectedDay} Schedule`,
-      text
-    }).catch(() => {});
-    return;
-  }
-
-  if (navigator.clipboard) {
-    navigator.clipboard.writeText(text).then(() => {
-      window.alert("Schedule copied to your clipboard.");
-    }).catch(() => {
-      window.prompt("Copy the schedule below:", text);
-    });
-    return;
-  }
-
-  window.prompt("Copy the schedule below:", text);
-}
-
-function downloadSchedule() {
-  const selectedDay = document.getElementById("scheduleTitle")?.textContent?.replace(" Schedule", "") || getLocalDayName();
-  const schedule = getProgramsForDay(selectedDay);
-  const content = schedule.length
-    ? `BWE TV ${selectedDay} Schedule\n${schedule.map((item) => `${item.start} – ${item.end}: ${item.title} (${item.category})`).join("\n")}`
-    : `BWE TV ${selectedDay} Schedule\nNo programs currently available.`;
-
-  const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+function downloadTextFile(filename, text) {
+  const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
   const url = URL.createObjectURL(blob);
-  const anchor = document.createElement("a");
-  anchor.href = url;
-  anchor.download = `bwetv-schedule-${selectedDay.toLowerCase()}.txt`;
-  document.body.appendChild(anchor);
-  anchor.click();
-  document.body.removeChild(anchor);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
   URL.revokeObjectURL(url);
 }
 
-function renderShows() {
-  const filterContainer = document.getElementById("showFilters");
-  const showsContainer = document.getElementById("showsContainer");
-  if (!filterContainer || !showsContainer) return;
+function formatProgramSummary(program) {
+  if (!program) {
+    return "BWE TV programming updates";
+  }
+  return `${program.show || program.name} at ${program.time} with ${program.host}`;
+}
 
-  const categories = ["All", ...Array.from(new Set(PROGRAMS.map((program) => program.category).filter(Boolean)))];
-  let activeCategory = "All";
+let cachedFirebaseServices = null;
 
-  function renderCards(category = "All") {
-    const filtered = category === "All"
-      ? PROGRAMS
-      : PROGRAMS.filter((program) => program.category === category);
-
-    const uniqueProgramEntries = filtered.filter((program, index, list) => {
-      const firstIndex = list.findIndex((item) => item.id === program.id && item.title === program.title);
-      return firstIndex === index;
-    });
-
-    showsContainer.innerHTML = uniqueProgramEntries.map((program) => `
-      <article class="show-card overflow-hidden rounded-xl bg-white p-4 shadow-sm ring-1 ring-gray-200">
-        ${program.image ? `<div class="mb-4 h-40 overflow-hidden rounded-lg"><img src="${escapeHtml(program.image)}" alt="${escapeHtml(program.title)}" style="width:100%;height:100%;object-fit:cover;display:block"></div>` : ''}
-        <div class="mb-2 text-xs font-bold uppercase tracking-wide text-red-600">${escapeHtml(program.category || "Program")}</div>
-        <h3 class="text-xl font-bold text-gray-900">${escapeHtml(program.title)}</h3>
-        <p class="mt-2 text-sm text-gray-600">${escapeHtml(program.description)}</p>
-        <div class="mt-4 text-sm font-semibold text-gray-700">${escapeHtml(program.start)} – ${escapeHtml(program.end)}</div>
-      </article>
-    `).join("");
+function getFirebaseServices() {
+  if (cachedFirebaseServices) {
+    return cachedFirebaseServices;
   }
 
-  filterContainer.innerHTML = categories.map((category) => `
-    <button type="button" class="category-filter btn ${category === "All" ? "btn-primary active" : "btn-secondary"}" data-category="${escapeHtml(category)}">${escapeHtml(category)}</button>
-  `).join("");
+  if (typeof window === "undefined" || typeof window.firebase === "undefined") {
+    return null;
+  }
 
-  filterContainer.querySelectorAll(".category-filter").forEach((button) => {
-    button.addEventListener("click", () => {
-      activeCategory = button.dataset.category;
-      filterContainer.querySelectorAll(".category-filter").forEach((item) => {
-        const shouldBeActive = item.dataset.category === activeCategory;
-        item.classList.toggle("btn-primary", shouldBeActive);
-        item.classList.toggle("btn-secondary", !shouldBeActive);
-        item.classList.toggle("active", shouldBeActive);
-      });
-      renderCards(activeCategory);
-    });
-  });
+  if (!window.firebase.apps.length) {
+    window.firebase.initializeApp(FIREBASE_CONFIG);
+  }
 
-  renderCards(activeCategory);
+  cachedFirebaseServices = {
+    app: window.firebase.app(),
+    auth: typeof window.firebase.auth === "function" ? window.firebase.auth() : null,
+    rtdb: typeof window.firebase.database === "function" ? window.firebase.database() : null,
+    db: typeof window.firebase.firestore === "function" ? window.firebase.firestore() : null
+  };
+
+  return cachedFirebaseServices;
 }
 
-function renderCommunityPosts() {
-  const container = document.getElementById("communityPosts");
-  if (!container) return;
+function getDisplayName(user) {
+  if (!user) {
+    return "Guest";
+  }
 
-  container.innerHTML = COMMUNITY_POSTS.map((post) => `
-    <article class="rounded-xl border border-gray-200 bg-gray-50 p-4">
-      <div class="mb-2 text-xs font-bold uppercase tracking-wide text-red-600">${escapeHtml(post.tag)}</div>
-      <h3 class="text-xl font-bold text-gray-900">${escapeHtml(post.title)}</h3>
-      <p class="mt-2 text-sm font-medium text-gray-500">${escapeHtml(post.meta)}</p>
-      <p class="mt-3 text-sm text-gray-700">${escapeHtml(post.body)}</p>
-    </article>
-  `).join("");
-}
+  if (user.email) {
+    return user.email;
+  }
 
-function readSavedChatMessages() {
+  const storageKey = "bwetvGuestName";
+  const fallback = `Guest-${String(user.uid || "viewer").slice(0, 6)}`;
+
   try {
-    const saved = JSON.parse(localStorage.getItem(CHAT_STORAGE_KEY) || "[]");
-    return Array.isArray(saved) ? saved : [];
+    const existing = window.localStorage.getItem(storageKey);
+    if (existing) {
+      return existing;
+    }
+    window.localStorage.setItem(storageKey, fallback);
   } catch (error) {
-    return [];
+    // Ignore storage failures.
+  }
+
+  return fallback;
+}
+
+function setText(id, value) {
+  const element = document.getElementById(id);
+  if (element) {
+    element.textContent = value;
   }
 }
 
-function writeSavedChatMessages(messages) {
-  localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(messages.slice(-50))); 
+function getToneClass(tone, toneClasses) {
+  if (tone && toneClasses[tone]) {
+    return toneClasses[tone];
+  }
+
+  return toneClasses.default || "";
 }
 
-function syncCommunityStats() {
-  const membersCount = document.getElementById("membersCount");
-  const onlineCount = document.getElementById("onlineCount");
-  const chatCount = document.getElementById("chatCount");
-  const postsCount = document.getElementById("postsCount");
-
-  if (!membersCount && !onlineCount && !chatCount && !postsCount) return;
-
-  const savedUser = JSON.parse(localStorage.getItem(COMMUNITY_USER_KEY) || "null");
-  const baseMembers = 245;
-  const communityBoost = savedUser ? 18 : 0;
-  const memberTotal = baseMembers + communityBoost + Math.max(0, readSavedChatMessages().length - 12);
-  const onlineTotal = Math.max(12, Math.min(80, Math.round(memberTotal * 0.18)));
-  const chatTotal = readSavedChatMessages().length;
-  const topicTotal = COMMUNITY_POSTS.length;
-
-  if (membersCount) membersCount.textContent = String(memberTotal);
-  if (onlineCount) onlineCount.textContent = String(onlineTotal);
-  if (chatCount) chatCount.textContent = String(chatTotal);
-  if (postsCount) postsCount.textContent = String(topicTotal);
+function setDisabled(element, disabled) {
+  if (element) {
+    element.disabled = disabled;
+  }
 }
 
-function setCommunityUser(user) {
-  const loginSection = document.getElementById("loginSection");
-  const communitySection = document.getElementById("communitySection");
-  const currentViewer = document.getElementById("currentViewer");
-  const communityStatus = document.getElementById("communityStatus");
+function setAuthStatus(message, tone = "default") {
+  const status = document.getElementById("authStatus");
+  if (!status) return;
 
-  localStorage.setItem(COMMUNITY_USER_KEY, JSON.stringify(user));
-
-  if (currentViewer) currentViewer.textContent = user.name || "Guest";
-  if (loginSection) loginSection.classList.add("hidden");
-  if (communitySection) communitySection.classList.remove("hidden");
-  if (communityStatus) communityStatus.textContent = `Welcome back, ${user.name || "community member"}. You are now connected.`;
-
-  syncCommunityStats();
+  status.textContent = message;
+  status.className = `text-sm mt-3 ${getToneClass(tone, {
+    error: "text-red-700",
+    success: "text-green-700",
+    default: "text-gray-700"
+  })}`;
 }
 
-function initializeCommunityAccess() {
-  const loginBtn = document.getElementById("loginBtn");
-  const signupBtn = document.getElementById("signupBtn");
-  const anonBtn = document.getElementById("anonBtn");
-  const signOutBtn = document.getElementById("signOutBtn");
-  const emailInput = document.getElementById("emailInput");
-  const passwordInput = document.getElementById("passwordInput");
-  const communityStatus = document.getElementById("communityStatus");
-
-  const savedUser = JSON.parse(localStorage.getItem(COMMUNITY_USER_KEY) || "null");
-  if (savedUser) {
-    const currentViewer = document.getElementById("currentViewer");
-    const loginSection = document.getElementById("loginSection");
-    const communitySection = document.getElementById("communitySection");
-    if (currentViewer) currentViewer.textContent = savedUser.name || "Guest";
-    if (loginSection) loginSection.classList.add("hidden");
-    if (communitySection) communitySection.classList.remove("hidden");
-  }
-
-  function buildUser(name, email, type = "member") {
-    return {
-      name,
-      email,
-      type,
-      joinedAt: new Date().toISOString()
-    };
-  }
-
-  if (loginBtn) {
-    loginBtn.addEventListener("click", () => {
-      const email = emailInput ? emailInput.value.trim() : "";
-      const password = passwordInput ? passwordInput.value.trim() : "";
-      if (!email || !password) {
-        if (communityStatus) communityStatus.textContent = "Please enter your email and password to sign in.";
-        return;
-      }
-      const userName = email.split("@")[0] || "Community Member";
-      setCommunityUser(buildUser(userName, email, "member"));
-    });
-  }
-
-  if (signupBtn) {
-    signupBtn.addEventListener("click", () => {
-      const email = emailInput ? emailInput.value.trim() : "";
-      const password = passwordInput ? passwordInput.value.trim() : "";
-      const userName = email ? email.split("@")[0] : "New Member";
-      if (!email || !password) {
-        if (communityStatus) communityStatus.textContent = "Create an account with an email and password to join the community.";
-        return;
-      }
-      setCommunityUser(buildUser(userName, email, "member"));
-    });
-  }
-
-  if (anonBtn) {
-    anonBtn.addEventListener("click", () => {
-      setCommunityUser(buildUser("Guest", "guest@bwetv.local", "guest"));
-    });
-  }
-
-  if (signOutBtn) {
-    signOutBtn.addEventListener("click", () => {
-      localStorage.removeItem(COMMUNITY_USER_KEY);
-      const loginSection = document.getElementById("loginSection");
-      const communitySection = document.getElementById("communitySection");
-      const currentViewer = document.getElementById("currentViewer");
-      if (loginSection) loginSection.classList.remove("hidden");
-      if (communitySection) communitySection.classList.add("hidden");
-      if (currentViewer) currentViewer.textContent = "Guest";
-      if (communityStatus) communityStatus.textContent = "You have signed out. Choose how you would like to participate.";
-      syncCommunityStats();
-    });
-  }
-
-  syncCommunityStats();
+function isNearBottom(element) {
+  if (!element) return true;
+  return element.scrollHeight - element.scrollTop - element.clientHeight < CHAT_NEAR_BOTTOM_THRESHOLD;
 }
 
-function renderChatMessages() {
-  const liveChat = document.getElementById("liveChat");
-  if (!liveChat) return;
+function scrollChatToBottom(chatContainer, newMessageButton) {
+  if (!chatContainer) return;
+  chatContainer.scrollTop = chatContainer.scrollHeight;
+  if (newMessageButton) {
+    newMessageButton.classList.add("hidden");
+  }
+}
 
-  const messages = readSavedChatMessages();
-  if (!messages.length) {
-    liveChat.innerHTML = '<div class="rounded-lg bg-white p-4 text-sm text-gray-600 shadow-sm">No messages yet. Start the conversation.</div>';
-    syncCommunityStats();
+function setChatStatus(statusElement, message, tone = "neutral", toneClasses = {
+    error: "text-red-300",
+    success: "text-green-300",
+    default: "text-gray-400"
+  }) {
+  if (!statusElement) return;
+  statusElement.textContent = message;
+  statusElement.className = `text-xs ${getToneClass(tone, {
+    error: toneClasses.error,
+    success: toneClasses.success,
+    default: toneClasses.default
+  })}`;
+}
+
+function validateChatInput(chatInput, chatButton, charCount) {
+  if (!chatInput) return;
+  const message = chatInput.value.trim();
+  if (charCount) {
+    charCount.textContent = `${chatInput.value.length}/${CHAT_MAX_LENGTH}`;
+  }
+  setDisabled(chatButton, !message || message.length > CHAT_MAX_LENGTH);
+}
+
+function renderChatMessage({ chatContainer, newMessageButton, auth }, message) {
+  if (!chatContainer || !message) return;
+
+  const nearBottom = isNearBottom(chatContainer);
+  const currentUser = auth && auth.currentUser;
+  const isCurrentUser = currentUser && message.userId && currentUser.uid === message.userId;
+
+  const row = createElement("div", `mb-2 flex ${isCurrentUser ? "justify-end" : "justify-start"}`);
+  const bubble = createElement(
+    "article",
+    `max-w-[85%] rounded-lg border p-3 shadow-sm ${
+      isCurrentUser ? "border-blue-700 bg-blue-600 text-white" : "border-gray-200 bg-white text-gray-900"
+    }`
+  );
+  const meta = createElement(
+    "p",
+    `mb-1 text-[11px] ${isCurrentUser ? "text-blue-100" : "text-gray-500"}`,
+    `${message.user || "Guest"} • ${formatTime(new Date(message.timestamp || Date.now()))}`
+  );
+  const body = createElement("p", "text-sm whitespace-pre-wrap break-words", message.text || "");
+
+  bubble.appendChild(meta);
+  bubble.appendChild(body);
+  row.appendChild(bubble);
+  chatContainer.appendChild(row);
+
+  if (nearBottom) {
+    scrollChatToBottom(chatContainer, newMessageButton);
+  } else if (newMessageButton) {
+    newMessageButton.classList.remove("hidden");
+  }
+}
+
+function setupSharedChat(services, options = {}) {
+  const { auth, rtdb } = services || {};
+  const chatContainer = document.getElementById(options.containerId || "chatContainer");
+  const chatInput = document.getElementById(options.inputId || "chatInput");
+  const chatButton = document.getElementById(options.buttonId || "chatBtn");
+  const chatStatus = document.getElementById(options.statusId || "chatStatus");
+  const charCount = document.getElementById(options.charCountId || "charCount");
+  const newMessageButton = document.getElementById(options.newMessageButtonId || "newMsgBtn");
+  const emptyState = document.getElementById(options.emptyStateId || "chatEmptyState");
+
+  if (!chatContainer || !chatInput || !chatButton) {
     return;
   }
 
-  liveChat.innerHTML = messages.map((message) => `
-    <div class="mb-3 rounded-lg bg-white p-3 shadow-sm">
-      <div class="flex items-center justify-between gap-3">
-        <span class="text-sm font-bold text-red-600">${escapeHtml(message.author || "Viewer")}</span>
-        <span class="text-[11px] text-gray-500">${escapeHtml(message.time || "now")}</span>
-      </div>
-      <p class="mt-2 text-sm text-gray-700">${escapeHtml(message.text || "")}</p>
-    </div>
-  `).join("");
+  if (chatContainer.dataset.chatInitialized === "true") {
+    return;
+  }
+  chatContainer.dataset.chatInitialized = "true";
 
-  liveChat.scrollTop = liveChat.scrollHeight;
-  syncCommunityStats();
-}
+  if (!auth || !rtdb) {
+    setDisabled(chatInput, true);
+    setDisabled(chatButton, true);
+    setChatStatus(chatStatus, "Chat unavailable", "error", options.statusToneClasses);
+    return;
+  }
 
-function initializeChat() {
-  const chatForm = document.getElementById("chatForm");
-  const chatInput = document.getElementById("chatInput");
-  const liveChat = document.getElementById("liveChat");
+  const messagesRef = rtdb.ref(options.path || DEFAULT_CHAT_PATH).limitToLast(options.limit || 100);
+  const connectedRef = rtdb.ref(".info/connected");
+  const requireAuth = Boolean(options.requireAuth);
+  const state = { hasMessages: false, initialized: false };
 
-  if (!chatForm || !chatInput || !liveChat) return;
+  chatContainer.setAttribute("role", chatContainer.getAttribute("role") || "log");
+  chatContainer.setAttribute("aria-relevant", chatContainer.getAttribute("aria-relevant") || "additions text");
+  chatContainer.setAttribute("aria-atomic", chatContainer.getAttribute("aria-atomic") || "false");
 
-  renderChatMessages();
+  const maybeSignInGuest = async () => {
+    if (options.autoSignIn === false) {
+      return;
+    }
+    if (!auth.currentUser) {
+      try {
+        await auth.signInAnonymously();
+      } catch (error) {
+        setChatStatus(chatStatus, "Sign-in required", "error", options.statusToneClasses);
+      }
+    }
+  };
 
-  chatForm.addEventListener("submit", (event) => {
-    event.preventDefault();
-    const message = chatInput.value.trim();
-    if (!message) return;
+  const updateAuthDependentState = () => {
+    const hasUser = Boolean(auth.currentUser);
+    const inputLocked = requireAuth && !hasUser;
+    setDisabled(chatInput, inputLocked);
+    if (inputLocked) {
+      chatInput.placeholder = "Sign in to join the chat.";
+      setDisabled(chatButton, true);
+      setChatStatus(chatStatus, "Sign in to chat", "default", options.statusToneClasses);
+      return;
+    }
 
-    const authorName = localStorage.getItem("bwetv-chat-name") || `Viewer ${Math.floor(Math.random() * 900 + 100)}`;
-    const nextMessage = {
-      author: authorName,
-      text: message,
-      time: new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })
+    chatInput.placeholder = options.placeholder || "Type a message...";
+    validateChatInput(chatInput, chatButton, charCount);
+  };
+
+  const sendMessage = async () => {
+    const text = chatInput.value.trim();
+    if (!text || text.length > CHAT_MAX_LENGTH) return;
+
+    if (!auth.currentUser) {
+      await maybeSignInGuest();
+    }
+
+    const currentUser = auth.currentUser;
+    if (!currentUser || (requireAuth && currentUser.isAnonymous)) {
+      setChatStatus(chatStatus, "Unable to send", "error", options.statusToneClasses);
+      return;
+    }
+
+    const payload = {
+      text,
+      user: getDisplayName(currentUser),
+      userId: currentUser.uid,
+      timestamp: Date.now()
     };
 
-    const messages = readSavedChatMessages();
-    messages.push(nextMessage);
-    writeSavedChatMessages(messages);
-    chatInput.value = "";
-    renderChatMessages();
+    setDisabled(chatButton, true);
+    setChatStatus(chatStatus, "Sending…", "default", options.statusToneClasses);
+
+    try {
+      await rtdb.ref(options.path || DEFAULT_CHAT_PATH).push(payload);
+      chatInput.value = "";
+      validateChatInput(chatInput, chatButton, charCount);
+      setChatStatus(chatStatus, "Connected", "success", options.statusToneClasses);
+    } catch (error) {
+      setChatStatus(chatStatus, "Send failed", "error", options.statusToneClasses);
+      updateShareStatus("Message failed to send. Please try again.");
+    }
+  };
+
+  if (!state.initialized) {
+    chatContainer.innerHTML = "";
+
+    chatInput.addEventListener("input", () => validateChatInput(chatInput, chatButton, charCount));
+    chatInput.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" && !event.shiftKey) {
+        event.preventDefault();
+        if (!chatButton.disabled) {
+          sendMessage();
+        }
+      }
+    });
+    chatButton.addEventListener("click", sendMessage);
+
+    if (newMessageButton) {
+      newMessageButton.addEventListener("click", () => scrollChatToBottom(chatContainer, newMessageButton));
+    }
+
+    connectedRef.on("value", (snapshot) => {
+      if (requireAuth && !auth.currentUser) {
+        setChatStatus(chatStatus, "Sign in to chat", "default", options.statusToneClasses);
+        return;
+      }
+      setChatStatus(
+        chatStatus,
+        snapshot.val() ? "Connected" : "Reconnecting…",
+        snapshot.val() ? "success" : "neutral",
+        options.statusToneClasses
+      );
+    });
+
+    messagesRef.on("child_added", (snapshot) => {
+      state.hasMessages = true;
+      if (emptyState) {
+        emptyState.classList.add("hidden");
+      }
+      renderChatMessage({ chatContainer, newMessageButton, auth }, snapshot.val() || {});
+    });
+
+    auth.onAuthStateChanged((user) => {
+      updateAuthDependentState();
+      if (user) {
+        setChatStatus(chatStatus, `Connected as ${getDisplayName(user)}`, "success", options.statusToneClasses);
+      } else if (requireAuth) {
+        setChatStatus(chatStatus, "Sign in to chat", "default", options.statusToneClasses);
+      }
+    });
+
+    state.initialized = true;
+  }
+
+  updateAuthDependentState();
+  maybeSignInGuest();
+}
+
+function setupHomeAuth(services) {
+  const { auth } = services || {};
+  if (!auth) return;
+
+  const signupForm = document.getElementById("signupForm");
+  const loginForm = document.getElementById("loginForm");
+  const logoutButton = document.getElementById("logoutBtn");
+
+  const handleAuthError = (error) => {
+    setAuthStatus(error && error.message ? error.message : "Something went wrong.", "error");
+  };
+
+  if (signupForm) {
+    signupForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const email = document.getElementById("signupEmail")?.value.trim();
+      const password = document.getElementById("signupPassword")?.value || "";
+      if (!email || !password) return;
+
+      try {
+        await auth.createUserWithEmailAndPassword(email, password);
+        signupForm.reset();
+        setAuthStatus("Account created successfully.", "success");
+      } catch (error) {
+        handleAuthError(error);
+      }
+    });
+  }
+
+  if (loginForm) {
+    loginForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const email = document.getElementById("loginEmail")?.value.trim();
+      const password = document.getElementById("loginPassword")?.value || "";
+      if (!email || !password) return;
+
+      try {
+        await auth.signInWithEmailAndPassword(email, password);
+        loginForm.reset();
+        setAuthStatus("Welcome back.", "success");
+      } catch (error) {
+        handleAuthError(error);
+      }
+    });
+  }
+
+  if (logoutButton) {
+    logoutButton.addEventListener("click", async () => {
+      try {
+        await auth.signOut();
+        await auth.signInAnonymously();
+        setAuthStatus("You are now browsing as a guest.");
+      } catch (error) {
+        handleAuthError(error);
+      }
+    });
+  }
+
+  auth.onAuthStateChanged(async (user) => {
+    if (!user) {
+      try {
+        await auth.signInAnonymously();
+        return;
+      } catch (error) {
+        setAuthStatus("Guest sign-in is unavailable right now.", "error");
+        return;
+      }
+    }
+
+    setAuthStatus(user.isAnonymous ? `Chatting as ${getDisplayName(user)}` : `Signed in as ${getDisplayName(user)}`);
   });
 }
 
-function initializeMobileNavigation() {
-  const toggleButton = document.getElementById("mobileMenuBtn");
-  const mobileMenu = document.getElementById("mobileMenu");
-  if (!toggleButton || !mobileMenu) return;
+function setupCommunityAuth(services) {
+  const { auth } = services || {};
+  const loginSection = document.getElementById("loginSection");
+  const communitySection = document.getElementById("communitySection");
+  if (!auth || !loginSection || !communitySection) return;
 
-  toggleButton.addEventListener("click", () => {
-    const shouldBeVisible = mobileMenu.classList.contains("hidden");
-    mobileMenu.classList.toggle("hidden", !shouldBeVisible);
-    mobileMenu.classList.toggle("visible", shouldBeVisible);
-    toggleButton.setAttribute("aria-expanded", String(shouldBeVisible));
+  const emailInput = document.getElementById("emailInput");
+  const passwordInput = document.getElementById("passwordInput");
+  const loginButton = document.getElementById("loginBtn");
+  const signupButton = document.getElementById("signupBtn");
+  const anonymousButton = document.getElementById("anonBtn");
+  const communityStatus = document.getElementById("communityStatus");
+  const currentViewer = document.getElementById("currentViewer");
+  const signOutButton = document.getElementById("signOutBtn");
+
+  const updateCommunityStatus = (message, tone = "default") => {
+    if (!communityStatus) return;
+    communityStatus.textContent = message;
+    communityStatus.className = `mt-4 text-sm ${getToneClass(tone, {
+      error: "text-red-700",
+      success: "text-green-700",
+      default: "text-gray-600"
+    })}`;
+  };
+
+  const withAuth = async (callback) => {
+    try {
+      await callback();
+    } catch (error) {
+      updateCommunityStatus(error && error.message ? error.message : "Something went wrong.", "error");
+    }
+  };
+
+  if (loginButton) {
+    loginButton.addEventListener("click", () =>
+      withAuth(() => auth.signInWithEmailAndPassword(emailInput?.value.trim() || "", passwordInput?.value || ""))
+    );
+  }
+
+  if (signupButton) {
+    signupButton.addEventListener("click", () =>
+      withAuth(() => auth.createUserWithEmailAndPassword(emailInput?.value.trim() || "", passwordInput?.value || ""))
+    );
+  }
+
+  if (anonymousButton) {
+    anonymousButton.addEventListener("click", () => withAuth(() => auth.signInAnonymously()));
+  }
+
+  if (signOutButton) {
+    signOutButton.addEventListener("click", () => withAuth(async () => {
+      await auth.signOut();
+      updateCommunityStatus("Signed out. Continue as guest or sign in again.");
+    }));
+  }
+
+  auth.onAuthStateChanged((user) => {
+    const isSignedIn = Boolean(user);
+    loginSection.classList.toggle("hidden", isSignedIn);
+    communitySection.classList.toggle("hidden", !isSignedIn);
+
+    if (isSignedIn) {
+      const name = getDisplayName(user);
+      if (currentViewer) {
+        currentViewer.textContent = name;
+      }
+      updateCommunityStatus(user.isAnonymous ? `You are participating as ${name}.` : `Welcome back, ${name}.`, "success");
+    }
   });
 }
 
-function markActiveNavigation() {
-  const currentPage = window.location.pathname.split("/").pop() || "index.html";
-  document.querySelectorAll("a[data-nav-link]").forEach((link) => {
-    const href = link.getAttribute("href");
-    const isActive = href === currentPage;
+function setupCommunityPosts(services) {
+  const { auth, db } = services || {};
+  const serverTimestamp = window.firebase?.firestore?.FieldValue?.serverTimestamp;
+  const postInput = document.getElementById("postInput");
+  const postButton = document.getElementById("postBtn");
+  const postsContainer = document.getElementById("postsContainer");
+  const postStatus = document.getElementById("postStatus");
+
+  if (!auth || !db || !postInput || !postButton || !postsContainer) {
+    return;
+  }
+
+  postButton.addEventListener("click", async () => {
+    const text = postInput.value.trim();
+    if (!text) return;
+
+    try {
+      await db.collection("posts").add({
+        text,
+        user: getDisplayName(auth.currentUser),
+        timestamp: typeof serverTimestamp === "function" ? serverTimestamp() : Date.now()
+      });
+      postInput.value = "";
+      if (postStatus) {
+        postStatus.textContent = "Discussion shared.";
+      }
+    } catch (error) {
+      if (postStatus) {
+        postStatus.textContent = "Unable to publish right now.";
+      }
+    }
+  });
+
+  db.collection("posts")
+    .orderBy("timestamp", "desc")
+    .limit(10)
+    .onSnapshot(
+      (snapshot) => {
+        postsContainer.innerHTML = "";
+        snapshot.forEach((doc) => {
+          const post = doc.data() || {};
+          const card = createElement("article", "rounded-lg border border-gray-200 bg-white p-3 shadow-sm");
+          const meta = createElement("p", "mb-1 text-sm font-semibold text-gray-800", post.user || "Community member");
+          const body = createElement("p", "text-sm text-gray-600 whitespace-pre-wrap", post.text || "");
+          card.appendChild(meta);
+          card.appendChild(body);
+          postsContainer.appendChild(card);
+        });
+      },
+      () => {
+        if (postStatus) {
+          postStatus.textContent = "Discussions are temporarily unavailable.";
+        }
+      }
+    );
+}
+
+function setupCommunityActions() {
+  const donatePaypalButton = document.getElementById("donatePaypalBtn");
+  const donateMtnButton = document.getElementById("donateMtnBtn");
+  const newsletterForm = document.getElementById("newsletterForm");
+  const newsletterStatus = document.getElementById("newsletterStatus");
+
+  if (donatePaypalButton) {
+    donatePaypalButton.addEventListener("click", () => {
+      window.location.href = "https://www.paypal.me/oyoovincentoyoo1725";
+    });
+  }
+
+  if (donateMtnButton) {
+    donateMtnButton.addEventListener("click", () => {
+      updateShareStatus("Donate via MTN Mobile Money: +256774231123");
+    });
+  }
+
+  if (newsletterForm) {
+    newsletterForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const email = newsletterForm.querySelector('input[type="email"]')?.value.trim();
+      if (newsletterStatus) {
+        newsletterStatus.textContent = email
+          ? `Thanks! We will follow up at ${email}.`
+          : "Thanks for subscribing.";
+      }
+      newsletterForm.reset();
+    });
+  }
+}
+
+function renderPrograms() {
+  const container = document.getElementById("programsContainer");
+  if (!container) return;
+
+  container.innerHTML = "";
+  getTodaySchedule().forEach((program) => {
+    const card = createElement("article", "rounded-lg bg-white p-5 shadow-sm program-card border border-gray-100");
+    card.appendChild(createElement("p", "mb-2 text-sm font-semibold text-red-600", program.time));
+    card.appendChild(createElement("h3", "mb-2 text-xl font-bold text-gray-900", program.show));
+    card.appendChild(createElement("p", "mb-2 text-sm text-gray-600", `Hosted by ${program.host}`));
+    card.appendChild(createElement("p", "text-sm text-gray-500", `${program.duration} • ${program.category || "Featured"}`));
+    container.appendChild(card);
+  });
+}
+
+function renderCurrentShow() {
+  const currentShowInfo = document.getElementById("currentShowInfo");
+  if (!currentShowInfo) return;
+
+  const currentShow = getCurrentShow();
+  if (!currentShow) {
+    currentShowInfo.innerHTML = '<p class="text-lg font-semibold">On-demand playback is available while the next live program is queued.</p>';
+    return;
+  }
+
+  currentShowInfo.innerHTML = `
+    <div class="inline-flex flex-col items-center rounded-lg bg-white/10 px-5 py-4 text-white backdrop-blur-sm">
+      <p class="mb-1 text-sm uppercase tracking-wide opacity-80">Now playing</p>
+      <p class="text-2xl font-bold">${currentShow.show}</p>
+      <p class="mt-1 text-sm opacity-90">${currentShow.time} • ${currentShow.duration} • Hosted by ${currentShow.host}</p>
+    </div>
+  `;
+}
+
+function renderSchedule(day = scheduleState.selectedDay) {
+  const title = document.getElementById("scheduleTitle");
+  const container = document.getElementById("scheduleContainer");
+  if (!container || !title) return;
+
+  scheduleState.selectedDay = day;
+  const schedule = getSelectedSchedule();
+  title.textContent = day === "Today" ? "Today's Schedule" : `${day}'s Schedule`;
+  container.innerHTML = "";
+
+  if (!schedule.length) {
+    container.appendChild(createElement("p", "rounded-lg bg-gray-50 p-4 text-gray-600", "No schedule available right now."));
+    return;
+  }
+
+  schedule.forEach((program) => {
+    const item = createElement("article", "schedule-item rounded-lg bg-gray-50 p-4 shadow-sm");
+    const topRow = createElement("div", "flex flex-col gap-3 md:flex-row md:items-center md:justify-between");
+    const details = createElement("div");
+    details.appendChild(createElement("p", "text-sm font-semibold uppercase tracking-wide text-red-600", program.time));
+    details.appendChild(createElement("h3", "text-xl font-bold text-gray-900", program.show));
+    details.appendChild(createElement("p", "text-sm text-gray-600", `Hosted by ${program.host}`));
+    const duration = createElement("span", "inline-flex rounded-full bg-white px-3 py-1 text-sm font-semibold text-gray-600", program.duration);
+
+    topRow.appendChild(details);
+    topRow.appendChild(duration);
+    item.appendChild(topRow);
+    container.appendChild(item);
+  });
+}
+
+function getFilteredShows() {
+  const searchQuery = document.getElementById("searchInput")?.value.trim().toLowerCase() || "";
+  const sortValue = document.getElementById("sortSelect")?.value || "rating";
+
+  let filtered = SHOWS.filter((show) =>
+    (showsState.selectedCategory === "All" || show.category === showsState.selectedCategory) &&
+    (!searchQuery || `${show.title} ${show.host} ${show.description}`.toLowerCase().includes(searchQuery))
+  );
+
+  filtered = filtered.sort((a, b) => {
+    if (sortValue === "episodes") return b.episodes - a.episodes;
+    if (sortValue === "name") return a.title.localeCompare(b.title);
+    return b.rating - a.rating;
+  });
+
+  return filtered;
+}
+
+function renderShows() {
+  const container = document.getElementById("showsContainer");
+  const resultsInfo = document.getElementById("resultsInfo");
+  const noResults = document.getElementById("noResults");
+  if (!container || !resultsInfo || !noResults) return;
+
+  const shows = getFilteredShows();
+  container.innerHTML = "";
+
+  if (!shows.length) {
+    resultsInfo.textContent = "No shows match your current filters.";
+    noResults.classList.remove("hidden");
+    return;
+  }
+
+  noResults.classList.add("hidden");
+  resultsInfo.textContent = `${shows.length} show${shows.length === 1 ? "" : "s"} available`;
+
+  shows.forEach((show) => {
+    const card = createElement("article", "show-card relative overflow-hidden rounded-xl border border-gray-100 bg-white p-6 shadow-sm");
+    const badge = createElement("span", "mb-4 inline-flex rounded-full bg-red-50 px-3 py-1 text-sm font-semibold text-red-600", show.category);
+    const emoji = createElement("div", "mb-4 text-4xl", show.thumbnail);
+    emoji.setAttribute("aria-hidden", "true");
+    const title = createElement("h3", "mb-2 text-2xl font-bold text-gray-900", show.title);
+    const description = createElement("p", "mb-4 text-sm text-gray-600", show.description);
+    const host = createElement("p", "mb-1 text-sm font-semibold text-gray-700", `Host: ${show.host}`);
+    const airtime = createElement("p", "mb-4 text-sm text-gray-500", show.airTime);
+    const stats = createElement("div", "flex items-center justify-between text-sm font-semibold text-gray-600");
+    stats.appendChild(createElement("span", "", `${show.episodes} episodes`));
+    stats.appendChild(createElement("span", "", `${show.rating.toFixed(1)} ★`));
+
+    card.appendChild(badge);
+    card.appendChild(emoji);
+    card.appendChild(title);
+    card.appendChild(description);
+    card.appendChild(host);
+    card.appendChild(airtime);
+    card.appendChild(stats);
+    container.appendChild(card);
+  });
+}
+
+function highlightActiveFilter(buttons, activeButton) {
+  buttons.forEach((button) => {
+    button.classList.remove("active", "btn-primary");
+    button.classList.add("btn-secondary");
+  });
+  activeButton.classList.add("active", "btn-primary");
+  activeButton.classList.remove("btn-secondary");
+}
+
+function toggleMobileMenu() {
+  const button = document.getElementById("mobileMenuBtn");
+  const menu = document.getElementById("mobileMenu");
+  if (!button || !menu) return;
+
+  const isOpen = button.getAttribute("aria-expanded") === "true";
+  button.setAttribute("aria-expanded", String(!isOpen));
+  menu.classList.toggle("hidden", isOpen);
+  menu.classList.toggle("visible", !isOpen);
+}
+
+function initializeMobileMenu() {
+  const button = document.getElementById("mobileMenuBtn");
+  const menu = document.getElementById("mobileMenu");
+  if (!button || !menu) return;
+  if (button.dataset.menuBound === "true") return;
+
+  const closeMenu = () => {
+    button.setAttribute("aria-expanded", "false");
+    menu.classList.add("hidden");
+    menu.classList.remove("visible");
+  };
+
+  button.setAttribute("aria-expanded", "false");
+  button.addEventListener("click", toggleMobileMenu);
+
+  menu.querySelectorAll("a").forEach((link) => {
+    link.addEventListener("click", () => {
+      closeMenu();
+    });
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      closeMenu();
+    }
+  });
+
+  document.addEventListener("click", (event) => {
+    if (!menu.contains(event.target) && !button.contains(event.target)) {
+      closeMenu();
+    }
+  });
+
+  button.dataset.menuBound = "true";
+}
+
+function highlightCurrentNav() {
+  const path = (window.location.pathname.split("/").pop() || "index.html").toLowerCase();
+  document.querySelectorAll("[data-nav-link]").forEach((link) => {
+    const href = (link.getAttribute("href") || "").toLowerCase();
+    const isActive = href === path || (path === "" && href === "index.html");
     link.classList.toggle("nav-link-active", isActive);
     if (isActive) {
       link.setAttribute("aria-current", "page");
+    } else {
+      link.removeAttribute("aria-current");
     }
   });
 }
 
-function initializeWebsite() {
-  renderCurrentShowMessage();
-  renderHomePrograms();
-  renderShows();
-  renderCommunityPosts();
-  initializeChat();
-  initializeCommunityAccess();
-  initializeMobileNavigation();
-  markActiveNavigation();
+async function shareVideo() {
+  const currentShow = getCurrentShow() || STREAM_CONFIG.currentShow;
+  await sharePage({
+    title: "Watch BWE TV Live",
+    text: `Tune in now: ${formatProgramSummary(currentShow)}`,
+    url: window.location.href
+  });
+}
 
-  const scheduleTitle = document.getElementById("scheduleTitle");
-  const scheduleContainer = document.getElementById("scheduleContainer");
-  if (scheduleTitle && scheduleContainer) {
-    const selectedDay = getLocalDayName();
-    renderSchedulePage(selectedDay);
-    if (typeof window.selectDay === "function") {
-      const navButtons = document.querySelectorAll(".day-btn");
-      navButtons.forEach((button) => {
-        button.addEventListener("click", (event) => selectDay(event, button.dataset.day));
-      });
-    }
+async function shareSchedule() {
+  await sharePage({
+    title: "BWE TV Schedule",
+    text: `Today's highlight: ${formatProgramSummary(getSelectedSchedule()[0])}`,
+    url: `${window.location.origin}${window.location.pathname}`
+  });
+}
+
+function downloadSchedule() {
+  const schedule = getSelectedSchedule();
+  const lines = schedule.map((program) => `${program.time} — ${program.show} (${program.duration}) with ${program.host}`);
+  downloadTextFile(`bwe-tv-${scheduleState.selectedDay.toLowerCase()}-schedule.txt`, lines.join("\n"));
+}
+
+function setReminder() {
+  const nextProgram = getSelectedSchedule()[0] || getCurrentShow();
+  if (!nextProgram) {
+    updateShareStatus("No upcoming program is available for a reminder.");
+    return;
+  }
+
+  const reminderTime = parseProgramTime(nextProgram.time);
+  const reminderText = `${nextProgram.show} starts at ${nextProgram.time}. Host: ${nextProgram.host}.`;
+  copyText(reminderText)
+    .then((copied) => {
+      updateShareStatus(
+        copied
+          ? `Reminder copied for ${nextProgram.show}. Add it to your calendar.`
+          : `Set a reminder for ${nextProgram.show} at ${formatTime(reminderTime)}.`
+      );
+    })
+    .catch(() => updateShareStatus(`Set a reminder for ${nextProgram.show} at ${formatTime(reminderTime)}.`));
+}
+
+function selectDay(event, day) {
+  scheduleState.selectedDay = day;
+  document.querySelectorAll(".day-btn").forEach((button) => {
+    button.classList.remove("btn-primary");
+    button.classList.add("btn-secondary");
+  });
+  if (event?.currentTarget) {
+    event.currentTarget.classList.add("btn-primary");
+    event.currentTarget.classList.remove("btn-secondary");
+  }
+  renderSchedule(day);
+}
+
+function filterShows() {
+  renderShows();
+}
+
+function filterByCategory(event, category) {
+  showsState.selectedCategory = category;
+  highlightActiveFilter(Array.from(document.querySelectorAll(".category-filter")), event.currentTarget);
+  renderShows();
+}
+
+function sortShows() {
+  renderShows();
+}
+
+function initializePageEnhancements() {
+  initializeMobileMenu();
+  highlightCurrentNav();
+  renderPrograms();
+  renderCurrentShow();
+  renderSchedule(scheduleState.selectedDay);
+  renderShows();
+
+  const services = getFirebaseServices();
+  if (services) {
+    const isCommunityPage = Boolean(document.getElementById("loginSection"));
+    setupHomeAuth(services);
+    setupCommunityAuth(services);
+    setupSharedChat(services, {
+      autoSignIn: true,
+      placeholder: "Say something…",
+      statusToneClasses: isCommunityPage
+        ? {
+          error: "text-red-600",
+          success: "text-green-600",
+          default: "text-gray-500"
+        }
+        : undefined
+    });
+    setupCommunityPosts(services);
+    setupCommunityActions();
+  } else {
+    setupCommunityActions();
   }
 }
 
-document.addEventListener("DOMContentLoaded", initializeWebsite);
+if (typeof window !== "undefined" && typeof document !== "undefined") {
+  window.shareVideo = shareVideo;
+  window.shareSchedule = shareSchedule;
+  window.downloadSchedule = downloadSchedule;
+  window.setReminder = setReminder;
+  window.selectDay = selectDay;
+  window.filterShows = filterShows;
+  window.filterByCategory = filterByCategory;
+  window.sortShows = sortShows;
 
-window.BWE = {
-  PROGRAMS,
-  COMMUNITY_POSTS,
-  renderCurrentShowMessage,
-  renderHomePrograms,
-  renderSchedulePage,
-  selectDay,
-  setReminder,
-  shareSchedule,
-  downloadSchedule,
-  renderShows,
-  renderCommunityPosts,
-  initializeChat,
-  initializeMobileNavigation,
-  syncCommunityStats,
-  initializeCommunityAccess
-};
-
-window.addEventListener("load", () => {
-  const scriptContext = document.body ? document.body.dataset : {};
-  if (scriptContext.page === "schedule") {
-    renderSchedulePage(getLocalDayName());
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initializePageEnhancements);
+  } else {
+    initializePageEnhancements();
   }
-  syncCommunityStats();
-});
+}
 
-if (typeof window !== "undefined") {
-  window.getProgramsForDay = getProgramsForDay;
-  window.findCurrentProgram = findCurrentProgram;
-  window.findNextProgram = findNextProgram;
+/**
+ * Export for use in HTML files
+ */
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = {
+    PROGRAMS,
+    SHOWS,
+    WEEKLY_SCHEDULE,
+    FEATURED_SHOWS,
+    STREAM_CONFIG,
+    FIREBASE_CONFIG,
+    getTodaySchedule,
+    getShowById,
+    getShowsByCategory,
+    searchShows,
+    getUpcomingPrograms,
+    getCurrentShow,
+    formatTime,
+    parseProgramTime,
+    getSelectedSchedule
+  };
 }
