@@ -31,20 +31,25 @@
     .surface-card { background:linear-gradient(145deg,rgba(248,245,240,.88),rgba(237,224,200,.65))!important; backdrop-filter:blur(6px); border:1px solid rgba(160,96,58,.28); }
     .member-form-input { background:rgba(248,245,240,.7); border:1px solid rgba(160,96,58,.4); border-radius:.375rem; padding:.5rem .75rem; width:100%; color:#1A1209; }
     .member-form-input:focus { outline:none; box-shadow:0 0 0 3px rgba(212,169,106,.5); }
-    .skeleton-block { background:linear-gradient(90deg,rgba(214,201,168,.6) 25%,rgba(193,174,138,.5) 50%,rgba(214,201,168,.6) 75%); background-size:200% 100%; animation:shimmer 1.6s infinite; border-radius:.375rem; }
+    .skeleton-block { background:linear-gradient(90deg,rgba(214,201,168,.6) 25%,rgba(193,174,138,.5) 50%,rgba(214,201,168,.6) 75%); background-size:200% 100%; animation:shimmer 1.6s infinite; border-radius:.5rem; }
     @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
-    .chat-scroll::-webkit-scrollbar{width:5px}.chat-scroll::-webkit-scrollbar-track{background:rgba(61,31,14,.15)}.chat-scroll::-webkit-scrollbar-thumb{background:rgba(160,96,58,.55);border-radius:9999px}
+    .chat-scroll::-webkit-scrollbar{width:5px}.chat-scroll::-webkit-scrollbar-track{background:rgba(61,31,14,.15)}.chat-scroll::-webkit-scrollbar-thumb{background:rgba(160,96,58,.55);border-radius:.375rem}
+    .brand-logo-image { height: 44px; width: auto; max-width: 180px; object-fit: contain; }
+    .brand-header .brand-logo-link { display: inline-flex; align-items: center; }
+    .brand-footer .brand-logo-image { height: 52px; }
   </style>
 </head>
 <body>
   <a class="skip-link" href="#main-content">Skip to main content</a>
   <header class="brand-header sticky top-0 z-50 text-white shadow-lg">
     <div class="site-shell flex items-center justify-between p-4">
-      <a href="index.html" class="text-2xl font-bold tracking-tight">BWE <span style="background:linear-gradient(135deg,#BF1506,#8C2B0A);padding:2px 10px;border-radius:4px;">TV</span></a>
+      <a href="index.html" class="brand-logo-link" aria-label="BWE TV home">
+        <img src="assets/images/logo 1.png" alt="BWE TV logo" class="brand-logo-image" />
+      </a>
       <nav class="hidden md:flex space-x-6" aria-label="Primary navigation">
         <a href="index.html" data-nav-link class="hover:text-yellow-200 transition">Home</a><a href="schedule.html" data-nav-link class="hover:text-yellow-200 transition">Programs</a><a href="shows.html" data-nav-link class="hover:text-yellow-200 transition">Shows</a><a href="community.html" data-nav-link class="hover:text-yellow-200 transition">Community</a><a href="live-chat.html" data-nav-link class="hover:text-yellow-200 transition">Live Chat</a>
       </nav>
-      <button id="mobileMenuBtn" class="md:hidden rounded p-2 text-2xl transition" aria-expanded="false" aria-controls="mobileMenu" aria-label="Open navigation menu" style="background:rgba(255,255,255,.08);">☰</button>
+      <button id="mobileMenuBtn" class="md:hidden rounded p-2 text-2xl transition" aria-expanded="false" aria-controls="mobileMenu" aria-label="Open navigation menu" style="background:rgba(255,255,255,.12);">☰</button>
     </div>
     <nav id="mobileMenu" class="mobile-menu hidden brand-header-sub md:hidden" aria-label="Mobile navigation"><div class="site-shell flex flex-col space-y-3 p-4"><a href="index.html" data-nav-link class="hover:text-yellow-200 transition">Home</a><a href="schedule.html" data-nav-link class="hover:text-yellow-200 transition">Programs</a><a href="shows.html" data-nav-link class="hover:text-yellow-200 transition">Shows</a><a href="community.html" data-nav-link class="hover:text-yellow-200 transition">Community</a><a href="live-chat.html" data-nav-link class="hover:text-yellow-200 transition">Live Chat</a></div></nav>
   </header>
@@ -61,7 +66,7 @@
     <section class="radio-section p-6"><div class="site-shell grid gap-6 lg:grid-cols-[2fr_1fr] lg:items-start"><div><h2 class="mb-4 text-3xl font-bold text-brand">Partner Radio Stations</h2><div class="grid gap-4 md:grid-cols-2"><div class="surface-card rounded-xl p-4"><h3 class="text-xl font-bold text-brand">KFM Uganda</h3><p class="mt-2 text-sm">Community news, music, and civic programming across Uganda.</p></div><div class="surface-card rounded-xl p-4"><h3 class="text-xl font-bold text-brand">BWE Community Radio</h3><p class="mt-2 text-sm">Local voices, culture, and community updates from the region.</p></div></div></div><div class="surface-card rounded-xl p-5"><h3 class="text-xl font-bold text-brand">Community Snapshot</h3><ul class="mt-4 space-y-3 text-sm text-gray-700"><li>• Community-first programming</li><li>• Live stream and chat access</li><li>• Local news and culture updates</li><li>• Mobile-friendly guest access</li></ul></div></div></section>
   </main>
 
-  <footer class="brand-footer"><div class="site-shell bwe-footer-inner"><div class="bwe-footer-brand"><div class="bwe-footer-logo">BWE <span>TV</span></div></div><div class="bwe-footer-center"><p>© 2026 BWE TV</p></div><div class="bwe-footer-links"><a href="about.html">About</a><a href="privacy.html">Privacy</a><a href="contact.html">Contact</a></div></div></footer>
+  <footer class="brand-footer"><div class="site-shell bwe-footer-inner"><div class="bwe-footer-brand"><img src="assets/images/logo 1.png" alt="BWE TV logo" class="brand-logo-image" /></div><div class="bwe-footer-center"><p>© 2026 BWE TV</p></div><div class="bwe-footer-links"><a href="about.html">About</a><a href="privacy.html">Privacy</a><a href="contact.html">Contact</a></div></div></footer>
 
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js" defer></script><script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js" defer></script><script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js" defer></script><script src="content.js" defer></script>
 </body>
