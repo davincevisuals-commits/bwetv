@@ -99,6 +99,37 @@
           </div>
           <button id="signOutBtn" class="rounded border border-gray-300 px-4 py-2 font-semibold text-gray-700" type="button">Sign out</button>
         </div>
+
+        <div class="grid gap-6 lg:grid-cols-[1.5fr_1fr]">
+          <div class="rounded-2xl bg-white p-5 shadow-sm">
+            <h3 class="mb-4 text-xl font-bold text-gray-900">Share a community update</h3>
+            <textarea id="postInput" rows="5" class="w-full rounded border border-gray-300 p-3 text-gray-800" placeholder="Share a thought, message, or update with the BWE TV community..."></textarea>
+            <div class="mt-4 flex items-center justify-between gap-3">
+              <span id="postStatus" class="text-sm text-gray-500">Ready to post.</span>
+              <button id="postBtn" class="rounded bg-red-600 px-4 py-2 font-semibold text-white">Post</button>
+            </div>
+          </div>
+
+          <div class="rounded-2xl bg-white p-5 shadow-sm">
+            <h3 class="mb-4 text-xl font-bold text-gray-900">Support the mission</h3>
+            <div class="space-y-3">
+              <button id="donatePaypalBtn" class="w-full rounded bg-blue-600 px-4 py-3 font-semibold text-white">Support with PayPal</button>
+              <button id="donateMtnBtn" class="w-full rounded bg-yellow-500 px-4 py-3 font-semibold text-gray-900">Support via MTN MoMo</button>
+            </div>
+
+            <form id="newsletterForm" class="mt-6">
+              <label for="newsletterEmail" class="mb-2 block text-sm font-semibold text-gray-700">Newsletter</label>
+              <input id="newsletterEmail" type="email" placeholder="you@example.com" class="w-full rounded border border-gray-300 p-3" required>
+              <button type="submit" class="mt-3 w-full rounded border border-gray-300 bg-gray-100 px-4 py-3 font-semibold text-gray-800">Subscribe</button>
+              <p id="newsletterStatus" class="mt-2 text-sm text-gray-500">Stay updated on BWE TV news and events.</p>
+            </form>
+          </div>
+        </div>
+
+        <div class="rounded-2xl bg-white p-5 shadow-sm">
+          <h3 class="mb-4 text-xl font-bold text-gray-900">Recent community posts</h3>
+          <div id="postsContainer" class="space-y-3"></div>
+        </div>
       </div>
     </section>
   </main>
