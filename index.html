@@ -188,10 +188,40 @@
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js" defer></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js" defer></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js" defer></script>
+  <script>
+    window.BWE_FIREBASE_CONFIG = window.BWE_FIREBASE_CONFIG || {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT.firebaseapp.com",
+      databaseURL: "https://YOUR_PROJECT-default-rtdb.firebaseio.com",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_PROJECT.appspot.com",
+      messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
+
+    window.initializeFirebase = function () {
+      if (window.__bwetvFirebaseReady) return;
+      if (!window.firebase || !window.firebase.initializeApp) {
+        console.warn('BWE TV Firebase SDK not ready yet.');
+        return;
+      }
+      if (!window.BWE_FIREBASE_CONFIG || !window.BWE_FIREBASE_CONFIG.apiKey || window.BWE_FIREBASE_CONFIG.apiKey === 'YOUR_API_KEY') {
+        console.warn('BWE TV Firebase config is missing or still using placeholders. Add your real Firebase project values.');
+        return;
+      }
+      if (!window.firebase.apps || !window.firebase.apps.length) {
+        window.firebase.initializeApp(window.BWE_FIREBASE_CONFIG);
+      }
+      window.__bwetvFirebaseReady = true;
+    };
+  </script>
   <script src="shared-live-chat.js" defer></script>
   <script src="content.js" defer></script>
   <script>
     document.addEventListener('DOMContentLoaded', function () {
+      if (window.initializeFirebase) {
+        window.initializeFirebase();
+      }
       if (window.BWELiveChat) {
         BWELiveChat.init({
           chatContainerId: 'homeChat',
