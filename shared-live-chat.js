@@ -119,13 +119,46 @@
       return null;
     }
 
+    function getAuth() {
+      if (window.initializeFirebase) {
+        window.initializeFirebase();
+      }
+      if (window.firebase && window.firebase.auth) {
+        return window.firebase.auth();
+      }
+      return null;
+    }
+
     const db = getDatabase();
+    const auth = getAuth();
     if (!db) {
       setStatus('Live chat unavailable: Firebase database is not loaded.', true);
       return null;
     }
 
+    const ensureAuthenticated = () => {
+      if (!auth) {
+        return Promise.resolve();
+      }
+      if (auth.currentUser) {
+        return Promise.resolve(auth.currentUser);
+      }
+      return auth.signInAnonymously().catch((error) => {
+        console.error('BWE chat auth error:', error);
+        setStatus('Live chat is blocked by Firebase auth rules. Enable anonymous auth and allow chat read/write access.', true);
+        throw error;
+      });
+    };
+
     const chatRef = db.ref(chatPath).limitToLast(limit);
+
+    if (auth) {
+      auth.onAuthStateChanged((user) => {
+        if (!user) {
+          ensureAuthenticated().catch(() => {});
+        }
+      });
+    }
 
     chatRef.on('value', (snapshot) => {
       renderMessages(snapshot);
@@ -148,7 +181,8 @@
       setStatus('Sending...');
       chatButton.disabled = true;
 
-      chatRef.push(payload)
+      ensureAuthenticated()
+        .then(() => chatRef.push(payload))
         .then(() => {
           chatInput.value = '';
           updateButtonState();
@@ -156,7 +190,7 @@
         })
         .catch((error) => {
           console.error('BWE chat send error:', error);
-          setStatus('Send failed. Please try again.', true);
+          setStatus('Send failed. Please ensure Firebase auth is enabled and the chat rules allow access.', true);
           updateButtonState();
         });
     }
@@ -187,6 +221,8 @@
         chatRef.off('value');
       } catch (error) {}
     });
+
+    ensureAuthenticated().catch(() => {});
 
     return { chatRef, sendMessage };
   }
