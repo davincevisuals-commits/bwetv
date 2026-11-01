@@ -31,9 +31,9 @@
     .surface-card { background:linear-gradient(145deg,rgba(248,245,240,.88),rgba(237,224,200,.65))!important; backdrop-filter:blur(6px); border:1px solid rgba(160,96,58,.28); }
     .member-form-input { background:rgba(248,245,240,.7); border:1px solid rgba(160,96,58,.4); border-radius:.375rem; padding:.5rem .75rem; width:100%; color:#1A1209; }
     .member-form-input:focus { outline:none; box-shadow:0 0 0 3px rgba(212,169,106,.5); }
-    .skeleton-block { background:linear-gradient(90deg,rgba(214,201,168,.6) 25%,rgba(193,174,138,.5) 50%,rgba(214,201,168,.6) 75%); background-size:200% 100%; animation:shimmer 1.6s infinite; border-radius:.5rem; }
+    .skeleton-block { background:linear-gradient(90deg,rgba(214,201,168,.6) 25%,rgba(193,174,138,.5) 50%,rgba(214,201,168,.6) 75%); background-size:200% 100%; animation:shimmer 1.6s infinite; border-radius:0.5rem; }
     @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
-    .chat-scroll::-webkit-scrollbar{width:5px}.chat-scroll::-webkit-scrollbar-track{background:rgba(61,31,14,.15)}.chat-scroll::-webkit-scrollbar-thumb{background:rgba(160,96,58,.55);border-radius:999px}
+    .chat-scroll::-webkit-scrollbar{width:5px}.chat-scroll::-webkit-scrollbar-track{background:rgba(61,31,14,.15)}.chat-scroll::-webkit-scrollbar-thumb{background:rgba(160,96,58,.55);border-radius:9999px}.chat-scroll{scrollbar-width:thin;scrollbar-color:rgba(160,96,58,.55) transparent}
     .brand-logo-image { height: 44px; width: auto; max-width: 180px; object-fit: contain; }
     .brand-header .brand-logo-link { display: inline-flex; align-items: center; }
     .brand-footer .brand-logo-image { height: 52px; }
@@ -49,7 +49,7 @@
       <nav class="hidden md:flex space-x-6" aria-label="Primary navigation">
         <a href="index.html" data-nav-link class="hover:text-yellow-200 transition">Home</a><a href="schedule.html" data-nav-link class="hover:text-yellow-200 transition">Programs</a><a href="shows.html" data-nav-link class="hover:text-yellow-200 transition">Shows</a><a href="community.html" data-nav-link class="hover:text-yellow-200 transition">Community</a><a href="live-chat.html" data-nav-link class="hover:text-yellow-200 transition">Live Chat</a>
       </nav>
-      <button id="mobileMenuBtn" class="md:hidden rounded p-2 text-2xl transition" aria-expanded="false" aria-controls="mobileMenu" aria-label="Open navigation menu" style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.2);">☰</button>
+      <button id="mobileMenuBtn" class="md:hidden rounded p-2 text-2xl transition" aria-expanded="false" aria-controls="mobileMenu" aria-label="Open navigation menu" style="background:rgba(255,255,255,.08);">☰</button>
     </div>
     <nav id="mobileMenu" class="mobile-menu hidden brand-header-sub md:hidden" aria-label="Mobile navigation">
       <div class="site-shell flex flex-col space-y-3 p-4">
@@ -76,7 +76,7 @@
             </div>
           </div>
           <div class="live-player-shell mb-4">
-            <video id="livePlayer" class="video-js vjs-default-skin w-full h-auto" controls preload="metadata" aria-label="BWE TV live stream player" data-setup='{"fluid":true,"playbackRates":[0.75,1,1.25,1.5,2],"controls":true}'></video>
+            <video id="livePlayer" class="video-js vjs-default-skin w-full h-auto" controls preload="metadata" aria-label="BWE TV live stream player" data-setup='{"fluid":true,"playbackRates":[0.7,1,1.25,1.5,2],"aspectRatio":"16:9"}'></video>
           </div>
           <div class="stack-mobile flex flex-wrap gap-3">
             <a href="schedule.html" class="btn btn-primary">Watch today's lineup</a>
@@ -190,13 +190,14 @@
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js" defer></script>
   <script>
     window.BWE_FIREBASE_CONFIG = window.BWE_FIREBASE_CONFIG || {
-      apiKey: "YOUR_API_KEY",
-      authDomain: "YOUR_PROJECT.firebaseapp.com",
-      databaseURL: "https://YOUR_PROJECT-default-rtdb.firebaseio.com",
-      projectId: "YOUR_PROJECT_ID",
-      storageBucket: "YOUR_PROJECT.appspot.com",
-      messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-      appId: "YOUR_APP_ID"
+      apiKey: "AIzaSyCg9fxgrXlEuKW_m5MvDnG26Uf6lLdiYik",
+      authDomain: "bwetv-ug.firebaseapp.com",
+      databaseURL: "https://bwetv-ug-default-rtdb.firebaseio.com",
+      projectId: "bwetv-ug",
+      storageBucket: "bwetv-ug.firebasestorage.app",
+      messagingSenderId: "481870926362",
+      appId: "1:481870926362:web:f406a0f135449ccfaa77a3",
+      measurementId: "G-SJ5YJH2G7C"
     };
 
     window.initializeFirebase = function () {
