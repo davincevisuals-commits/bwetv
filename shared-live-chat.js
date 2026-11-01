@@ -82,7 +82,7 @@
 
     function setStatus(message, isError = false) {
       chatStatus.textContent = message;
-      chatStatus.style.color = isError ? '#b91c1c' : '#5a4a38';
+      chatStatus.style.color = isError ? '#fca5a5' : '#d6c9a8';
     }
 
     function updateButtonState() {

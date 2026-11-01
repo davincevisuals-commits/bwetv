@@ -31,9 +31,9 @@
     .surface-card { background:linear-gradient(145deg,rgba(248,245,240,.88),rgba(237,224,200,.65))!important; backdrop-filter:blur(6px); border:1px solid rgba(160,96,58,.28); }
     .member-form-input { background:rgba(248,245,240,.7); border:1px solid rgba(160,96,58,.4); border-radius:.375rem; padding:.5rem .75rem; width:100%; color:#1A1209; }
     .member-form-input:focus { outline:none; box-shadow:0 0 0 3px rgba(212,169,106,.5); }
-    .skeleton-block { background:linear-gradient(90deg,rgba(214,201,168,.6) 25%,rgba(193,174,138,.5) 50%,rgba(214,201,168,.6) 75%); background-size:200% 100%; animation:shimmer 1.6s infinite; border-radius:.5rem; }
+    .skeleton-block { background:linear-gradient(90deg,rgba(214,201,168,.6) 25%,rgba(193,174,138,.5) 50%,rgba(214,201,168,.6) 75%); background-size:200% 100%; animation:shimmer 1.6s infinite; border-radius:.375rem; }
     @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
-    .chat-scroll::-webkit-scrollbar{width:5px}.chat-scroll::-webkit-scrollbar-track{background:rgba(61,31,14,.15)}.chat-scroll::-webkit-scrollbar-thumb{background:rgba(160,96,58,.55);border-radius:.375rem}
+    .chat-scroll::-webkit-scrollbar{width:5px}.chat-scroll::-webkit-scrollbar-track{background:rgba(61,31,14,.15)}.chat-scroll::-webkit-scrollbar-thumb{background:rgba(160,96,58,.55);border-radius:3px}
     .brand-logo-image { height: 44px; width: auto; max-width: 180px; object-fit: contain; }
     .brand-header .brand-logo-link { display: inline-flex; align-items: center; }
     .brand-footer .brand-logo-image { height: 52px; }
@@ -49,25 +49,59 @@
       <nav class="hidden md:flex space-x-6" aria-label="Primary navigation">
         <a href="index.html" data-nav-link class="hover:text-yellow-200 transition">Home</a><a href="schedule.html" data-nav-link class="hover:text-yellow-200 transition">Programs</a><a href="shows.html" data-nav-link class="hover:text-yellow-200 transition">Shows</a><a href="community.html" data-nav-link class="hover:text-yellow-200 transition">Community</a><a href="live-chat.html" data-nav-link class="hover:text-yellow-200 transition">Live Chat</a>
       </nav>
-      <button id="mobileMenuBtn" class="md:hidden rounded p-2 text-2xl transition" aria-expanded="false" aria-controls="mobileMenu" aria-label="Open navigation menu" style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.18);">☰</button>
+      <button id="mobileMenuBtn" class="md:hidden rounded p-2 text-2xl transition" aria-expanded="false" aria-controls="mobileMenu" aria-label="Open navigation menu" style="background:rgba(255,255,255,.1);backdrop-filter:blur(4px);">☰</button>
     </div>
     <nav id="mobileMenu" class="mobile-menu hidden brand-header-sub md:hidden" aria-label="Mobile navigation"><div class="site-shell flex flex-col space-y-3 p-4"><a href="index.html" data-nav-link class="hover:text-yellow-200 transition">Home</a><a href="schedule.html" data-nav-link class="hover:text-yellow-200 transition">Programs</a><a href="shows.html" data-nav-link class="hover:text-yellow-200 transition">Shows</a><a href="community.html" data-nav-link class="hover:text-yellow-200 transition">Community</a><a href="live-chat.html" data-nav-link class="hover:text-yellow-200 transition">Live Chat</a></div></nav>
   </header>
 
   <main id="main-content">
     <section class="hero-section px-6 py-8 text-white"><div class="site-shell grid grid-cols-1 gap-6 lg:grid-cols-3 lg:items-start">
-      <div class="lg:col-span-2"><div class="hero-copy mb-5"><p class="live-now-label">LIVE NOW FROM BWEYALE</p><h1 class="mb-3">Watch BWE TV live and stay connected with your community</h1><p class="lead">Stream the latest local stories, live programs, and community updates from Bweyale and beyond.</p><div class="live-status-bar"><span class="live-dot" aria-hidden="true"></span><div><strong>Live</strong> from BWE TV studio</div></div></div>
-        <div class="live-player-shell mb-4"><video id="livePlayer" class="video-js vjs-default-skin w-full h-auto" controls preload="metadata" aria-label="BWE TV live stream player" data-setup='{"fluid": true, "aspectRatio": "16:9"}'></video></div>
+      <div class="lg:col-span-2"><div class="hero-copy mb-5"><p class="live-now-label">LIVE NOW FROM BWEYALE</p><h1 class="mb-3">Watch BWE TV live and stay connected with your community</h1><p class="text-base md:text-lg" style="color:rgba(237,224,200,.85);">Stream the latest programming, keep up with what is airing today, and join the live conversation without leaving the page.</p></div>
+        <div class="live-player-shell mb-4"><video id="livePlayer" class="video-js vjs-default-skin w-full h-auto" controls preload="metadata" aria-label="BWE TV live stream player" data-setup='{"fluid":true,"aspectRatio":"16:9"}'><source src="http://yourserverip:8080/live/streamkey.m3u8" type="application/x-mpegURL"><source src="video.mp4" type="video/mp4"></video></div>
         <div class="stack-mobile flex flex-wrap gap-3"><a href="schedule.html" class="btn btn-primary">Watch today's lineup</a><a href="community.html" class="btn btn-secondary">Join the Community</a></div>
       </div>
-      <aside class="chat-shell flex flex-col rounded-xl" aria-labelledby="home-chat-heading"><div class="flex items-center justify-between p-3" style="border-bottom:1px solid rgba(160,96,58,.3);"><h2 id="home-chat-heading" class="text-lg font-bold text-white">Community Chat</h2><span class="rounded-full bg-red-500/80 px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-white">Live</span></div><div class="chat-scroll flex-1 p-3"><div class="surface-card rounded-xl p-3 mb-3"><p class="text-sm text-gray-800"><span class="font-semibold">Sarah:</span> Loving the live coverage today!</p></div><div class="surface-card rounded-xl p-3 mb-3"><p class="text-sm text-gray-800"><span class="font-semibold">Moses:</span> Great to see local stories and community updates.</p></div><div class="surface-card rounded-xl p-3 mb-3"><p class="text-sm text-gray-800"><span class="font-semibold">Rose:</span> This is exactly what Bweyale needs.</p></div></div></aside>
+      <aside class="chat-shell flex flex-col rounded-xl" aria-labelledby="home-chat-heading"><div class="flex items-center justify-between p-3" style="border-bottom:1px solid rgba(160,96,58,.3);"><h2 id="home-chat-heading" class="text-lg font-bold text-white">Community Chat</h2><span id="homeChatStatus" class="text-xs" style="color:rgba(214,201,168,.75);">Connecting...</span></div><div id="homeChat" class="chat-scroll flex-1 overflow-y-auto p-3" aria-live="polite" style="min-height:16rem;"><p class="text-sm" style="color:rgba(214,201,168,.55);">No messages yet — be the first to say hello!</p></div><div class="p-3" style="border-top:1px solid rgba(160,96,58,.3);"><label for="homeChatInput" class="mb-1 block text-xs font-semibold uppercase tracking-wide text-white">Your message</label><div class="flex gap-2"><input id="homeChatInput" type="text" maxlength="260" placeholder="Say something…" class="member-form-input flex-1" style="background:rgba(26,18,9,.65);color:#EDE0C8;border-color:rgba(160,96,58,.4);"><button id="homeChatSendBtn" class="btn btn-primary px-4" type="button">Send</button></div></div></aside>
     </div></section>
-    <section class="section-surface p-6"><div class="site-shell"><h2 class="text-3xl font-bold">Today's Programs</h2><p class="mt-2" style="color:#5a4a38;">Catch what is on now and what is coming up next.</p></div></section>
-    <section class="radio-section p-6"><div class="site-shell grid gap-6 lg:grid-cols-[2fr_1fr] lg:items-start"><div><h2 class="mb-4 text-3xl font-bold text-brand">Partner Radio Stations</h2><div class="grid gap-4 md:grid-cols-2"></div></div></div></section>
+    <section class="section-surface p-6"><div class="site-shell"><h2 class="text-3xl font-bold">Today's Programs</h2><p class="mt-2" style="color:#5a4a38;">Catch what is on now and what is coming up.</p><div id="programsContainer" class="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3"></div></div></section>
+    <section class="radio-section p-6"><div class="site-shell grid gap-6 lg:grid-cols-[2fr_1fr] lg:items-start"><div><h2 class="mb-4 text-3xl font-bold text-brand">Partner Radio Stations</h2><div class="grid gap-4 md:grid-cols-2"><div class="surface-card rounded-2xl p-5"><p class="text-lg font-semibold mb-2">BWE FM</p><p class="text-sm" style="color:#5a4a38;">Local music, community news, and live commentary.</p></div><div class="surface-card rounded-2xl p-5"><p class="text-lg font-semibold mb-2">Bweyale Voice</p><p class="text-sm" style="color:#5a4a38;">Regional interviews and cultural programming.</p></div></div></div><div class="surface-card rounded-2xl p-5"><h3 class="text-xl font-bold mb-3">Why viewers tune in</h3><ul class="space-y-3 text-sm" style="color:#5a4a38;"><li>• Real-time local updates</li><li>• Community-driven discussion</li><li>• Family-friendly entertainment</li></ul></div></div></section>
   </main>
 
-  <footer class="brand-footer"><div class="site-shell bwe-footer-inner"><div class="bwe-footer-brand"><img src="assets/images/logo 1.png" alt="BWE TV logo" class="brand-logo-image" /></div><div class="bwe-footer-center"><p class="bwe-footer-tagline">Bringing Bweyale to the world.</p><div class="footer-link-grid"><a href="index.html">Home</a><a href="schedule.html">Programs</a><a href="shows.html">Shows</a><a href="community.html">Community</a><a href="live-chat.html">Live Chat</a></div></div><div class="bwe-footer-right"><p class="bwe-footer-label">Follow us</p><ul class="bwe-footer-social" aria-label="BWE TV social media links"><li><a href="https://www.facebook.com/bwetv" target="_blank" rel="noreferrer" aria-label="Facebook">Facebook</a></li><li><a href="https://x.com/bwetv" target="_blank" rel="noreferrer" aria-label="X">X</a></li><li><a href="https://www.youtube.com/@bwetv" target="_blank" rel="noreferrer" aria-label="YouTube">YouTube</a></li><li><a href="https://www.tiktok.com/@bwetv" target="_blank" rel="noreferrer" aria-label="TikTok">TikTok</a></li></ul><span class="rights">© 2026 BWE TV</span></div></div></footer>
+  <footer class="brand-footer"><div class="site-shell bwe-footer-inner"><div class="bwe-footer-brand"><img src="assets/images/logo 1.png" alt="BWE TV logo" class="brand-logo-image" /></div><div class="bwe-footer-links"><a href="about.html">About</a><a href="schedule.html">Programs</a><a href="community.html">Community</a><a href="live-chat.html">Live Chat</a></div></div></footer>
 
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js" defer></script><script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js" defer></script><script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js" defer></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js" defer></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js" defer></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js" defer></script>
+  <script src="shared-live-chat.js" defer></script>
+  <script src="content.js" defer></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      if (window.BWELiveChat) {
+        BWELiveChat.init({
+          chatContainerId: 'homeChat',
+          chatInputId: 'homeChatInput',
+          chatButtonId: 'homeChatSendBtn',
+          chatStatusId: 'homeChatStatus',
+          chatPath: 'channels/live-chat/messages',
+          maxLength: 260
+        });
+      }
+
+      var mobileMenuBtn = document.getElementById('mobileMenuBtn');
+      var mobileMenu = document.getElementById('mobileMenu');
+      if (mobileMenuBtn && mobileMenu) {
+        mobileMenuBtn.addEventListener('click', function () {
+          var expanded = this.getAttribute('aria-expanded') === 'true';
+          this.setAttribute('aria-expanded', String(!expanded));
+          mobileMenu.classList.toggle('hidden');
+        });
+      }
+
+      document.querySelectorAll('[data-nav-link]').forEach(function (link) {
+        if (link.getAttribute('href') === location.pathname.split('/').pop()) {
+          link.classList.add('nav-link-active');
+        }
+      });
+    });
+  </script>
 </body>
 </html>
