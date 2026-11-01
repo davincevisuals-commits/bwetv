@@ -1,23 +1,27 @@
 /* Clickable social media icon buttons in the footer */
 .bwe-footer-social {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
+  list-style: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  justify-content: center !important;
   gap: 0.7rem;
-  flex-wrap: wrap;
+  width: 100%;
 }
 
 .bwe-footer-social li {
-  display: flex;
-  margin: 0;
+  list-style: none !important;
+  display: inline-flex !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  flex: 0 0 auto;
 }
 
 .bwe-footer-social a {
-  display: inline-flex;
+  display: inline-flex !important;
   align-items: center;
   justify-content: center;
   width: 2.7rem;
@@ -75,18 +79,25 @@
 
 @media (max-width: 767px) {
   .bwe-footer-right {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     text-align: center;
     padding-left: 0;
   }
 
   .bwe-footer-social {
-    justify-content: center;
-    align-items: center;
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: center !important;
+    align-items: center !important;
     width: 100%;
-    margin: 0 auto;
+    max-width: 220px;
+    margin: 0 auto !important;
   }
 
   .bwe-footer-social li {
-    display: inline-flex;
+    display: inline-flex !important;
   }
 }
