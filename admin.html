@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BWE TV Content Admin</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+  <style>
+    body { background: #f3f4f6; }
+    .card { background: white; border-radius: 1rem; box-shadow: 0 10px 28px rgba(17, 24, 39, 0.08); }
+    .field { width: 100%; border: 1px solid #d1d5db; border-radius: 0.75rem; padding: 0.65rem 0.8rem; }
+    .field:focus { outline: none; border-color: #dc2626; box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.15); }
+  </style>
+</head>
+<body>
+  <header class="bg-red-700 text-white shadow-lg">
+    <div class="mx-auto flex max-w-6xl items-center justify-between px-5 py-4">
+      <div>
+        <a href="index.html" class="text-xl font-bold">BWE TV</a>
+        <span class="ml-2 rounded-full bg-white/15 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.2em]">Admin</span>
+      </div>
+      <nav class="flex items-center gap-3 text-sm font-semibold">
+        <a href="shows.html" class="hover:text-red-100">Shows</a>
+        <a href="index.html" class="hover:text-red-100">Website</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="mx-auto max-w-6xl px-5 py-8">
+    <section id="loginPanel" class="mx-auto max-w-md card p-6">
+      <h1 class="text-2xl font-bold text-gray-900">Sign in to manage content</h1>
+      <p class="mt-2 text-sm text-gray-600">Use your Firebase admin account to update shows and episodes.</p>
+
+      <form id="loginForm" class="mt-6 space-y-4">
+        <div>
+          <label class="mb-2 block text-sm font-semibold text-gray-700" for="emailInput">Email</label>
+          <input id="emailInput" class="field" type="email" placeholder="admin@example.com" required />
+        </div>
+
+        <div>
+          <label class="mb-2 block text-sm font-semibold text-gray-700" for="passwordInput">Password</label>
+          <input id="passwordInput" class="field" type="password" placeholder="Enter password" required />
+        </div>
+
+        <button type="submit" class="w-full rounded-xl bg-red-600 px-4 py-3 text-sm font-bold text-white transition hover:bg-red-700">Sign In</button>
+      </form>
+
+      <p id="loginStatus" class="mt-4 text-sm text-gray-600">Waiting for login.</p>
+    </section>
+
+    <section id="dashboardPanel" class="hidden space-y-8">
+      <div class="flex flex-col gap-4 rounded-2xl bg-white p-5 shadow-sm md:flex-row md:items-center md:justify-between">
+        <div>
+          <p class="text-xs font-bold uppercase tracking-[0.2em] text-red-600">Control Center</p>
+          <h2 class="mt-1 text-2xl font-bold text-gray-900">Manage TV Shows</h2>
+        </div>
+        <button id="logoutButton" type="button" class="rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm font-bold text-gray-700 hover:bg-gray-50">Logout</button>
+      </div>
+
+      <div class="card p-6">
+        <div class="mb-5 flex items-center justify-between">
+          <h3 id="formTitle" class="text-xl font-bold text-gray-900">Add a new show</h3>
+          <button id="resetFormButton" type="button" class="rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm font-semibold text-gray-700">New Show</button>
+        </div>
+
+        <form id="showForm" class="grid gap-4 md:grid-cols-2">
+          <div class="md:col-span-2">
+            <label class="mb-2 block text-sm font-semibold text-gray-700" for="showIdInput">Document ID</label>
+            <input id="showIdInput" class="field" type="text" placeholder="morning-rise" />
+          </div>
+
+          <div>
+            <label class="mb-2 block text-sm font-semibold text-gray-700" for="showNameInput">Show Name</label>
+            <input id="showNameInput" class="field" type="text" placeholder="Morning Rise" required />
+          </div>
+
+          <div>
+            <label class="mb-2 block text-sm font-semibold text-gray-700" for="showCategoryInput">Category</label>
+            <input id="showCategoryInput" class="field" type="text" placeholder="News" required />
+          </div>
+
+          <div>
+            <label class="mb-2 block text-sm font-semibold text-gray-700" for="showHostInput">Host</label>
+            <input id="showHostInput" class="field" type="text" placeholder="Moses & Lydia" required />
+          </div>
+
+          <div>
+            <label class="mb-2 block text-sm font-semibold text-gray-700" for="showIconInput">Icon</label>
+            <input id="showIconInput" class="field" type="text" placeholder="☀️" />
+          </div>
+
+          <div>
+            <label class="mb-2 block text-sm font-semibold text-gray-700" for="showAccentInput">Accent Classes</label>
+            <input id="showAccentInput" class="field" type="text" placeholder="from-red-500 to-orange-400" />
+          </div>
+
+          <div>
+            <label class="mb-2 block text-sm font-semibold text-gray-700" for="showRatingInput">Rating</label>
+            <input id="showRatingInput" class="field" type="number" min="0" max="5" step="0.1" value="4.5" />
+          </div>
+
+          <div>
+            <label class="mb-2 block text-sm font-semibold text-gray-700" for="showEpisodesInput">Episodes</label>
+            <input id="showEpisodesInput" class="field" type="number" min="0" step="1" value="12" />
+          </div>
+
+          <div class="md:col-span-2">
+            <label class="mb-2 block text-sm font-semibold text-gray-700" for="showDescriptionInput">Description</label>
+            <textarea id="showDescriptionInput" class="field" rows="4" placeholder="Describe the show..." required></textarea>
+          </div>
+
+          <div class="md:col-span-2 flex items-center justify-between gap-3">
+            <label class="inline-flex items-center gap-2 text-sm font-semibold text-gray-700">
+              <input id="showActiveInput" type="checkbox" checked />
+              Active on website
+            </label>
+            <button type="submit" class="rounded-xl bg-red-600 px-5 py-3 text-sm font-bold text-white hover:bg-red-700">Save Show</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="card p-6">
+        <div class="mb-4 flex items-center justify-between gap-3">
+          <h3 class="text-xl font-bold text-gray-900">Current shows</h3>
+          <button id="refreshShowsButton" type="button" class="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm font-semibold text-gray-700">Refresh</button>
+        </div>
+        <div id="showList" class="space-y-3"></div>
+      </div>
+    </section>
+  </main>
+
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js" defer></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js" defer></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js" defer></script>
+  <script src="admin.js" defer></script>
+</body>
+</html>
