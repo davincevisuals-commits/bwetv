@@ -3,31 +3,36 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BWE TV Community | Chat, Discussions & Support</title>
-  <meta name="description" content="Join the BWE TV community to chat live, share discussion posts, and support the network.">
-  <meta property="og:title" content="BWE TV Community | Chat, Discussions & Support">
-  <meta property="og:description" content="Join the BWE TV community to chat live, share discussion posts, and support the network.">
-  <meta property="og:type" content="website">
-  <meta property="og:site_name" content="BWE TV">
-  <meta property="og:url" content="https://davincevisuals-commits.github.io/bwetv/community.html">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="BWE TV Community | Chat, Discussions & Support">
-  <meta name="twitter:description" content="Join the BWE TV community to chat live, share discussion posts, and support the network.">
-  <link rel="canonical" href="https://davincevisuals-commits.github.io/bwetv/community.html">
+  <title>BWE TV Shows | Browse the Program Catalog</title>
+  <meta name="description" content="Explore the BWE TV show catalog, filter by category, and discover your next programme to watch.">
   <link rel="preconnect" href="https://cdn.jsdelivr.net">
-  <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <link href="site.css" rel="stylesheet">
   <style>
     :root {
+      --bwe-surface: #f8fafc;
+      --bwe-text: #111827;
       --bwe-brand: #7c2d12;
       --bwe-brand-strong: #78350f;
       --bwe-primary: #dc2626;
-      --bwe-accent: #2563eb;
-      --bwe-surface: #f8fafc;
+      --bwe-primary-hover: #b91c1c;
+      --bwe-border: #d1d5db;
+      --bwe-radius: 0.5rem;
     }
+    body { font-family: "Inter", "Segoe UI", Roboto, Arial, sans-serif; color: var(--bwe-text); line-height: 1.6; }
+    .mobile-menu { transition: all 0.3s ease; }
+    .show-card { transition: all 0.3s ease; }
+    .show-card:hover { transform: translateY(-8px); box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12); }
+    .btn { display: inline-flex; align-items: center; justify-content: center; border-radius: var(--bwe-radius); padding: 0.625rem 1rem; font-weight: 700; transition: background-color 0.2s ease, transform 0.2s ease; }
+    .btn:hover { transform: translateY(-1px); }
+    .btn-primary { background: var(--bwe-primary); color: #fff; }
+    .btn-primary:hover { background: var(--bwe-primary-hover); }
+    .btn-secondary { background: #fff; color: var(--bwe-text); border-color: var(--bwe-border); }
+    .btn-secondary:hover { background: #f9fafb; }
+    .category-filter.active { background: var(--bwe-primary); color: #fff; border-color: var(--bwe-primary); }
     .brand-header { background: var(--bwe-brand); }
     .brand-header-sub { background: var(--bwe-brand-strong); }
+    .section-surface { background: var(--bwe-surface); }
   </style>
 </head>
 <body class="bg-white text-black">
@@ -35,7 +40,9 @@
 
   <header class="brand-header sticky top-0 z-50 text-white shadow-lg">
     <div class="site-shell flex items-center justify-between p-4">
-      <a href="index.html" class="text-2xl font-bold">BWE <span class="bg-red-600 px-2">TV</span></a>
+      <a href="index.html" class="brand-logo-link" aria-label="BWE TV home">
+        <img src="assets/images/logo 1.png" alt="BWE TV logo" class="brand-logo-image" />
+      </a>
       <nav class="hidden md:flex space-x-6" aria-label="Primary navigation">
         <a href="index.html" data-nav-link class="hover:text-yellow-200 transition">Home</a>
         <a href="schedule.html" data-nav-link class="hover:text-yellow-200 transition">Programs</a>
@@ -57,90 +64,49 @@
   </header>
 
   <main id="main-content">
-    <section class="bg-gradient-to-r from-red-600 to-red-800 px-6 py-10 text-center text-white">
+    <section class="bg-gradient-to-r from-red-600 to-red-800 p-6 text-center text-white">
       <div class="site-shell">
-        <h1 class="mb-3 text-4xl font-bold">Join the BWE TV Community</h1>
-        <p class="mx-auto max-w-3xl text-lg opacity-90">Chat with viewers in real time, share your thoughts on the latest programmes, and support the mission behind BWE TV.</p>
+        <h1 class="mb-2 text-4xl font-bold">Our Shows</h1>
+        <p class="text-lg opacity-90">Browse our complete catalog of engaging programs and discover what to watch next.</p>
       </div>
     </section>
 
-    <section id="loginSection" class="bg-gray-100 px-6 py-8">
-      <div class="site-shell max-w-3xl rounded-2xl bg-white p-6 shadow-sm">
-        <h2 class="text-2xl font-bold text-gray-900">Access the community</h2>
-        <p class="mt-2 text-gray-600">Sign in with email, create an account, or continue as a guest to join the live chat and discussions.</p>
-
-        <div class="mt-6 grid gap-4 md:grid-cols-2">
-          <div>
-            <label for="emailInput" class="mb-1 block text-sm font-semibold text-gray-700">Email address</label>
-            <input id="emailInput" type="email" placeholder="you@example.com" class="w-full rounded border p-3">
-          </div>
-          <div>
-            <label for="passwordInput" class="mb-1 block text-sm font-semibold text-gray-700">Password</label>
-            <input id="passwordInput" type="password" placeholder="Enter your password" class="w-full rounded border p-3">
+    <section class="section-surface border-b p-6">
+      <div class="site-shell">
+        <div class="mb-6">
+          <label for="searchInput" class="mb-2 block text-sm font-bold text-gray-700">Search the catalog</label>
+          <input type="text" id="searchInput" placeholder="Search shows by title, host, or description..." class="w-full rounded border-2 border-gray-300 px-4 py-3 transition focus:border-red-600 focus:outline-none">
+        </div>
+        <div class="mb-4">
+          <h2 class="mb-3 text-sm font-bold text-gray-700">Filter by Category</h2>
+          <div class="flex flex-wrap gap-2">
+            <button onclick="filterByCategory(event, 'All')" class="category-filter active btn btn-primary" type="button">All</button>
+            <button onclick="filterByCategory(event, 'News')" class="category-filter btn btn-secondary" type="button">News</button>
+            <button onclick="filterByCategory(event, 'Culture')" class="category-filter btn btn-secondary" type="button">Culture</button>
+            <button onclick="filterByCategory(event, 'Health')" class="category-filter btn btn-secondary" type="button">Health</button>
+            <button onclick="filterByCategory(event, 'Education')" class="category-filter btn btn-secondary" type="button">Education</button>
+            <button onclick="filterByCategory(event, 'Entertainment')" class="category-filter btn btn-secondary" type="button">Entertainment</button>
+            <button onclick="filterByCategory(event, 'Business')" class="category-filter btn btn-secondary" type="button">Business</button>
           </div>
         </div>
-
-        <div class="mt-5 flex flex-col gap-3 md:flex-row">
-          <button id="loginBtn" class="rounded bg-blue-600 px-4 py-3 font-semibold text-white">Login</button>
-          <button id="signupBtn" class="rounded bg-green-600 px-4 py-3 font-semibold text-white">Create account</button>
-          <button id="anonBtn" class="rounded border border-gray-300 px-4 py-3 font-semibold text-gray-700">Continue as Guest</button>
+        <div>
+          <label for="sortSelect" class="mb-3 block text-sm font-bold text-gray-700">Sort by</label>
+          <select id="sortSelect" onchange="sortShows()" class="rounded border-2 border-gray-300 px-4 py-2 transition focus:border-red-600 focus:outline-none">
+            <option value="rating">Rating (High to Low)</option>
+            <option value="episodes">Episodes (Most to Least)</option>
+            <option value="name">Name (A to Z)</option>
+          </select>
         </div>
-
-        <p id="communityStatus" class="mt-4 text-sm text-gray-600">Choose how you would like to participate.</p>
       </div>
     </section>
 
-    <section id="communitySection" class="hidden bg-gray-50 px-6 py-8">
-      <div class="site-shell space-y-8">
-        <div class="flex flex-col gap-3 rounded-2xl bg-white p-5 shadow-sm md:flex-row md:items-center md:justify-between">
-          <div class="flex items-center gap-4">
-            <div class="relative">
-              <img id="profilePreview" src="data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' fill='%23e5e7eb'/%3E%3Ccircle cx='60' cy='45' r='24' fill='%236b7280'/%3E%3Cpath d='M30 100c5-18 21-28 30-28s25 10 30 28' fill='%236b7280'/%3E%3C/svg%3E" alt="Profile picture" class="h-16 w-16 rounded-full border-2 border-gray-200 object-cover shadow-sm" />
-              <label for="profilePicInput" class="absolute -bottom-1 -right-1 flex h-7 w-7 cursor-pointer items-center justify-center rounded-full border-2 border-white bg-red-600 text-xs font-bold text-white shadow-lg">+</label>
-              <input id="profilePicInput" type="file" accept="image/*" class="hidden">
-            </div>
-            <div>
-              <h2 class="text-2xl font-bold text-gray-900">Welcome to the community space</h2>
-              <p class="mt-1 text-sm text-gray-600">You are connected as <span id="currentViewer" class="font-semibold text-gray-900">Guest</span>.</p>
-            </div>
-          </div>
-          <button id="signOutBtn" class="rounded border border-gray-300 px-4 py-2 font-semibold text-gray-700" type="button">Sign out</button>
-        </div>
-
-        <div class="rounded-2xl bg-white p-5 shadow-sm">
-          <label for="profileNameInput" class="mb-2 block text-sm font-semibold text-gray-700">Display name</label>
-          <input id="profileNameInput" type="text" placeholder="Your display name" class="w-full rounded border border-gray-300 p-3" maxlength="30">
-        </div>
-
-        <div class="grid gap-6 lg:grid-cols-[1.5fr_1fr]">
-          <div class="rounded-2xl bg-white p-5 shadow-sm">
-            <h3 class="mb-4 text-xl font-bold text-gray-900">Share a community update</h3>
-            <textarea id="postInput" rows="5" class="w-full rounded border border-gray-300 p-3 text-gray-800" placeholder="Share a thought, message, or update with the BWE TV community..."></textarea>
-            <div class="mt-4 flex items-center justify-between gap-3">
-              <span id="postStatus" class="text-sm text-gray-500">Ready to post.</span>
-              <button id="postBtn" class="rounded bg-red-600 px-4 py-2 font-semibold text-white">Post</button>
-            </div>
-          </div>
-
-          <div class="rounded-2xl bg-white p-5 shadow-sm">
-            <h3 class="mb-4 text-xl font-bold text-gray-900">Support the mission</h3>
-            <div class="space-y-3">
-              <button id="donatePaypalBtn" class="w-full rounded bg-blue-600 px-4 py-3 font-semibold text-white">Support with PayPal</button>
-              <button id="donateMtnBtn" class="w-full rounded bg-yellow-500 px-4 py-3 font-semibold text-gray-900">Support via MTN MoMo</button>
-            </div>
-
-            <form id="newsletterForm" class="mt-6">
-              <label for="newsletterEmail" class="mb-2 block text-sm font-semibold text-gray-700">Newsletter</label>
-              <input id="newsletterEmail" type="email" placeholder="you@example.com" class="w-full rounded border border-gray-300 p-3" required>
-              <button type="submit" class="mt-3 w-full rounded border border-gray-300 bg-gray-100 px-4 py-3 font-semibold text-gray-800">Subscribe</button>
-              <p id="newsletterStatus" class="mt-2 text-sm text-gray-500">Stay updated on BWE TV news and events.</p>
-            </form>
-          </div>
-        </div>
-
-        <div class="rounded-2xl bg-white p-5 shadow-sm">
-          <h3 class="mb-4 text-xl font-bold text-gray-900">Recent community posts</h3>
-          <div id="postsContainer" class="space-y-3"></div>
+    <section class="bg-white p-6">
+      <div class="site-shell">
+        <div id="resultsInfo" class="mb-4 font-semibold text-gray-600">Loading shows...</div>
+        <div id="showsContainer" class="grid gap-6 md:grid-cols-2 lg:grid-cols-3"></div>
+        <div id="noResults" class="hidden py-12 text-center">
+          <p class="mb-4 text-2xl text-gray-500">No shows found</p>
+          <button onclick="location.reload()" class="btn btn-primary" type="button">Reset Filters</button>
         </div>
       </div>
     </section>
@@ -154,245 +120,15 @@
         <a href="privacy.html" class="hover:text-yellow-200 transition">Privacy</a>
         <a href="contact.html" class="hover:text-yellow-200 transition">Contact</a>
         <a href="schedule.html" class="hover:text-yellow-200 transition">Programs</a>
+        <a href="community.html" class="hover:text-yellow-200 transition">Community</a>
       </div>
     </div>
   </footer>
 
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js" defer></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js" defer></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js" defer></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js" defer></script>
   <script src="content.js" defer></script>
-  <script>
-    (function () {
-      const STORAGE_KEY = 'bwetv-community-user';
-      const POSTS_KEY = 'bwetv-community-posts';
-
-      const loginSection = document.getElementById('loginSection');
-      const communitySection = document.getElementById('communitySection');
-      const emailInput = document.getElementById('emailInput');
-      const passwordInput = document.getElementById('passwordInput');
-      const statusText = document.getElementById('communityStatus');
-      const loginBtn = document.getElementById('loginBtn');
-      const signupBtn = document.getElementById('signupBtn');
-      const anonBtn = document.getElementById('anonBtn');
-      const signOutBtn = document.getElementById('signOutBtn');
-      const currentViewer = document.getElementById('currentViewer');
-      const profileNameInput = document.getElementById('profileNameInput');
-      const postInput = document.getElementById('postInput');
-      const postBtn = document.getElementById('postBtn');
-      const postStatus = document.getElementById('postStatus');
-      const postsContainer = document.getElementById('postsContainer');
-      const profilePreview = document.getElementById('profilePreview');
-      const profilePicInput = document.getElementById('profilePicInput');
-      const newsletterForm = document.getElementById('newsletterForm');
-      const newsletterStatus = document.getElementById('newsletterStatus');
-      const donatePaypalBtn = document.getElementById('donatePaypalBtn');
-      const donateMtnBtn = document.getElementById('donateMtnBtn');
-
-      function setStatus(message, isError) {
-        if (!statusText) return;
-        statusText.textContent = message;
-        statusText.className = 'mt-4 text-sm ' + (isError ? 'text-red-600' : 'text-gray-600');
-      }
-
-      function readUser() {
-        try {
-          return JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
-        } catch (error) {
-          return null;
-        }
-      }
-
-      function writeUser(user) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
-      }
-
-      function clearUser() {
-        localStorage.removeItem(STORAGE_KEY);
-      }
-
-      function showCommunity(user) {
-        const name = user && user.name ? user.name : 'Guest';
-        currentViewer.textContent = name;
-        profileNameInput.value = name;
-        loginSection.classList.add('hidden');
-        communitySection.classList.remove('hidden');
-        renderPosts();
-      }
-
-      function showLogin() {
-        loginSection.classList.remove('hidden');
-        communitySection.classList.add('hidden');
-      }
-
-      function renderPosts() {
-        if (!postsContainer) return;
-        let posts = [];
-        try {
-          posts = JSON.parse(localStorage.getItem(POSTS_KEY) || '[]');
-        } catch (error) {}
-
-        if (!posts.length) {
-          postsContainer.innerHTML = '<div class="rounded border border-dashed border-gray-300 p-4 text-sm text-gray-500">No community posts yet. Start the conversation.</div>';
-          return;
-        }
-
-        postsContainer.innerHTML = '';
-        posts.forEach((post) => {
-          const card = document.createElement('div');
-          card.className = 'rounded border border-gray-200 bg-gray-50 p-4';
-          card.innerHTML = '<div class="mb-1 flex items-center justify-between gap-3"><strong class="text-gray-900">' + (post.name || 'Guest') + '</strong><span class="text-xs text-gray-500">' + (post.time || '') + '</span></div><p class="text-sm text-gray-700 whitespace-pre-wrap">' + (post.text || '') + '</p>';
-          postsContainer.appendChild(card);
-        });
-      }
-
-      function ensureGuestSession() {
-        const saved = readUser();
-        if (!saved) return false;
-        showCommunity(saved);
-        return true;
-      }
-
-      function createSession(name, type) {
-        const email = (emailInput.value || '').trim();
-        const user = {
-          name: name || 'Guest',
-          type: type || 'guest',
-          email: email || '',
-          timestamp: Date.now()
-        };
-        writeUser(user);
-        showCommunity(user);
-      }
-
-      loginBtn.addEventListener('click', function () {
-        const email = (emailInput.value || '').trim();
-        const password = (passwordInput.value || '').trim();
-
-        if (!email || !password) {
-          setStatus('Please enter your email and password.', true);
-          return;
-        }
-
-        const userName = email.split('@')[0] || 'Member';
-        createSession(userName, 'member');
-        setStatus('Logged in successfully.');
-      });
-
-      signupBtn.addEventListener('click', function () {
-        const email = (emailInput.value || '').trim();
-        const password = (passwordInput.value || '').trim();
-
-        if (!email || !password || password.length < 6) {
-          setStatus('Create an account with a valid email and password of at least 6 characters.', true);
-          return;
-        }
-
-        const userName = email.split('@')[0] || 'Member';
-        createSession(userName, 'member');
-        setStatus('Account created successfully.');
-      });
-
-      anonBtn.addEventListener('click', function () {
-        createSession('Guest', 'guest');
-        setStatus('You are now browsing as a guest.');
-      });
-
-      signOutBtn.addEventListener('click', function () {
-        clearUser();
-        emailInput.value = '';
-        passwordInput.value = '';
-        postInput.value = '';
-        profileNameInput.value = '';
-        showLogin();
-        setStatus('You have signed out.');
-      });
-
-      postBtn.addEventListener('click', function () {
-        const text = postInput.value.trim();
-        if (!text) {
-          postStatus.textContent = 'Write a quick update before posting.';
-          return;
-        }
-
-        const current = readUser() || { name: 'Guest' };
-        let posts = [];
-        try {
-          posts = JSON.parse(localStorage.getItem(POSTS_KEY) || '[]');
-        } catch (error) {}
-
-        posts.push({
-          name: current.name || 'Guest',
-          text,
-          time: new Date().toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
-        });
-
-        localStorage.setItem(POSTS_KEY, JSON.stringify(posts));
-        postInput.value = '';
-        postStatus.textContent = 'Your community update has been posted.';
-        renderPosts();
-      });
-
-      newsletterForm.addEventListener('submit', function (event) {
-        event.preventDefault();
-        const value = document.getElementById('newsletterEmail').value.trim();
-        if (!value) {
-          newsletterStatus.textContent = 'Please enter a valid email address.';
-          return;
-        }
-        newsletterStatus.textContent = 'Thanks! You are subscribed to BWE TV updates.';
-        newsletterForm.reset();
-      });
-
-      donatePaypalBtn.addEventListener('click', function () {
-        setStatus('PayPal support is ready to open in a new tab.');
-        window.open('https://www.paypal.com', '_blank', 'noopener');
-      });
-
-      donateMtnBtn.addEventListener('click', function () {
-        setStatus('MTN MoMo support is selected for the BWE TV mission.');
-      });
-
-      profilePicInput.addEventListener('change', function (event) {
-        const file = event.target.files && event.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = function (e) {
-          profilePreview.src = e.target.result;
-        };
-        reader.readAsDataURL(file);
-      });
-
-      profileNameInput.addEventListener('input', function () {
-        const saved = readUser();
-        if (!saved) return;
-        saved.name = profileNameInput.value.trim() || 'Guest';
-        writeUser(saved);
-        currentViewer.textContent = saved.name;
-      });
-
-      document.getElementById('mobileMenuBtn').addEventListener('click', function () {
-        const nav = document.getElementById('mobileMenu');
-        const expanded = this.getAttribute('aria-expanded') === 'true';
-        this.setAttribute('aria-expanded', String(!expanded));
-        nav.classList.toggle('hidden');
-      });
-
-      document.querySelectorAll('[data-nav-link]').forEach(function (link) {
-        if (link.getAttribute('href') === location.pathname.split('/').pop()) {
-          link.classList.add('nav-link-active');
-        }
-      });
-
-      const savedUser = readUser();
-      if (savedUser) {
-        showCommunity(savedUser);
-      } else {
-        showLogin();
-      }
-      renderPosts();
-    })();
-  </script>
+  <script src="show-episodes.js" defer></script>
 </body>
 </html>
+
