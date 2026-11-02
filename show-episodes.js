@@ -1,13 +1,15 @@
-const SHOWS = [
-  { id: "morning-rise", name: "Morning Rise", category: "News", host: "Moses & Lydia", description: "A bright and uplifting morning mix of local news, weather, devotions, and district updates.", rating: 4.9, episodes: 26, icon: "☀️", accent: "from-amber-100 to-orange-100" },
-  { id: "community-news", name: "Community News", category: "News", host: "BWE Reporting Team", description: "The latest district stories, public notices, and community updates from Bweyale and Kiryandongo.", rating: 4.8, episodes: 31, icon: "📰", accent: "from-red-100 to-rose-100" },
-  { id: "cultural-roots", name: "Cultural Roots", category: "Culture", host: "Teddy Achen", description: "Traditional music, heritage stories, and cultural conversations that keep local identity alive.", rating: 4.7, episodes: 18, icon: "🎶", accent: "from-violet-100 to-fuchsia-100" },
-  { id: "wellness-warriors", name: "Wellness Warriors", category: "Health", host: "BWE Health Desk", description: "Healthy habits, family care, and practical wellness advice for everyday life in the community.", rating: 4.7, episodes: 15, icon: "💪", accent: "from-emerald-100 to-green-100" },
-  { id: "youth-voices", name: "Youth Voices", category: "Culture", host: "Young Presenters", description: "A lively platform for youth talent, ideas, challenges, and fresh voices from the district.", rating: 4.6, episodes: 20, icon: "🎤", accent: "from-sky-100 to-cyan-100" },
-  { id: "entertainment-express", name: "Entertainment Express", category: "Entertainment", host: "BWE Studio", description: "Music, lifestyle, and feel-good entertainment that connects audiences with local fun and culture.", rating: 4.8, episodes: 22, icon: "🎧", accent: "from-pink-100 to-rose-100" },
-  { id: "business-update", name: "Business Update", category: "Business", host: "Market Watch", description: "Economic opportunities, market trends, and local business stories that help communities grow.", rating: 4.5, episodes: 17, icon: "📈", accent: "from-blue-100 to-indigo-100" },
-  { id: "education-corner", name: "Education Corner", category: "Education", host: "School & Learning Desk", description: "Learning resources, school stories, and opportunities for students, parents, and communities.", rating: 4.6, episodes: 13, icon: "📚", accent: "from-yellow-100 to-orange-100" }
+const FALLBACK_SHOWS = [
+  { id: "morning-rise", name: "Morning Rise", category: "News", host: "Moses & Lydia", description: "A bright and uplifting morning mix of local news, weather, devotions, and district updates.", icon: "☀️", accent: "from-amber-400 to-orange-500", rating: 4.9, episodes: 18, active: true },
+  { id: "community-news", name: "Community News", category: "News", host: "BWE Reporting Team", description: "The latest district stories, public notices, and community updates from Bweyale and Kiryandongo.", icon: "📰", accent: "from-red-500 to-pink-500", rating: 4.8, episodes: 21, active: true },
+  { id: "cultural-roots", name: "Cultural Roots", category: "Culture", host: "Teddy Achen", description: "Traditional music, heritage stories, and cultural conversations that keep local identity alive.", icon: "🎶", accent: "from-emerald-500 to-teal-500", rating: 4.7, episodes: 15, active: true },
+  { id: "wellness-warriors", name: "Wellness Warriors", category: "Health", host: "BWE Health Desk", description: "Healthy habits, family care, and practical wellness advice for everyday life in the community.", icon: "💚", accent: "from-green-500 to-emerald-600", rating: 4.6, episodes: 14, active: true },
+  { id: "youth-voices", name: "Youth Voices", category: "Culture", host: "Young Presenters", description: "A lively platform for youth talent, ideas, challenges, and fresh voices from the district.", icon: "🎤", accent: "from-violet-500 to-indigo-500", rating: 4.7, episodes: 16, active: true },
+  { id: "entertainment-express", name: "Entertainment Express", category: "Entertainment", host: "BWE Studio", description: "Music, lifestyle, and feel-good entertainment that connects audiences with joy and creativity.", icon: "🎵", accent: "from-pink-500 to-rose-500", rating: 4.5, episodes: 17, active: true },
+  { id: "business-update", name: "Business Update", category: "Business", host: "Market Watch", description: "Economic opportunities, market trends, and local business stories that help communities grow.", icon: "📈", accent: "from-sky-500 to-blue-600", rating: 4.4, episodes: 19, active: true },
+  { id: "education-corner", name: "Education Corner", category: "Education", host: "School & Learning Desk", description: "Learning resources, school stories, and opportunities for students, parents, and teachers.", icon: "📚", accent: "from-yellow-500 to-orange-500", rating: 4.3, episodes: 13, active: true }
 ];
+
+const SHOWS = [...FALLBACK_SHOWS];
 
 const firebaseConfig = {
   apiKey: "AIzaSyCg9fxgrXlEuKW_m5MvDnG26Uf6lLdiYik",
@@ -16,17 +18,6 @@ const firebaseConfig = {
   storageBucket: "bwetv-ug.firebasestorage.app",
   messagingSenderId: "481870926362",
   appId: "1:481870926362:web:f406a0f135449ccfaa77a3"
-};
-
-const showAliases = {
-  "morning-rise": ["morning-rise", "morning rise"],
-  "community-news": ["community-news", "community news"],
-  "cultural-roots": ["cultural-roots", "cultural roots"],
-  "wellness-warriors": ["wellness-warriors", "wellness warriors"],
-  "youth-voices": ["youth-voices", "youth voices"],
-  "entertainment-express": ["entertainment-express", "entertainment express"],
-  "business-update": ["business-update", "business update"],
-  "education-corner": ["education-corner", "education corner"]
 };
 
 const showCatalogState = {
@@ -41,6 +32,49 @@ function normalizeText(value) {
 
 function normalizeSlug(value) {
   return normalizeText(value).replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+}
+
+function normalizeShowRecord(show) {
+  return {
+    id: show.id || normalizeSlug(show.name || "show"),
+    name: show.name || "Untitled show",
+    category: show.category || "General",
+    host: show.host || "BWE Team",
+    description: show.description || "",
+    icon: show.icon || "📺",
+    accent: show.accent || "from-red-500 to-orange-500",
+    rating: Number(show.rating) || 4.5,
+    episodes: Number(show.episodes) || 0,
+    active: show.active !== false
+  };
+}
+
+function ensureFirebaseReady() {
+  if (!window.firebase || typeof window.firebase.firestore !== "function") return false;
+  if (!window.firebase.apps.length) {
+    window.firebase.initializeApp(firebaseConfig);
+  }
+  return true;
+}
+
+async function loadShowsFromFirestore() {
+  if (!ensureFirebaseReady()) {
+    return;
+  }
+
+  try {
+    const db = window.firebase.firestore();
+    const snapshot = await db.collection("shows").where("active", "==", true).orderBy("name").get();
+    const remoteShows = snapshot.docs.map((doc) => normalizeShowRecord({ id: doc.id, ...doc.data() }));
+    if (remoteShows.length) {
+      SHOWS.splice(0, SHOWS.length, ...remoteShows);
+    } else {
+      SHOWS.splice(0, SHOWS.length, ...FALLBACK_SHOWS.map((show) => normalizeShowRecord(show)));
+    }
+  } catch (error) {
+    console.error("Unable to load show catalog from Firestore.", error);
+    SHOWS.splice(0, SHOWS.length, ...FALLBACK_SHOWS.map((show) => normalizeShowRecord(show)));
+  }
 }
 
 function getFilteredShows() {
@@ -67,7 +101,7 @@ function createShowCard(show) {
         <div class="mb-3 text-4xl" aria-hidden="true">${show.icon}</div>
         <div class="flex items-center justify-between gap-3">
           <span class="rounded-full bg-white/80 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-gray-800">${show.category}</span>
-          <span class="rounded-full bg-white px-2 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-red-600">★ ${show.rating.toFixed(1)}</span>
+          <span class="rounded-full bg-white px-2 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-red-600">★ ${Number(show.rating || 0).toFixed(1)}</span>
         </div>
       </div>
       <div class="p-5">
@@ -102,7 +136,7 @@ function renderShowCatalog() {
       const showId = button.getAttribute("data-show-id");
       const selected = SHOWS.find((show) => show.id === showId);
       if (!selected) return;
-      alert(`${selected.name}\nHost: ${selected.host}\nCategory: ${selected.category}\nRating: ${selected.rating.toFixed(1)}/5\n${selected.description}`);
+      alert(`${selected.name}\nHost: ${selected.host}\nCategory: ${selected.category}\nRating: ${Number(selected.rating || 0).toFixed(1)}/5\n${selected.description}`);
     });
   });
 
@@ -199,17 +233,12 @@ async function loadRealEpisodes() {
   const container = document.getElementById("showsContainer");
   if (!container) return;
 
-  const hasFirebase = window.firebase && typeof window.firebase.firestore === "function";
-  if (!hasFirebase) {
+  if (!ensureFirebaseReady()) {
     renderShowCatalog();
     return;
   }
 
   try {
-    if (!window.firebase.apps.length) {
-      window.firebase.initializeApp(firebaseConfig);
-    }
-
     const db = window.firebase.firestore();
     const snapshot = await db.collection("episodes").where("status", "==", "published").limit(50).get();
     const episodes = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
@@ -252,10 +281,23 @@ async function loadRealEpisodes() {
   }
 }
 
+const showAliases = {
+  "morning-rise": ["morning-rise", "morning rise"],
+  "community-news": ["community-news", "community news"],
+  "cultural-roots": ["cultural-roots", "cultural roots"],
+  "wellness-warriors": ["wellness-warriors", "wellness warriors"],
+  "youth-voices": ["youth-voices", "youth voices"],
+  "entertainment-express": ["entertainment-express", "entertainment express"],
+  "business-update": ["business-update", "business update"],
+  "education-corner": ["education-corner", "education corner"]
+};
+
 window.filterByCategory = filterByCategory;
 window.sortShows = sortShows;
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
   setupShowCatalog();
+  await loadShowsFromFirestore();
+  renderShowCatalog();
   loadRealEpisodes();
 });
