@@ -10,11 +10,13 @@
     .card { background: white; border-radius: 1rem; box-shadow: 0 10px 28px rgba(17, 24, 39, 0.08); }
     .field { width: 100%; border: 1px solid #d1d5db; border-radius: 0.75rem; padding: 0.65rem 0.8rem; }
     .field:focus { outline: none; border-color: #dc2626; box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.15); }
+    .tab-btn.active { background: #dc2626; color: white; }
+    .tab-btn { border: 1px solid #d1d5db; background: white; border-radius: 0.75rem; padding: 0.7rem 1rem; font-weight: 700; }
   </style>
 </head>
 <body>
   <header class="bg-red-700 text-white shadow-lg">
-    <div class="mx-auto flex max-w-6xl items-center justify-between px-5 py-4">
+    <div class="mx-auto flex max-w-7xl items-center justify-between px-5 py-4">
       <div>
         <a href="index.html" class="text-xl font-bold">BWE TV</a>
         <span class="ml-2 rounded-full bg-white/15 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.2em]">Admin</span>
@@ -26,10 +28,10 @@
     </div>
   </header>
 
-  <main class="mx-auto max-w-6xl px-5 py-8">
+  <main class="mx-auto max-w-7xl px-5 py-8">
     <section id="loginPanel" class="mx-auto max-w-md card p-6">
       <h1 class="text-2xl font-bold text-gray-900">Sign in to manage content</h1>
-      <p class="mt-2 text-sm text-gray-600">Use your Firebase admin account to update shows and episodes.</p>
+      <p class="mt-2 text-sm text-gray-600">Use your Firebase admin account to update shows, episodes, and site settings.</p>
 
       <form id="loginForm" class="mt-6 space-y-4">
         <div>
@@ -52,79 +54,228 @@
       <div class="flex flex-col gap-4 rounded-2xl bg-white p-5 shadow-sm md:flex-row md:items-center md:justify-between">
         <div>
           <p class="text-xs font-bold uppercase tracking-[0.2em] text-red-600">Control Center</p>
-          <h2 class="mt-1 text-2xl font-bold text-gray-900">Manage TV Shows</h2>
+          <h2 class="mt-1 text-2xl font-bold text-gray-900">BWE TV Content Manager</h2>
         </div>
         <button id="logoutButton" type="button" class="rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm font-bold text-gray-700 hover:bg-gray-50">Logout</button>
       </div>
 
-      <div class="card p-6">
-        <div class="mb-5 flex items-center justify-between">
-          <h3 id="formTitle" class="text-xl font-bold text-gray-900">Add a new show</h3>
-          <button id="resetFormButton" type="button" class="rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm font-semibold text-gray-700">New Show</button>
-        </div>
-
-        <form id="showForm" class="grid gap-4 md:grid-cols-2">
-          <div class="md:col-span-2">
-            <label class="mb-2 block text-sm font-semibold text-gray-700" for="showIdInput">Document ID</label>
-            <input id="showIdInput" class="field" type="text" placeholder="morning-rise" />
-          </div>
-
-          <div>
-            <label class="mb-2 block text-sm font-semibold text-gray-700" for="showNameInput">Show Name</label>
-            <input id="showNameInput" class="field" type="text" placeholder="Morning Rise" required />
-          </div>
-
-          <div>
-            <label class="mb-2 block text-sm font-semibold text-gray-700" for="showCategoryInput">Category</label>
-            <input id="showCategoryInput" class="field" type="text" placeholder="News" required />
-          </div>
-
-          <div>
-            <label class="mb-2 block text-sm font-semibold text-gray-700" for="showHostInput">Host</label>
-            <input id="showHostInput" class="field" type="text" placeholder="Moses & Lydia" required />
-          </div>
-
-          <div>
-            <label class="mb-2 block text-sm font-semibold text-gray-700" for="showIconInput">Icon</label>
-            <input id="showIconInput" class="field" type="text" placeholder="☀️" />
-          </div>
-
-          <div>
-            <label class="mb-2 block text-sm font-semibold text-gray-700" for="showAccentInput">Accent Classes</label>
-            <input id="showAccentInput" class="field" type="text" placeholder="from-red-500 to-orange-400" />
-          </div>
-
-          <div>
-            <label class="mb-2 block text-sm font-semibold text-gray-700" for="showRatingInput">Rating</label>
-            <input id="showRatingInput" class="field" type="number" min="0" max="5" step="0.1" value="4.5" />
-          </div>
-
-          <div>
-            <label class="mb-2 block text-sm font-semibold text-gray-700" for="showEpisodesInput">Episodes</label>
-            <input id="showEpisodesInput" class="field" type="number" min="0" step="1" value="12" />
-          </div>
-
-          <div class="md:col-span-2">
-            <label class="mb-2 block text-sm font-semibold text-gray-700" for="showDescriptionInput">Description</label>
-            <textarea id="showDescriptionInput" class="field" rows="4" placeholder="Describe the show..." required></textarea>
-          </div>
-
-          <div class="md:col-span-2 flex items-center justify-between gap-3">
-            <label class="inline-flex items-center gap-2 text-sm font-semibold text-gray-700">
-              <input id="showActiveInput" type="checkbox" checked />
-              Active on website
-            </label>
-            <button type="submit" class="rounded-xl bg-red-600 px-5 py-3 text-sm font-bold text-white hover:bg-red-700">Save Show</button>
-          </div>
-        </form>
+      <div class="flex flex-wrap gap-3">
+        <button type="button" data-tab="shows" class="tab-btn active">Shows</button>
+        <button type="button" data-tab="episodes" class="tab-btn">Episodes</button>
+        <button type="button" data-tab="settings" class="tab-btn">Settings</button>
       </div>
 
-      <div class="card p-6">
-        <div class="mb-4 flex items-center justify-between gap-3">
-          <h3 class="text-xl font-bold text-gray-900">Current shows</h3>
-          <button id="refreshShowsButton" type="button" class="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm font-semibold text-gray-700">Refresh</button>
+      <div id="showsTab" class="space-y-8">
+        <div class="card p-6">
+          <div class="mb-5 flex items-center justify-between">
+            <h3 id="formTitle" class="text-xl font-bold text-gray-900">Add a new show</h3>
+            <button id="resetShowFormButton" type="button" class="rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm font-semibold text-gray-700">New Show</button>
+          </div>
+
+          <form id="showForm" class="grid gap-4 md:grid-cols-2">
+            <div class="md:col-span-2">
+              <label class="mb-2 block text-sm font-semibold text-gray-700" for="showIdInput">Document ID</label>
+              <input id="showIdInput" class="field" type="text" placeholder="morning-rise" />
+            </div>
+
+            <div>
+              <label class="mb-2 block text-sm font-semibold text-gray-700" for="showNameInput">Show Name</label>
+              <input id="showNameInput" class="field" type="text" placeholder="Morning Rise" required />
+            </div>
+
+            <div>
+              <label class="mb-2 block text-sm font-semibold text-gray-700" for="showCategoryInput">Category</label>
+              <input id="showCategoryInput" class="field" type="text" placeholder="News" required />
+            </div>
+
+            <div>
+              <label class="mb-2 block text-sm font-semibold text-gray-700" for="showHostInput">Host</label>
+              <input id="showHostInput" class="field" type="text" placeholder="Moses & Lydia" required />
+            </div>
+
+            <div>
+              <label class="mb-2 block text-sm font-semibold text-gray-700" for="showIconInput">Icon</label>
+              <input id="showIconInput" class="field" type="text" placeholder="☀️" />
+            </div>
+
+            <div>
+              <label class="mb-2 block text-sm font-semibold text-gray-700" for="showAccentInput">Accent Classes</label>
+              <input id="showAccentInput" class="field" type="text" placeholder="from-red-500 to-orange-400" />
+            </div>
+
+            <div>
+              <label class="mb-2 block text-sm font-semibold text-gray-700" for="showRatingInput">Rating</label>
+              <input id="showRatingInput" class="field" type="number" min="0" max="5" step="0.1" value="4.5" />
+            </div>
+
+            <div>
+              <label class="mb-2 block text-sm font-semibold text-gray-700" for="showEpisodesInput">Episodes</label>
+              <input id="showEpisodesInput" class="field" type="number" min="0" step="1" value="12" />
+            </div>
+
+            <div class="md:col-span-2">
+              <label class="mb-2 block text-sm font-semibold text-gray-700" for="showDescriptionInput">Description</label>
+              <textarea id="showDescriptionInput" class="field" rows="4" placeholder="Describe the show..." required></textarea>
+            </div>
+
+            <div class="md:col-span-2 flex items-center justify-between gap-3">
+              <label class="inline-flex items-center gap-2 text-sm font-semibold text-gray-700">
+                <input id="showActiveInput" type="checkbox" checked />
+                Publish to website
+              </label>
+              <button type="submit" class="rounded-xl bg-red-600 px-5 py-3 text-sm font-bold text-white hover:bg-red-700">Save Show</button>
+            </div>
+          </form>
         </div>
-        <div id="showList" class="space-y-3"></div>
+
+        <div class="card p-6">
+          <div class="mb-4 flex items-center justify-between gap-3">
+            <h3 class="text-xl font-bold text-gray-900">Current shows</h3>
+            <button id="refreshShowsButton" type="button" class="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm font-semibold text-gray-700">Refresh</button>
+          </div>
+          <div id="showList" class="space-y-3"></div>
+        </div>
+      </div>
+
+      <div id="episodesTab" class="hidden space-y-8">
+        <div class="card p-6">
+          <div class="mb-5 flex items-center justify-between">
+            <h3 id="episodeFormTitle" class="text-xl font-bold text-gray-900">Add a new episode</h3>
+            <button id="resetEpisodeFormButton" type="button" class="rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm font-semibold text-gray-700">New Episode</button>
+          </div>
+
+          <form id="episodeForm" class="grid gap-4 md:grid-cols-2">
+            <div class="md:col-span-2">
+              <label class="mb-2 block text-sm font-semibold text-gray-700" for="episodeIdInput">Episode ID</label>
+              <input id="episodeIdInput" class="field" type="text" placeholder="episode-001" />
+            </div>
+
+            <div>
+              <label class="mb-2 block text-sm font-semibold text-gray-700" for="episodeShowIdInput">Show ID</label>
+              <input id="episodeShowIdInput" class="field" type="text" placeholder="morning-rise" required />
+            </div>
+
+            <div>
+              <label class="mb-2 block text-sm font-semibold text-gray-700" for="episodeTitleInput">Episode Title</label>
+              <input id="episodeTitleInput" class="field" type="text" placeholder="Community News Roundup" required />
+            </div>
+
+            <div>
+              <label class="mb-2 block text-sm font-semibold text-gray-700" for="episodeSeasonInput">Season Number</label>
+              <input id="episodeSeasonInput" class="field" type="number" min="1" step="1" value="1" />
+            </div>
+
+            <div>
+              <label class="mb-2 block text-sm font-semibold text-gray-700" for="episodeNumberInput">Episode Number</label>
+              <input id="episodeNumberInput" class="field" type="number" min="1" step="1" value="1" />
+            </div>
+
+            <div>
+              <label class="mb-2 block text-sm font-semibold text-gray-700" for="episodeVideoIdInput">YouTube Video ID</label>
+              <input id="episodeVideoIdInput" class="field" type="text" placeholder="dQw4w9WgXcQ" />
+            </div>
+
+            <div>
+              <label class="mb-2 block text-sm font-semibold text-gray-700" for="episodeVideoUrlInput">YouTube URL</label>
+              <input id="episodeVideoUrlInput" class="field" type="url" placeholder="https://www.youtube.com/watch?v=..." />
+            </div>
+
+            <div class="md:col-span-2">
+              <label class="mb-2 block text-sm font-semibold text-gray-700" for="episodeDescriptionInput">Description</label>
+              <textarea id="episodeDescriptionInput" class="field" rows="4" placeholder="Describe the episode..."></textarea>
+            </div>
+
+            <div>
+              <label class="mb-2 block text-sm font-semibold text-gray-700" for="episodeStatusInput">Status</label>
+              <select id="episodeStatusInput" class="field">
+                <option value="draft">Draft</option>
+                <option value="published">Published</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="mb-2 block text-sm font-semibold text-gray-700" for="episodeDateInput">Published Date</label>
+              <input id="episodeDateInput" class="field" type="date" />
+            </div>
+
+            <div class="md:col-span-2 flex items-center justify-between gap-3">
+              <label class="inline-flex items-center gap-2 text-sm font-semibold text-gray-700">
+                <input id="episodeActiveInput" type="checkbox" checked />
+                Publish now
+              </label>
+              <button type="submit" class="rounded-xl bg-red-600 px-5 py-3 text-sm font-bold text-white hover:bg-red-700">Save Episode</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="card p-6">
+          <div class="mb-4 flex items-center justify-between gap-3">
+            <h3 class="text-xl font-bold text-gray-900">Episode library</h3>
+            <button id="refreshEpisodesButton" type="button" class="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm font-semibold text-gray-700">Refresh</button>
+          </div>
+          <div id="episodeList" class="space-y-3"></div>
+        </div>
+      </div>
+
+      <div id="settingsTab" class="hidden space-y-8">
+        <div class="card p-6">
+          <div class="mb-5 flex items-center justify-between">
+            <h3 class="text-xl font-bold text-gray-900">Site settings</h3>
+            <button id="saveSettingsButton" type="button" class="rounded-xl bg-red-600 px-4 py-2 text-sm font-bold text-white hover:bg-red-700">Save Settings</button>
+          </div>
+
+          <form id="settingsForm" class="grid gap-4 md:grid-cols-2">
+            <div>
+              <label class="mb-2 block text-sm font-semibold text-gray-700" for="siteNameInput">Site name</label>
+              <input id="siteNameInput" class="field" type="text" placeholder="BWE TV" />
+            </div>
+
+            <div>
+              <label class="mb-2 block text-sm font-semibold text-gray-700" for="siteTaglineInput">Tagline</label>
+              <input id="siteTaglineInput" class="field" type="text" placeholder="Community stories, local voices, live moments." />
+            </div>
+
+            <div>
+              <label class="mb-2 block text-sm font-semibold text-gray-700" for="liveStreamUrlInput">Live stream URL</label>
+              <input id="liveStreamUrlInput" class="field" type="url" placeholder="https://example.com/live/stream.m3u8" />
+            </div>
+
+            <div>
+              <label class="mb-2 block text-sm font-semibold text-gray-700" for="contactEmailInput">Contact email</label>
+              <input id="contactEmailInput" class="field" type="email" placeholder="bwetv.ug@gmail.com" />
+            </div>
+
+            <div>
+              <label class="mb-2 block text-sm font-semibold text-gray-700" for="youtubeUrlInput">YouTube URL</label>
+              <input id="youtubeUrlInput" class="field" type="url" placeholder="https://youtube.com/@bwetv" />
+            </div>
+
+            <div>
+              <label class="mb-2 block text-sm font-semibold text-gray-700" for="facebookUrlInput">Facebook URL</label>
+              <input id="facebookUrlInput" class="field" type="url" placeholder="https://facebook.com/bwetv" />
+            </div>
+
+            <div>
+              <label class="mb-2 block text-sm font-semibold text-gray-700" for="instagramUrlInput">Instagram URL</label>
+              <input id="instagramUrlInput" class="field" type="url" placeholder="https://instagram.com/bwetv" />
+            </div>
+
+            <div>
+              <label class="mb-2 block text-sm font-semibold text-gray-700" for="brandColorInput">Brand color</label>
+              <input id="brandColorInput" class="field" type="text" placeholder="#bf1506" />
+            </div>
+
+            <div>
+              <label class="mb-2 block text-sm font-semibold text-gray-700" for="accentColorInput">Accent color</label>
+              <input id="accentColorInput" class="field" type="text" placeholder="#facc15" />
+            </div>
+
+            <div class="md:col-span-2">
+              <label class="mb-2 block text-sm font-semibold text-gray-700" for="heroImageInput">Hero image URL</label>
+              <input id="heroImageInput" class="field" type="url" placeholder="https://example.com/hero.jpg" />
+            </div>
+          </form>
+        </div>
       </div>
     </section>
   </main>
