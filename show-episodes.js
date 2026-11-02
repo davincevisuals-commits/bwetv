@@ -4,12 +4,11 @@ const SHOWS = [
     name: "Morning Rise",
     category: "News",
     host: "Moses & Lydia",
-    description: "A bright and uplifting morning blend of local news, weather, devotions, and district updates.",
+    description: "A bright and uplifting morning mix of local news, weather, devotions, and district updates.",
     rating: 4.9,
     episodes: 26,
     icon: "☀️",
-    accent: "from-amber-100 to-orange-100",
-    slug: "morning-rise"
+    accent: "from-amber-100 to-orange-100"
   },
   {
     id: "community-news",
@@ -20,8 +19,7 @@ const SHOWS = [
     rating: 4.8,
     episodes: 31,
     icon: "📰",
-    accent: "from-red-100 to-rose-100",
-    slug: "community-news"
+    accent: "from-red-100 to-rose-100"
   },
   {
     id: "cultural-roots",
@@ -32,8 +30,7 @@ const SHOWS = [
     rating: 4.7,
     episodes: 18,
     icon: "🎶",
-    accent: "from-violet-100 to-fuchsia-100",
-    slug: "cultural-roots"
+    accent: "from-violet-100 to-fuchsia-100"
   },
   {
     id: "wellness-warriors",
@@ -44,8 +41,7 @@ const SHOWS = [
     rating: 4.7,
     episodes: 15,
     icon: "💪",
-    accent: "from-emerald-100 to-green-100",
-    slug: "wellness-warriors"
+    accent: "from-emerald-100 to-green-100"
   },
   {
     id: "youth-voices",
@@ -56,8 +52,7 @@ const SHOWS = [
     rating: 4.6,
     episodes: 20,
     icon: "🎤",
-    accent: "from-sky-100 to-cyan-100",
-    slug: "youth-voices"
+    accent: "from-sky-100 to-cyan-100"
   },
   {
     id: "entertainment-express",
@@ -68,8 +63,7 @@ const SHOWS = [
     rating: 4.8,
     episodes: 22,
     icon: "🎧",
-    accent: "from-pink-100 to-rose-100",
-    slug: "entertainment-express"
+    accent: "from-pink-100 to-rose-100"
   },
   {
     id: "business-update",
@@ -80,8 +74,7 @@ const SHOWS = [
     rating: 4.5,
     episodes: 17,
     icon: "📈",
-    accent: "from-blue-100 to-indigo-100",
-    slug: "business-update"
+    accent: "from-blue-100 to-indigo-100"
   },
   {
     id: "education-corner",
@@ -92,54 +85,53 @@ const SHOWS = [
     rating: 4.6,
     episodes: 13,
     icon: "📚",
-    accent: "from-yellow-100 to-orange-100",
-    slug: "education-corner"
+    accent: "from-yellow-100 to-orange-100"
   }
 ];
 
-const state = {
-  searchQuery: '',
-  category: 'All',
-  sortBy: 'rating'
+const showCatalogState = {
+  searchQuery: "",
+  category: "All",
+  sortBy: "rating"
 };
 
-function normalizeText(value) {
-  return String(value || '').trim().toLowerCase();
+function normalizeSearch(value) {
+  return String(value || "").trim().toLowerCase();
 }
 
-function filterShows() {
-  const search = normalizeText(state.searchQuery);
+function getFilteredShows() {
+  const query = normalizeSearch(showCatalogState.searchQuery);
 
   return SHOWS.filter((show) => {
-    const matchesCategory = state.category === 'All' || show.category === state.category;
+    const matchesCategory = showCatalogState.category === "All" || show.category === showCatalogState.category;
     const haystack = `${show.name} ${show.host} ${show.description} ${show.category}`.toLowerCase();
-    const matchesQuery = !search || haystack.includes(search);
+    const matchesQuery = !query || haystack.includes(query);
     return matchesCategory && matchesQuery;
   });
 }
 
-function sortShows(list) {
-  const sorted = [...list];
+function sortShowsList(items) {
+  const list = [...items];
 
-  if (state.sortBy === 'name') {
-    return sorted.sort((a, b) => a.name.localeCompare(b.name));
+  if (showCatalogState.sortBy === "name") {
+    return list.sort((a, b) => a.name.localeCompare(b.name));
   }
 
-  if (state.sortBy === 'episodes') {
-    return sorted.sort((a, b) => b.episodes - a.episodes);
+  if (showCatalogState.sortBy === "episodes") {
+    return list.sort((a, b) => b.episodes - a.episodes);
   }
 
-  return sorted.sort((a, b) => b.rating - a.rating);
+  return list.sort((a, b) => b.rating - a.rating);
 }
 
-function renderShows() {
-  const container = document.getElementById('showsContainer');
-  const resultsInfo = document.getElementById('resultsInfo');
-  const noResults = document.getElementById('noResults');
+function renderShowCards() {
+  const container = document.getElementById("showsContainer");
+  const resultsInfo = document.getElementById("resultsInfo");
+  const noResults = document.getElementById("noResults");
 
   if (!container || !resultsInfo || !noResults) return;
 
-  const filtered = sortShows(filterShows());
+  const filtered = sortShowsList(getFilteredShows());
 
   container.innerHTML = filtered.map((show) => `
     <article class="show-card overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
@@ -163,63 +155,71 @@ function renderShows() {
         </div>
       </div>
     </article>
-  `).join('');
+  `).join("");
 
-  const quickViewButtons = container.querySelectorAll('[data-show-id]');
+  const quickViewButtons = container.querySelectorAll("[data-show-id]");
   quickViewButtons.forEach((button) => {
-    button.addEventListener('click', () => {
-      const id = button.getAttribute('data-show-id');
-      const show = SHOWS.find((item) => item.id === id);
-      if (!show) return;
-      alert(`${show.name}\nHost: ${show.host}\nCategory: ${show.category}\nRating: ${show.rating.toFixed(1)}/5\n${show.description}`);
+    button.addEventListener("click", () => {
+      const showId = button.getAttribute("data-show-id");
+      const selected = SHOWS.find((show) => show.id === showId);
+      if (!selected) return;
+
+      alert(
+        `${selected.name}\n` +
+        `Host: ${selected.host}\n` +
+        `Category: ${selected.category}\n` +
+        `Rating: ${selected.rating.toFixed(1)}/5\n` +
+        selected.description
+      );
     });
   });
 
-  resultsInfo.textContent = `${filtered.length} show${filtered.length === 1 ? '' : 's'} found`;
-  noResults.classList.toggle('hidden', filtered.length > 0);
+  resultsInfo.textContent = `${filtered.length} show${filtered.length === 1 ? "" : "s"} found`;
+  noResults.classList.toggle("hidden", filtered.length > 0);
 }
 
 function updateCategoryButtons() {
-  document.querySelectorAll('.category-filter').forEach((button) => {
-    const isActive = button.textContent.trim() === state.category;
-    button.classList.toggle('active', isActive);
-    button.classList.toggle('btn-primary', isActive);
-    button.classList.toggle('btn-secondary', !isActive);
+  document.querySelectorAll(".category-filter").forEach((button) => {
+    const buttonLabel = button.textContent.trim();
+    const isActive = buttonLabel === showCatalogState.category;
+    button.classList.toggle("active", isActive);
+    button.classList.toggle("btn-primary", isActive);
+    button.classList.toggle("btn-secondary", !isActive);
   });
 }
 
 function filterByCategory(event, category) {
-  state.category = category;
+  showCatalogState.category = category;
   updateCategoryButtons();
-  renderShows();
+  renderShowCards();
 }
 
-function sortShowsFromSelect() {
-  const select = document.getElementById('sortSelect');
+function sortShows() {
+  const select = document.getElementById("sortSelect");
   if (!select) return;
-  state.sortBy = select.value;
-  renderShows();
+  showCatalogState.sortBy = select.value;
+  renderShowCards();
 }
 
-function setupShowPage() {
-  const searchInput = document.getElementById('searchInput');
+function setupShowCatalog() {
+  const searchInput = document.getElementById("searchInput");
   if (searchInput) {
-    searchInput.addEventListener('input', (event) => {
-      state.searchQuery = event.target.value;
-      renderShows();
+    searchInput.addEventListener("input", (event) => {
+      showCatalogState.searchQuery = event.target.value;
+      renderShowCards();
     });
   }
 
-  const sortSelect = document.getElementById('sortSelect');
+  const sortSelect = document.getElementById("sortSelect");
   if (sortSelect) {
-    sortSelect.addEventListener('change', sortShowsFromSelect);
+    sortSelect.addEventListener("change", sortShows);
   }
 
   updateCategoryButtons();
-  renderShows();
+  renderShowCards();
 }
 
 window.filterByCategory = filterByCategory;
-window.sortShows = sortShowsFromSelect;
+window.sortShows = sortShows;
 
-document.addEventListener('DOMContentLoaded', setupShowPage);
+document.addEventListener("DOMContentLoaded", setupShowCatalog);
