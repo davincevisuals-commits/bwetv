@@ -20,6 +20,7 @@
     formTitle: document.getElementById("formTitle"),
     refreshShowsButton: document.getElementById("refreshShowsButton"),
     episodeForm: document.getElementById("episodeForm"),
+    episodeFormTitle: document.getElementById("episodeFormTitle"),
     episodeList: document.getElementById("episodeList"),
     resetEpisodeFormButton: document.getElementById("resetEpisodeFormButton"),
     refreshEpisodesButton: document.getElementById("refreshEpisodesButton"),
@@ -79,7 +80,7 @@
 
   function resetShowForm() {
     state.editingShowId = null;
-    elements.formTitle.textContent = "Add a new show";
+    if (elements.formTitle) elements.formTitle.textContent = "Add a new show";
     elements.showForm.reset();
     document.getElementById("showRatingInput").value = "4.5";
     document.getElementById("showEpisodesInput").value = "12";
@@ -122,7 +123,7 @@
           </div>
           <div class="flex flex-wrap gap-2">
             <button type="button" data-show-edit="${show.id}" class="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-100">Edit</button>
-            <button type="button" data-show-toggle="${show.id}" class="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm font-semibold text-amber-700 hover:bg-amber-100">${show.active === false ? "Publish" : "Draft"}</button>
+            <button type="button" data-show-toggle="${show.id}" class="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm font-semibold text-amber-700 hover:bg-amber-100">${show.active === false ? "Publish" : "Unpublish"}</button>
             <button type="button" data-show-delete="${show.id}" class="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-semibold text-red-700 hover:bg-red-100">Delete</button>
           </div>
         </div>
@@ -238,7 +239,7 @@
 
   function resetEpisodeForm() {
     state.editingEpisodeId = null;
-    elements.episodeFormTitle.textContent = "Add a new episode";
+    if (elements.episodeFormTitle) elements.episodeFormTitle.textContent = "Add a new episode";
     elements.episodeForm.reset();
     document.getElementById("episodeSeasonInput").value = "1";
     document.getElementById("episodeNumberInput").value = "1";
@@ -290,7 +291,7 @@
           </div>
           <div class="flex flex-wrap gap-2">
             <button type="button" data-episode-edit="${episode.id}" class="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-100">Edit</button>
-            <button type="button" data-episode-toggle="${episode.id}" class="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm font-semibold text-amber-700 hover:bg-amber-100">${episode.status === "published" ? "Draft" : "Publish"}</button>
+            <button type="button" data-episode-toggle="${episode.id}" class="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm font-semibold text-amber-700 hover:bg-amber-100">${episode.status === "published" ? "Unpublish" : "Publish"}</button>
             <button type="button" data-episode-delete="${episode.id}" class="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-semibold text-red-700 hover:bg-red-100">Delete</button>
           </div>
         </div>
