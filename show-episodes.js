@@ -1,166 +1,225 @@
-(function () {
-  "use strict";
+const SHOWS = [
+  {
+    id: "morning-rise",
+    name: "Morning Rise",
+    category: "News",
+    host: "Moses & Lydia",
+    description: "A bright and uplifting morning blend of local news, weather, devotions, and district updates.",
+    rating: 4.9,
+    episodes: 26,
+    icon: "☀️",
+    accent: "from-amber-100 to-orange-100",
+    slug: "morning-rise"
+  },
+  {
+    id: "community-news",
+    name: "Community News",
+    category: "News",
+    host: "BWE Reporting Team",
+    description: "The latest district stories, public notices, and community updates from Bweyale and Kiryandongo.",
+    rating: 4.8,
+    episodes: 31,
+    icon: "📰",
+    accent: "from-red-100 to-rose-100",
+    slug: "community-news"
+  },
+  {
+    id: "cultural-roots",
+    name: "Cultural Roots",
+    category: "Culture",
+    host: "Teddy Achen",
+    description: "Traditional music, heritage stories, and cultural conversations that keep local identity alive.",
+    rating: 4.7,
+    episodes: 18,
+    icon: "🎶",
+    accent: "from-violet-100 to-fuchsia-100",
+    slug: "cultural-roots"
+  },
+  {
+    id: "wellness-warriors",
+    name: "Wellness Warriors",
+    category: "Health",
+    host: "BWE Health Desk",
+    description: "Healthy habits, family care, and practical wellness advice for everyday life in the community.",
+    rating: 4.7,
+    episodes: 15,
+    icon: "💪",
+    accent: "from-emerald-100 to-green-100",
+    slug: "wellness-warriors"
+  },
+  {
+    id: "youth-voices",
+    name: "Youth Voices",
+    category: "Culture",
+    host: "Young Presenters",
+    description: "A lively platform for youth talent, ideas, challenges, and fresh voices from the district.",
+    rating: 4.6,
+    episodes: 20,
+    icon: "🎤",
+    accent: "from-sky-100 to-cyan-100",
+    slug: "youth-voices"
+  },
+  {
+    id: "entertainment-express",
+    name: "Entertainment Express",
+    category: "Entertainment",
+    host: "BWE Studio",
+    description: "Music, lifestyle, and feel-good entertainment that connects audiences with local fun and culture.",
+    rating: 4.8,
+    episodes: 22,
+    icon: "🎧",
+    accent: "from-pink-100 to-rose-100",
+    slug: "entertainment-express"
+  },
+  {
+    id: "business-update",
+    name: "Business Update",
+    category: "Business",
+    host: "Market Watch",
+    description: "Economic opportunities, market trends, and local business stories that help communities grow.",
+    rating: 4.5,
+    episodes: 17,
+    icon: "📈",
+    accent: "from-blue-100 to-indigo-100",
+    slug: "business-update"
+  },
+  {
+    id: "education-corner",
+    name: "Education Corner",
+    category: "Education",
+    host: "School & Learning Desk",
+    description: "Learning resources, school stories, and opportunities for students, parents, and communities.",
+    rating: 4.6,
+    episodes: 13,
+    icon: "📚",
+    accent: "from-yellow-100 to-orange-100",
+    slug: "education-corner"
+  }
+];
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyCg9fxgrXlEuKW_m5MvDnG26Uf6lLdiYik",
-    authDomain: "bwetv-ug.firebaseapp.com",
-    projectId: "bwetv-ug",
-    storageBucket: "bwetv-ug.firebasestorage.app",
-    messagingSenderId: "481870926362",
-    appId: "1:481870926362:web:f406a0f135449ccfaa77a3"
-  };
+const state = {
+  searchQuery: '',
+  category: 'All',
+  sortBy: 'rating'
+};
 
-  const showAliases = {
-    "morning-rise": ["morning-rise", "morning rise"],
-    "cultural-roots": ["cultural-roots", "cultural roots"],
-    "wellness-warriors": ["wellness-warriors", "wellness warriors"],
-    "youth-voices": ["youth-voices", "youth voices"],
-    "entertainment-express": ["entertainment-express", "entertainment express"],
-    "business-update": ["business-update", "business update"],
-    "community-news": ["community-news", "community news"]
-  };
+function normalizeText(value) {
+  return String(value || '').trim().toLowerCase();
+}
 
-  function normalize(value) {
-    return String(value || "")
-      .trim()
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-|-$/g, "");
+function filterShows() {
+  const search = normalizeText(state.searchQuery);
+
+  return SHOWS.filter((show) => {
+    const matchesCategory = state.category === 'All' || show.category === state.category;
+    const haystack = `${show.name} ${show.host} ${show.description} ${show.category}`.toLowerCase();
+    const matchesQuery = !search || haystack.includes(search);
+    return matchesCategory && matchesQuery;
+  });
+}
+
+function sortShows(list) {
+  const sorted = [...list];
+
+  if (state.sortBy === 'name') {
+    return sorted.sort((a, b) => a.name.localeCompare(b.name));
   }
 
-  function episodeGroupKey(episode) {
-    const explicit = String(episode.showId || episode.show || "").trim();
-    if (explicit) return normalize(explicit);
-
-    const title = String(episode.title || "").toLowerCase();
-    if (title.includes("community")) return "community-news";
-
-    return "community-news";
+  if (state.sortBy === 'episodes') {
+    return sorted.sort((a, b) => b.episodes - a.episodes);
   }
 
-  function escapeText(value) {
-    return String(value ?? "").replace(/[&<>\'\"]/g, (character) => ({
-      "&": "&amp;",
-      "<": "&lt;",
-      ">": "&gt;",
-      "'": "&#39;",
-      '"': "&quot;"
-    }[character]));
-  }
+  return sorted.sort((a, b) => b.rating - a.rating);
+}
 
-  function getYouTubeId(episode) {
-    if (episode.videoId) return String(episode.videoId).trim();
-    const match = String(episode.videoUrl || "").match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/);
-    return match ? match[1] : "";
-  }
+function renderShows() {
+  const container = document.getElementById('showsContainer');
+  const resultsInfo = document.getElementById('resultsInfo');
+  const noResults = document.getElementById('noResults');
 
-  function toEpoch(value) {
-    if (!value) return 0;
-    if (typeof value.toMillis === "function") return value.toMillis();
-    if (value.seconds) return value.seconds * 1000;
-    const parsed = new Date(value).getTime();
-    return Number.isNaN(parsed) ? 0 : parsed;
-  }
+  if (!container || !resultsInfo || !noResults) return;
 
-  function formatDate(value) {
-    const timestamp = toEpoch(value);
-    return timestamp ? new Date(timestamp).toLocaleDateString("en-UG", { year: "numeric", month: "short", day: "numeric" }) : "";
-  }
+  const filtered = sortShows(filterShows());
 
-  function renderEpisodeList(card, showName, episodes) {
-    if (!episodes.length || card.querySelector(".show-episodes")) return;
-
-    const section = document.createElement("section");
-    section.className = "show-episodes mt-5 border-t border-gray-200 pt-4";
-    section.innerHTML = `<h4 class="mb-3 text-lg font-bold text-gray-900">Episodes</h4>`;
-
-    episodes.forEach((episode) => {
-      const id = getYouTubeId(episode);
-      const title = episode.title || "Untitled episode";
-      const number = [episode.seasonNumber ? `S${episode.seasonNumber}` : "", episode.episodeNumber ? `E${episode.episodeNumber}` : ""].filter(Boolean).join("");
-      const watchUrl = id ? `https://www.youtube.com/watch?v=${encodeURIComponent(id)}` : "";
-
-      const item = document.createElement("article");
-      item.className = "mb-3 overflow-hidden rounded-lg border border-gray-200 bg-gray-50";
-      item.innerHTML = `
-        ${id ? `<a href="${escapeText(watchUrl)}" target="_blank" rel="noopener noreferrer"><img src="https://img.youtube.com/vi/${encodeURIComponent(id)}/hqdefault.jpg" alt="${escapeText(title)}" class="h-36 w-full object-cover" loading="lazy"></a>` : ""}
-        <div class="p-3">
-          <p class="text-xs font-semibold uppercase tracking-wide text-red-600">${escapeText(number || showName)}</p>
-          <h5 class="font-bold text-gray-900">${escapeText(title)}</h5>
-          ${formatDate(episode.publishedAt) ? `<p class="mt-1 text-xs text-gray-500">Published ${escapeText(formatDate(episode.publishedAt))}</p>` : ""}
-          ${id ? `<a href="${escapeText(watchUrl)}" target="_blank" rel="noopener noreferrer" class="mt-2 inline-block text-sm font-semibold text-red-600 hover:underline">Watch episode on YouTube →</a>` : ""}
+  container.innerHTML = filtered.map((show) => `
+    <article class="show-card overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+      <div class="bg-gradient-to-br ${show.accent} p-6">
+        <div class="mb-3 text-4xl" aria-hidden="true">${show.icon}</div>
+        <div class="flex items-center justify-between gap-3">
+          <span class="rounded-full bg-white/80 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-gray-800">${show.category}</span>
+          <span class="rounded-full bg-white px-2 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-red-600">★ ${show.rating.toFixed(1)}</span>
         </div>
-      `;
-      section.appendChild(item);
+      </div>
+      <div class="p-5">
+        <div class="mb-3 flex items-start justify-between gap-3">
+          <h3 class="text-2xl font-bold text-gray-900">${show.name}</h3>
+          <span class="rounded-full border border-gray-200 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.15em] text-gray-600">${show.episodes} eps</span>
+        </div>
+        <p class="mb-3 text-sm font-semibold text-red-600">Hosted by ${show.host}</p>
+        <p class="mb-4 text-sm leading-6 text-gray-700">${show.description}</p>
+        <div class="flex flex-wrap gap-2">
+          <a href="schedule.html" class="btn btn-primary text-sm">Watch schedule</a>
+          <button type="button" class="btn btn-secondary text-sm" data-show-id="${show.id}">Quick view</button>
+        </div>
+      </div>
+    </article>
+  `).join('');
+
+  const quickViewButtons = container.querySelectorAll('[data-show-id]');
+  quickViewButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      const id = button.getAttribute('data-show-id');
+      const show = SHOWS.find((item) => item.id === id);
+      if (!show) return;
+      alert(`${show.name}\nHost: ${show.host}\nCategory: ${show.category}\nRating: ${show.rating.toFixed(1)}/5\n${show.description}`);
     });
+  });
 
-    card.appendChild(section);
+  resultsInfo.textContent = `${filtered.length} show${filtered.length === 1 ? '' : 's'} found`;
+  noResults.classList.toggle('hidden', filtered.length > 0);
+}
+
+function updateCategoryButtons() {
+  document.querySelectorAll('.category-filter').forEach((button) => {
+    const isActive = button.textContent.trim() === state.category;
+    button.classList.toggle('active', isActive);
+    button.classList.toggle('btn-primary', isActive);
+    button.classList.toggle('btn-secondary', !isActive);
+  });
+}
+
+function filterByCategory(event, category) {
+  state.category = category;
+  updateCategoryButtons();
+  renderShows();
+}
+
+function sortShowsFromSelect() {
+  const select = document.getElementById('sortSelect');
+  if (!select) return;
+  state.sortBy = select.value;
+  renderShows();
+}
+
+function setupShowPage() {
+  const searchInput = document.getElementById('searchInput');
+  if (searchInput) {
+    searchInput.addEventListener('input', (event) => {
+      state.searchQuery = event.target.value;
+      renderShows();
+    });
   }
 
-  function createMissingShowCard(container, label, episodes) {
-    const card = document.createElement("article");
-    card.className = "show-card relative overflow-hidden rounded-xl border border-gray-100 bg-white p-6 shadow-sm";
-    card.innerHTML = `
-      <span class="mb-4 inline-flex rounded-full bg-red-50 px-3 py-1 text-sm font-semibold text-red-600">News</span>
-      <div class="mb-4 text-4xl" aria-hidden="true">📰</div>
-      <h3 class="mb-2 text-2xl font-bold text-gray-900">${escapeText(label)}</h3>
-      <p class="mb-4 text-sm text-gray-600">Community news and local updates from Bweyale and Kiryandongo.</p>
-    `;
-    renderEpisodeList(card, label, episodes);
-    container.appendChild(card);
+  const sortSelect = document.getElementById('sortSelect');
+  if (sortSelect) {
+    sortSelect.addEventListener('change', sortShowsFromSelect);
   }
 
-  async function loadShowEpisodes() {
-    const container = document.getElementById("showsContainer");
-    if (!container) return;
+  updateCategoryButtons();
+  renderShows();
+}
 
-    if (!window.firebase || typeof window.firebase.firestore !== "function") {
-      console.warn("Firebase SDK unavailable; skipping show episodes.");
-      return;
-    }
+window.filterByCategory = filterByCategory;
+window.sortShows = sortShowsFromSelect;
 
-    try {
-      if (!window.firebase.apps.length) {
-        window.firebase.initializeApp(firebaseConfig);
-      }
-
-      const db = window.firebase.firestore();
-      const snapshot = await db.collection("episodes").where("status", "==", "published").limit(50).get();
-      const episodes = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-      const grouped = {};
-
-      episodes.forEach((episode) => {
-        const key = episodeGroupKey(episode);
-        (grouped[key] ||= []).push(episode);
-      });
-
-      const rendered = new Set();
-
-      container.querySelectorAll("article.show-card").forEach((card) => {
-        const heading = card.querySelector("h3");
-        const showName = heading ? heading.textContent.trim() : "";
-        const showKey = normalize(showName);
-        rendered.add(showKey);
-
-        const aliases = showAliases[showKey] || [showKey, showName.toLowerCase()];
-        const matching = Object.entries(grouped)
-          .filter(([group]) => aliases.includes(group) || group === showKey)
-          .flatMap(([, items]) => items)
-          .sort((a, b) => toEpoch(b.publishedAt) - toEpoch(a.publishedAt));
-
-        renderEpisodeList(card, showName, matching);
-      });
-
-      Object.entries(grouped).forEach(([group, items]) => {
-        if (!rendered.has(group)) {
-          const label = group === "community-news" ? "Community News" : (items[0].showId || "More Episodes");
-          createMissingShowCard(container, label, items.sort((a, b) => toEpoch(b.publishedAt) - toEpoch(a.publishedAt)));
-        }
-      });
-    } catch (error) {
-      console.error("Unable to load show episodes.", error);
-    }
-  }
-
-  document.addEventListener("DOMContentLoaded", loadShowEpisodes);
-})();
+document.addEventListener('DOMContentLoaded', setupShowPage);
