@@ -1,6 +1,7 @@
 const CHAT_MAX_LENGTH = 300;
 const CHAT_NEAR_BOTTOM_THRESHOLD = 80;
 const DEFAULT_CHAT_PATH = "channels/live-chat/messages";
+
 const scheduleState = {
   selectedDay: "Today"
 };
@@ -64,6 +65,8 @@ const PROGRAM_DATA = {
   ]
 };
 
+const DAYS_OF_WEEK = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+
 function getTodayLabel() {
   return new Date().toLocaleDateString('en-US', { weekday: 'long' });
 }
@@ -74,20 +77,35 @@ function timeToMinutes(timeString) {
 }
 
 function getProgramsForDay(dayName) {
-  const label = dayName === 'Today' ? getTodayLabel() : dayName;
-  return PROGRAM_DATA[label] || PROGRAM_DATA[getTodayLabel()] || [];
+  if (dayName === 'Today') {
+    const today = getTodayLabel();
+    return PROGRAM_DATA[today] || PROGRAM_DATA[Object.keys(PROGRAM_DATA)[0]] || [];
+  }
+  return PROGRAM_DATA[dayName] || [];
 }
 
 function getCurrentProgram(programs) {
+  if (!programs.length) return null;
+
   const nowMinutes = new Date().getHours() * 60 + new Date().getMinutes();
 
-  const current = programs.find((program, index) => {
-    const currentStart = timeToMinutes(program.time);
-    const nextStart = programs[index + 1] ? timeToMinutes(programs[index + 1].time) : currentStart + 90;
-    return nowMinutes >= currentStart && nowMinutes < nextStart;
-  });
+  for (let index = 0; index < programs.length; index += 1) {
+    const program = programs[index];
+    const start = timeToMinutes(program.time);
+    const end = index < programs.length - 1 ? timeToMinutes(programs[index + 1].time) : start + 90;
+    if (nowMinutes >= start && nowMinutes < end) {
+      return program;
+    }
+  }
 
-  return current || programs[0] || null;
+  return programs[0];
+}
+
+function getNextProgram(programs) {
+  if (!programs.length) return null;
+
+  const nowMinutes = new Date().getHours() * 60 + new Date().getMinutes();
+  return programs.find((program) => timeToMinutes(program.time) > nowMinutes) || programs[0];
 }
 
 function renderFeaturedPrograms() {
@@ -95,17 +113,50 @@ function renderFeaturedPrograms() {
   if (!container) return;
 
   const programs = getProgramsForDay('Today').slice(0, 3);
-  container.innerHTML = programs.map((program) => `
-    <article class="surface-card rounded-xl p-4 shadow-sm">
-      <div class="flex items-center justify-between gap-3 mb-3">
-        <span class="rounded-full border border-red-200 bg-red-50 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.15em] text-red-700">${program.type}</span>
-        <span class="text-xs font-semibold text-gray-600">${program.time}</span>
-      </div>
-      <h3 class="text-xl font-bold text-gray-900">${program.title}</h3>
-      <p class="mt-2 text-sm text-gray-600">${program.host}</p>
-      <p class="mt-3 text-sm leading-6 text-gray-700">${program.summary}</p>
-    </article>
-  `).join('');
+  const activeProgram = getCurrentProgram(getProgramsForDay('Today'));
+
+  container.innerHTML = programs.map((program) => {
+    const isNow = activeProgram && activeProgram.title === program.title;
+    return `
+      <article class="surface-card rounded-xl p-4 shadow-sm ${isNow ? 'ring-2 ring-red-300' : ''}">
+        <div class="flex items-center justify-between gap-3 mb-3">
+          <span class="rounded-full border border-red-200 bg-red-50 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.15em] text-red-700">${program.type}</span>
+          <span class="text-xs font-semibold text-gray-600">${program.time}</span>
+        </div>
+        <h3 class="text-xl font-bold text-gray-900">${program.title}</h3>
+        <p class="mt-2 text-sm text-gray-600">${program.host}</p>
+        <p class="mt-3 text-sm leading-6 text-gray-700">${program.summary}</p>
+        ${isNow ? '<div class="mt-4 inline-flex rounded-full bg-red-600 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.15em] text-white">Now airing</div>' : ''}
+      </article>
+    `;
+  }).join('');
+}
+
+function renderWeekOverview() {
+  const container = document.getElementById('weekOverview');
+  if (!container) return;
+
+  const today = getTodayLabel();
+
+  container.innerHTML = DAYS_OF_WEEK.map((day) => {
+    const active = day === today;
+    const items = getProgramsForDay(day);
+    const first = items[0];
+    return `
+      <button type="button" data-day="${day}" class="day-pill rounded-xl border px-3 py-3 text-left transition ${active ? 'border-red-500 bg-red-600 text-white shadow-sm' : 'border-gray-200 bg-white text-gray-800 hover:border-red-200 hover:bg-red-50'}">
+        <div class="text-[10px] font-bold uppercase tracking-[0.2em] ${active ? 'text-red-100' : 'text-gray-500'}">${day.slice(0, 3)}</div>
+        <div class="mt-2 text-sm font-bold">${first ? first.title : 'No data'}</div>
+        <div class="mt-1 text-[11px] ${active ? 'text-red-100' : 'text-gray-500'}">${first ? first.time : '—'}</div>
+      </button>
+    `;
+  }).join('');
+
+  container.querySelectorAll('.day-pill').forEach((button) => {
+    button.addEventListener('click', () => {
+      const day = button.getAttribute('data-day');
+      selectDay({ currentTarget: button }, day);
+    });
+  });
 }
 
 function renderSchedule() {
@@ -115,21 +166,34 @@ function renderSchedule() {
 
   const activeDay = scheduleState.selectedDay || 'Today';
   const programs = getProgramsForDay(activeDay);
+  const currentProgram = activeDay === 'Today' ? getCurrentProgram(programs) : programs[0];
+  const nextProgram = activeDay === 'Today' ? getNextProgram(programs) : programs[1] || programs[0];
 
   if (title) {
-    title.textContent = activeDay === 'Today' ? `${getTodayLabel()} Schedule` : `${activeDay} Schedule`;
+    const dayTitle = activeDay === 'Today' ? getTodayLabel() : activeDay;
+    title.textContent = `${dayTitle} Schedule`;
+  }
+
+  if (currentInfo) {
+    currentInfo.innerHTML = `
+      <p class="mb-1 text-xs font-bold uppercase tracking-[0.2em] text-yellow-200">${activeDay === 'Today' ? 'Now airing' : 'Featured'}</p>
+      <p class="text-2xl font-bold text-white">${currentProgram ? currentProgram.title : 'No programming available'}</p>
+      <p class="mt-1 text-sm text-white/85">${currentProgram ? `${currentProgram.time} • ${currentProgram.host}` : 'Check back later'}</p>
+      ${nextProgram ? `<p class="mt-2 text-xs text-white/80">Up next: ${nextProgram.title} at ${nextProgram.time}</p>` : ''}
+    `;
   }
 
   if (container) {
     container.innerHTML = programs.map((program, index) => {
-      const isLive = activeDay === 'Today' && index === 0 && getCurrentProgram(programs)?.title === program.title;
+      const isLive = activeDay === 'Today' && currentProgram && currentProgram.title === program.title;
       const now = new Date();
       const nowMinutes = now.getHours() * 60 + now.getMinutes();
-      const currentProgram = getCurrentProgram(programs);
       const programMinutes = timeToMinutes(program.time);
-      const isNext = program.title === (currentProgram && currentProgram.title) ? false : programMinutes > nowMinutes && activeDay === 'Today';
+      const isNext = activeDay === 'Today' && nextProgram && program.title === nextProgram.title && !isLive;
+      const isPast = activeDay === 'Today' && programMinutes < nowMinutes && !isLive;
+
       return `
-        <div class="schedule-item rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+        <div class="schedule-item rounded-xl border ${isLive ? 'border-red-200 bg-red-50' : 'border-gray-200 bg-white'} p-4 shadow-sm">
           <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <div>
               <p class="text-xs font-bold uppercase tracking-[0.2em] text-red-600">${program.time}</p>
@@ -138,26 +202,15 @@ function renderSchedule() {
             </div>
             <div class="flex items-center gap-2">
               <span class="rounded-full border border-gray-200 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.15em] text-gray-700">${program.type}</span>
-              ${isLive ? '<span class="rounded-full bg-red-600 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.15em] text-white">Live now</span>' : ''}
+              ${isLive ? '<span class="rounded-full bg-red-600 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.15em] text-white">Live</span>' : ''}
               ${isNext ? '<span class="rounded-full bg-amber-100 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.15em] text-amber-700">Up next</span>' : ''}
+              ${isPast && !isLive ? '<span class="rounded-full bg-gray-100 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.15em] text-gray-600">Earlier</span>' : ''}
             </div>
           </div>
           <p class="mt-3 text-sm leading-6 text-gray-700">${program.summary}</p>
         </div>
       `;
     }).join('');
-  }
-
-  if (currentInfo) {
-    const activeProgram = activeDay === 'Today' ? getCurrentProgram(programs) : programs[0];
-    if (activeProgram) {
-      const label = activeDay === 'Today' && activeProgram.title ? 'Live now' : 'Featured';
-      currentInfo.innerHTML = `
-        <p class="mb-1 text-xs font-bold uppercase tracking-[0.2em] text-yellow-200">${label}</p>
-        <p class="text-2xl font-bold text-white">${activeProgram.title}</p>
-        <p class="mt-1 text-sm text-white/85">${activeProgram.time} • ${activeProgram.host}</p>
-      `;
-    }
   }
 
   document.querySelectorAll('.day-btn').forEach((button) => {
@@ -171,6 +224,7 @@ function renderSchedule() {
 function selectDay(event, dayName) {
   scheduleState.selectedDay = dayName;
   renderSchedule();
+  renderWeekOverview();
 
   if (event && event.currentTarget) {
     document.querySelectorAll('.day-btn').forEach((button) => button.classList.remove('ring-2', 'ring-red-300'));
@@ -188,7 +242,9 @@ function setReminder() {
 }
 
 function shareSchedule() {
-  const text = `BWE TV schedule for ${scheduleState.selectedDay || 'Today'}: ${getProgramsForDay(scheduleState.selectedDay || 'Today').slice(0, 4).map((program) => `${program.time} ${program.title}`).join(' • ')}`;
+  const day = scheduleState.selectedDay || 'Today';
+  const programs = getProgramsForDay(day);
+  const text = `BWE TV schedule for ${day}: ${programs.slice(0, 4).map((program) => `${program.time} ${program.title}`).join(' • ')}`;
 
   if (navigator.share) {
     navigator.share({ title: 'BWE TV Program Schedule', text }).catch(() => {});
@@ -218,6 +274,7 @@ function downloadSchedule() {
 
 function initializeProgramExperience() {
   renderFeaturedPrograms();
+  renderWeekOverview();
   renderSchedule();
 }
 
