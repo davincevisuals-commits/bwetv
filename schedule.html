@@ -51,7 +51,7 @@
     .btn:hover { transform: translateY(-1px); }
     .btn-primary { background: var(--bwe-primary); color: #fff; }
     .btn-primary:hover { background: var(--bwe-primary-hover); }
-    .btn-secondary { background: #fff; color: var(--bwe-text); border-color: var(--bwe-border); }
+    .btn-secondary { background: #fff; color: var(--bwe-text); border: 1px solid var(--bwe-border); }
     .btn-secondary:hover { background: #f9fafb; }
     .btn-accent { background: var(--bwe-accent); color: #fff; }
     .btn-accent:hover { background: var(--bwe-accent-hover); }
@@ -60,6 +60,21 @@
     .brand-header { background: var(--bwe-brand); }
     .brand-header-sub { background: var(--bwe-brand-strong); }
     .section-surface { background: var(--bwe-surface); }
+    .week-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 0.75rem;
+    }
+    .day-pill {
+      min-height: 110px;
+      transition: all 0.2s ease;
+    }
+    .schedule-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      align-items: center;
+    }
   </style>
 </head>
 <body class="bg-white text-black">
@@ -123,6 +138,11 @@
 
     <section class="bg-white p-6">
       <div class="site-shell">
+        <div class="mb-6">
+          <h2 class="mb-3 text-2xl font-bold text-red-600">This Week at BWE TV</h2>
+          <div id="weekOverview" class="week-grid" aria-live="polite"></div>
+        </div>
+
         <h2 id="scheduleTitle" class="mb-6 text-2xl font-bold text-red-600">Today's Schedule</h2>
         <div id="scheduleContainer" class="space-y-3"><div class="h-20 rounded bg-gray-100 p-4"></div></div>
         <div class="mt-8 flex flex-wrap gap-3 justify-center md:justify-start">
