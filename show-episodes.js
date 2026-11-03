@@ -185,113 +185,6 @@ function setupShowCatalog() {
   renderShowCatalog();
 }
 
-function getYouTubeId(episode) {
-  if (episode.videoId) return String(episode.videoId).trim();
-  const match = String(episode.videoUrl || "").match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/);
-  return match ? match[1] : "";
-}
-
-function toEpoch(value) {
-  if (!value) return 0;
-  if (typeof value.toMillis === "function") return value.toMillis();
-  if (value && value.seconds) return value.seconds * 1000;
-  const parsed = new Date(value).getTime();
-  return Number.isNaN(parsed) ? 0 : parsed;
-}
-
-function formatEpisodeDate(value) {
-  const stamp = toEpoch(value);
-  return stamp ? new Date(stamp).toLocaleDateString("en-UG", { year: "numeric", month: "short", day: "numeric" }) : "";
-}
-
-function buildEpisodesHtml(episodes) {
-  if (!episodes || !episodes.length) {
-    return `<p class="mt-3 text-sm text-gray-500">No recent episodes yet.</p>`;
-  }
-
-  return episodes.slice(0, 3).map((episode) => {
-    const videoId = getYouTubeId(episode);
-    const title = episode.title || "Untitled episode";
-    const date = formatEpisodeDate(episode.publishedAt || episode.createdAt);
-    const watchUrl = videoId ? `https://www.youtube.com/watch?v=${encodeURIComponent(videoId)}` : "#";
-
-    return `
-      <div class="mb-3 overflow-hidden rounded-lg border border-gray-200 bg-gray-50">
-        ${videoId ? `<a href="${watchUrl}" target="_blank" rel="noopener noreferrer"><img src="https://img.youtube.com/vi/${encodeURIComponent(videoId)}/hqdefault.jpg" alt="${title}" class="h-28 w-full object-cover" /></a>` : ""}
-        <div class="p-3">
-          <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-red-600">${episode.episodeNumber ? `E${episode.episodeNumber}` : "Episode"}</p>
-          <h4 class="mt-1 text-sm font-bold text-gray-900">${title}</h4>
-          ${date ? `<p class="mt-1 text-xs text-gray-500">${date}</p>` : ""}
-          ${videoId ? `<a href="${watchUrl}" target="_blank" rel="noopener noreferrer" class="mt-2 inline-block text-sm font-semibold text-red-600 hover:underline">Watch episode</a>` : ""}
-        </div>
-      </div>
-    `;
-  }).join("");
-}
-
-async function loadRealEpisodes() {
-  const container = document.getElementById("showsContainer");
-  if (!container) return;
-
-  if (!ensureFirebaseReady()) {
-    renderShowCatalog();
-    return;
-  }
-
-  try {
-    const db = window.firebase.firestore();
-    const snapshot = await db.collection("episodes").where("status", "==", "published").limit(50).get();
-    const episodes = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-
-    const grouped = {};
-    episodes.forEach((episode) => {
-      const rawShow = episode.showId || episode.show || episode.title || "";
-      const slug = normalizeSlug(rawShow) || normalizeSlug(episode.title || "community-news");
-      const group = slug || "community-news";
-      if (!grouped[group]) grouped[group] = [];
-      grouped[group].push(episode);
-    });
-
-    const cards = [...container.querySelectorAll(".show-card")];
-    cards.forEach((card) => {
-      const heading = card.querySelector("h3");
-      const name = heading ? heading.textContent.trim() : "";
-      const slug = normalizeSlug(name);
-      const aliases = showAliases[slug] || [slug, name.toLowerCase()];
-      const matched = Object.entries(grouped)
-        .filter(([group]) => aliases.includes(group) || group === slug)
-        .flatMap(([, items]) => items)
-        .sort((a, b) => toEpoch(b.publishedAt || b.createdAt) - toEpoch(a.publishedAt || a.createdAt));
-
-      const section = document.createElement("section");
-      section.className = "show-episodes mt-5 border-t border-gray-200 pt-4";
-      section.innerHTML = `<h4 class="mb-3 text-lg font-bold text-gray-900">Episodes</h4>${buildEpisodesHtml(matched)}`;
-      const existing = card.querySelector(".show-episodes");
-      if (existing) existing.remove();
-      card.appendChild(section);
-    });
-
-    const resultsInfo = document.getElementById("resultsInfo");
-    if (resultsInfo) {
-      resultsInfo.textContent = `${SHOWS.length} shows available`;
-    }
-  } catch (error) {
-    console.error("Unable to load real episodes.", error);
-    renderShowCatalog();
-  }
-}
-
-const showAliases = {
-  "morning-rise": ["morning-rise", "morning rise"],
-  "community-news": ["community-news", "community news"],
-  "cultural-roots": ["cultural-roots", "cultural roots"],
-  "wellness-warriors": ["wellness-warriors", "wellness warriors"],
-  "youth-voices": ["youth-voices", "youth voices"],
-  "entertainment-express": ["entertainment-express", "entertainment express"],
-  "business-update": ["business-update", "business update"],
-  "education-corner": ["education-corner", "education corner"]
-};
-
 window.filterByCategory = filterByCategory;
 window.sortShows = sortShows;
 
@@ -299,5 +192,4 @@ document.addEventListener("DOMContentLoaded", async () => {
   setupShowCatalog();
   await loadShowsFromFirestore();
   renderShowCatalog();
-  loadRealEpisodes();
 });
