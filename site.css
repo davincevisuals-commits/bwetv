@@ -30,7 +30,7 @@
   --grad-btn-prim: linear-gradient(135deg, #BF1506 0%, #8C2B0A 100%);
   --grad-btn-acc: linear-gradient(135deg, #3D5A73 0%, #6E8FAB 100%);
   --grad-btn-succ: linear-gradient(135deg, #4A4D30 0%, #6B714C 100%);
-  --grad-chat: linear-gradient(to bottom right, rgba(20, 28, 34, 0.58), rgba(20, 16, 13, 0.72)), url("./20260602_190647(1).jpg") center / cover no-repeat;
+  --grad-chat: linear-gradient(to bottom right, rgba(20, 28, 34, 0.58), rgba(20, 16, 13, 0.72)), url("./20260602_190647(1).webp") center / cover no-repeat;
   --grad-member: linear-gradient(160deg, rgba(237,224,200,0.85) 0%, rgba(110,143,171,0.25) 100%);
   --grad-radio: linear-gradient(145deg, rgba(248,245,240,0.95) 0%, rgba(237,224,200,0.7) 100%);
 
@@ -70,7 +70,7 @@ main { display:block; }
 .mobile-menu.hidden { max-height:0; overflow:hidden; }
 .mobile-menu.visible { max-height:20rem; }
 
-.hero-section { position:relative; overflow:hidden; background:linear-gradient(to bottom right, rgba(0,0,0,0.40), rgba(0,0,0,0.56)), url("./20260602_190647(1).jpg") center / cover no-repeat !important; }
+.hero-section { position:relative; overflow:hidden; background:linear-gradient(to bottom right, rgba(0,0,0,0.40), rgba(0,0,0,0.56)), url("./20260602_190647(1).webp") center / cover no-repeat !important; }
 .hero-section::before { content:''; position:absolute; inset:0; background:linear-gradient(to bottom, rgba(0,0,0,0.10), rgba(0,0,0,0.24)); pointer-events:none; }
 .hero-section > * { position:relative; z-index:1; }
 .hero-copy { max-width:40rem; }
@@ -136,4 +136,3 @@ main { display:block; }
   html { scroll-behavior:auto; }
   *, *::before, *::after { animation-duration:0.01ms !important; animation-iteration-count:1 !important; transition-duration:0.01ms !important; }
 }
-

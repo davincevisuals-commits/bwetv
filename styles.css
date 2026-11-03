@@ -12,7 +12,7 @@ body {
   min-height: 100vh;
   background:
     linear-gradient(to bottom right, rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.68)),
-    url("./20260602_190647(1).jpg") center / cover no-repeat;
+    url("./20260602_190647(1).webp") center / cover no-repeat;
   display: flex;
   align-items: center;
   justify-content: center;
