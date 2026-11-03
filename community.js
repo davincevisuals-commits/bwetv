@@ -1,5 +1,8 @@
 (function () {
   'use strict';
+  const PAYPAL_EMAIL = 'oyoovincentoyoo1725@gmail.com';
+  const MOMO_NUMBER = '+256 (0) 774231123';
+  const MOMO_DIAL = '0774231123';
   const MAX_POST = 500;
   const POST_COOLDOWN_MS = 15000;
   const POSTS_KEY = 'bwetv-community-posts';
@@ -55,6 +58,7 @@
     const name = user.displayName || (user.email ? user.email.split('@')[0] : 'Guest');
     el.viewer.textContent = name;
     el.nameInput.value = name;
+    loadProfilePhoto(user);
     el.loginSection.classList.add('hidden');
     el.communitySection.classList.remove('hidden');
     startPosts();
@@ -65,6 +69,31 @@
     if (unsubscribe) { unsubscribe(); unsubscribe = null; }
     el.loginSection.classList.remove('hidden');
     el.communitySection.classList.add('hidden');
+  }
+
+  function loadProfilePhoto(user) {
+    if (!db || !user || user.uid === 'local') return;
+    db.collection('profiles').doc(user.uid).get().then((d) => {
+      if (d.exists && d.data().photoData) el.preview.src = d.data().photoData;
+    }).catch(() => {});
+  }
+
+  // Resize to a small square JPEG so it fits in a Firestore document.
+  function resizeImage(file, size) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      const url = URL.createObjectURL(file);
+      img.onload = () => {
+        const c = document.createElement('canvas');
+        c.width = c.height = size;
+        const side = Math.min(img.width, img.height);
+        c.getContext('2d').drawImage(img, (img.width - side) / 2, (img.height - side) / 2, side, side, 0, 0, size, size);
+        URL.revokeObjectURL(url);
+        resolve(c.toDataURL('image/jpeg', 0.8));
+      };
+      img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('bad image')); };
+      img.src = url;
+    });
   }
 
   function formatTime(ts) {
@@ -235,27 +264,45 @@
 
   el.newsletterForm.addEventListener('submit', function (event) {
     event.preventDefault();
-    const value = $('newsletterEmail').value.trim();
-    if (!value) { el.newsletterStatus.textContent = 'Please enter a valid email address.'; return; }
-    el.newsletterStatus.textContent = 'Thanks! You are subscribed to BWE TV updates.';
-    el.newsletterForm.reset();
+    const value = $('newsletterEmail').value.trim().toLowerCase();
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(value)) { el.newsletterStatus.textContent = 'Please enter a valid email address.'; return; }
+    if (!db) { el.newsletterStatus.textContent = 'Subscriptions are unavailable right now.'; return; }
+    // Email is the document ID, so repeat sign-ups don't create duplicates.
+    db.collection('newsletter').doc(value).set({
+      email: value,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    }).then(() => {
+      el.newsletterStatus.textContent = 'Thanks! You are subscribed to BWE TV updates.';
+      el.newsletterForm.reset();
+    }).catch(() => { el.newsletterStatus.textContent = 'Could not subscribe. Please try again later.'; });
   });
 
   el.paypal.addEventListener('click', function () {
-    setStatus('PayPal support is ready to open in a new tab.');
-    window.open('https://www.paypal.com', '_blank', 'noopener');
+    setStatus('Opening PayPal in a new tab. Thank you for supporting BWE TV!');
+    window.open('https://www.paypal.com/donate/?business=' + encodeURIComponent(PAYPAL_EMAIL) + '&item_name=' + encodeURIComponent('Support BWE TV') + '&currency_code=USD', '_blank', 'noopener');
   });
 
   el.momo.addEventListener('click', function () {
-    setStatus('MTN MoMo support is selected for the BWE TV mission.');
+    const box = $('momoDetails');
+    box.classList.toggle('hidden');
+    setStatus('Send your support via MTN MoMo to ' + MOMO_NUMBER + '.');
+  });
+
+  $('copyMomoBtn').addEventListener('click', function () {
+    const btn = this;
+    const done = () => { btn.textContent = 'Copied!'; setTimeout(() => { btn.textContent = 'Copy number'; }, 2000); };
+    if (navigator.clipboard) navigator.clipboard.writeText(MOMO_DIAL).then(done).catch(() => {});
   });
 
   el.pic.addEventListener('change', function (event) {
     const file = event.target.files && event.target.files[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (e) => { el.preview.src = e.target.result; };
-    reader.readAsDataURL(file);
+    resizeImage(file, 128).then((data) => {
+      el.preview.src = data;
+      if (db && currentUser && currentUser.uid !== 'local') {
+        return db.collection('profiles').doc(currentUser.uid).set({ photoData: data, name: el.nameInput.value.trim() || 'Guest' }, { merge: true });
+      }
+    }).catch(() => { el.postStatus.textContent = 'Could not save that picture.'; });
   });
 
   el.nameInput.addEventListener('input', function () {
