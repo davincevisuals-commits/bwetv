@@ -63,6 +63,10 @@
     return row;
   }
 
+  function isNearBottom(element) {
+    return element.scrollHeight - element.scrollTop - element.clientHeight < 80;
+  }
+
   function setupSharedChat(options = {}) {
     const chatContainer = document.getElementById(options.chatContainerId || 'liveChat');
     const chatInput = document.getElementById(options.chatInputId || 'chatInput');
@@ -90,23 +94,38 @@
       chatButton.disabled = !value || value.length > maxLength;
     }
 
-    function renderMessages(snapshot) {
-      const messages = snapshot ? Object.values(snapshot.val() || {}) : [];
-      const sorted = messages.sort((a, b) => Number(a.timestamp || 0) - Number(b.timestamp || 0));
+    const renderedMessages = new Map();
 
-      chatContainer.innerHTML = '';
+    function showEmptyState() {
+      if (renderedMessages.size) return;
+      const emptyState = document.createElement('div');
+      emptyState.dataset.chatEmpty = 'true';
+      emptyState.className = 'rounded-lg bg-white p-4 text-sm text-gray-600 shadow-sm';
+      emptyState.textContent = 'No messages yet. Start the conversation.';
+      chatContainer.replaceChildren(emptyState);
+    }
 
-      if (!sorted.length) {
-        chatContainer.innerHTML = '<div class="rounded-lg bg-white p-4 text-sm text-gray-600 shadow-sm">No messages yet. Start the conversation.</div>';
-        return;
-      }
+    function addMessage(snapshot) {
+      const message = snapshot.val();
+      if (!message || typeof message !== 'object' || renderedMessages.has(snapshot.key)) return;
 
-      sorted.forEach((message) => {
-        if (!message || typeof message !== 'object') return;
-        chatContainer.appendChild(buildMessageNode(message, userName, userId));
-      });
+      const shouldScroll = isNearBottom(chatContainer);
+      if (!renderedMessages.size) chatContainer.replaceChildren();
 
-      chatContainer.scrollTop = chatContainer.scrollHeight;
+      const node = buildMessageNode(message, userName, userId);
+      renderedMessages.set(snapshot.key, node);
+      chatContainer.appendChild(node);
+
+      if (shouldScroll) chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    function removeMessage(snapshot) {
+      const node = renderedMessages.get(snapshot.key);
+      if (!node) return;
+
+      node.remove();
+      renderedMessages.delete(snapshot.key);
+      showEmptyState();
     }
 
     function getDatabase() {
@@ -151,6 +170,10 @@
     };
 
     const chatRef = db.ref(chatPath).limitToLast(limit);
+    const connectionRef = db.ref('.info/connected');
+    const updateConnectionStatus = (snapshot) => {
+      setStatus(snapshot.val() ? 'Connected' : 'Connecting...');
+    };
 
     if (auth) {
       auth.onAuthStateChanged((user) => {
@@ -160,10 +183,10 @@
       });
     }
 
-    chatRef.on('value', (snapshot) => {
-      renderMessages(snapshot);
-      setStatus('Connected');
-    });
+    showEmptyState();
+    chatRef.on('child_added', addMessage);
+    chatRef.on('child_removed', removeMessage);
+    connectionRef.on('value', updateConnectionStatus);
 
     function sendMessage() {
       const text = normalizeMessage(chatInput.value);
@@ -218,7 +241,9 @@
 
     window.addEventListener('beforeunload', () => {
       try {
-        chatRef.off('value');
+        chatRef.off('child_added', addMessage);
+        chatRef.off('child_removed', removeMessage);
+        connectionRef.off('value', updateConnectionStatus);
       } catch (error) {}
     });
 

@@ -162,7 +162,7 @@
     if (!container) return;
 
     const observer = new MutationObserver(renderLinkedEpisodes);
-    observer.observe(container, { childList: true, subtree: true });
+    observer.observe(container, { childList: true });
     loadPublishedEpisodes();
   });
 })();
