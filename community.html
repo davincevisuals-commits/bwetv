@@ -78,7 +78,7 @@
           </div>
           <div>
             <label for="passwordInput" class="mb-1 block text-sm font-semibold text-gray-700">Password</label>
-            <input id="passwordInput" type="password" placeholder="Enter your password" class="w-full rounded border p-3">
+            <div class="flex gap-2"><input id="passwordInput" type="password" placeholder="Enter your password" autocomplete="current-password" class="w-full rounded border p-3"><button id="togglePassword" type="button" aria-pressed="false" class="rounded border px-3 text-sm font-semibold text-gray-700">Show</button></div>
           </div>
         </div>
 
@@ -86,9 +86,10 @@
           <button id="loginBtn" class="rounded bg-blue-600 px-4 py-3 font-semibold text-white">Login</button>
           <button id="signupBtn" class="rounded bg-green-600 px-4 py-3 font-semibold text-white">Create account</button>
           <button id="anonBtn" class="rounded border border-gray-300 px-4 py-3 font-semibold text-gray-700">Continue as Guest</button>
+          <button id="resetBtn" type="button" class="px-2 py-3 text-sm font-semibold text-blue-700 underline">Forgot password?</button>
         </div>
 
-        <p id="communityStatus" class="mt-4 text-sm text-gray-600">Choose how you would like to participate.</p>
+        <p id="communityStatus" role="status" aria-live="polite" class="mt-4 text-sm text-gray-600">Choose how you would like to participate.</p>
       </div>
     </section>
 
@@ -117,9 +118,9 @@
         <div class="grid gap-6 lg:grid-cols-[1.5fr_1fr]">
           <div class="rounded-2xl bg-white p-5 shadow-sm">
             <h3 class="mb-4 text-xl font-bold text-gray-900">Share a community update</h3>
-            <textarea id="postInput" rows="5" class="w-full rounded border border-gray-300 p-3 text-gray-800" placeholder="Share a thought, message, or update with the BWE TV community..."></textarea>
+            <textarea id="postInput" rows="5" maxlength="500" class="w-full rounded border border-gray-300 p-3 text-gray-800" placeholder="Share a thought, message, or update with the BWE TV community..."></textarea>
             <div class="mt-4 flex items-center justify-between gap-3">
-              <span id="postStatus" class="text-sm text-gray-500">Ready to post.</span>
+              <span class="text-sm text-gray-500"><span id="postStatus" role="status" aria-live="polite">Ready to post.</span> <span id="postCounter" class="ml-2 text-xs">0/500</span></span>
               <button id="postBtn" class="rounded bg-red-600 px-4 py-2 font-semibold text-white">Post</button>
             </div>
           </div>
@@ -165,216 +166,6 @@
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js" defer></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js" defer></script>
   <script src="content.js" defer></script>
-  <script>
-    (function () {
-      const STORAGE_KEY = 'bwetv-community-user';
-      const POSTS_KEY = 'bwetv-community-posts';
-
-      const loginSection = document.getElementById('loginSection');
-      const communitySection = document.getElementById('communitySection');
-      const emailInput = document.getElementById('emailInput');
-      const passwordInput = document.getElementById('passwordInput');
-      const statusText = document.getElementById('communityStatus');
-      const loginBtn = document.getElementById('loginBtn');
-      const signupBtn = document.getElementById('signupBtn');
-      const anonBtn = document.getElementById('anonBtn');
-      const signOutBtn = document.getElementById('signOutBtn');
-      const currentViewer = document.getElementById('currentViewer');
-      const profileNameInput = document.getElementById('profileNameInput');
-      const postInput = document.getElementById('postInput');
-      const postBtn = document.getElementById('postBtn');
-      const postStatus = document.getElementById('postStatus');
-      const postsContainer = document.getElementById('postsContainer');
-      const profilePreview = document.getElementById('profilePreview');
-      const profilePicInput = document.getElementById('profilePicInput');
-      const newsletterForm = document.getElementById('newsletterForm');
-      const newsletterStatus = document.getElementById('newsletterStatus');
-      const donatePaypalBtn = document.getElementById('donatePaypalBtn');
-      const donateMtnBtn = document.getElementById('donateMtnBtn');
-
-      function setStatus(message, isError) {
-        if (!statusText) return;
-        statusText.textContent = message;
-        statusText.className = 'mt-4 text-sm ' + (isError ? 'text-red-600' : 'text-gray-600');
-      }
-
-      function readUser() {
-        try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null'); } catch (error) { return null; }
-      }
-
-      function writeUser(user) { localStorage.setItem(STORAGE_KEY, JSON.stringify(user)); }
-      function clearUser() { localStorage.removeItem(STORAGE_KEY); }
-
-      function showCommunity(user) {
-        const name = user && user.name ? user.name : 'Guest';
-        currentViewer.textContent = name;
-        profileNameInput.value = name;
-        loginSection.classList.add('hidden');
-        communitySection.classList.remove('hidden');
-        renderPosts();
-      }
-
-      function showLogin() {
-        loginSection.classList.remove('hidden');
-        communitySection.classList.add('hidden');
-      }
-
-      function renderPosts() {
-        if (!postsContainer) return;
-        let posts = [];
-        try { posts = JSON.parse(localStorage.getItem(POSTS_KEY) || '[]'); } catch (error) {}
-
-        if (!posts.length) {
-          postsContainer.innerHTML = '<div class="rounded border border-dashed border-gray-300 p-4 text-sm text-gray-500">No community posts yet. Start the conversation.</div>';
-          return;
-        }
-
-        postsContainer.innerHTML = '';
-        posts.forEach((post) => {
-          const card = document.createElement('div');
-          card.className = 'rounded border border-gray-200 bg-gray-50 p-4';
-          card.innerHTML = '<div class="mb-1 flex items-center justify-between gap-3"><strong class="text-gray-900">' + (post.name || 'Guest') + '</strong><span class="text-xs text-gray-500">' + (post.time || '') + '</span></div><p class="text-sm leading-6 text-gray-700">' + (post.text || '') + '</p>';
-          postsContainer.appendChild(card);
-        });
-      }
-
-      function ensureGuestSession() {
-        const saved = readUser();
-        if (!saved) return false;
-        showCommunity(saved);
-        return true;
-      }
-
-      function createSession(name, type) {
-        const email = (emailInput.value || '').trim();
-        const user = { name: name || 'Guest', type: type || 'guest', email: email || '', timestamp: Date.now() };
-        writeUser(user);
-        showCommunity(user);
-      }
-
-      loginBtn.addEventListener('click', function () {
-        const email = (emailInput.value || '').trim();
-        const password = (passwordInput.value || '').trim();
-
-        if (!email || !password) {
-          setStatus('Please enter your email and password.', true);
-          return;
-        }
-
-        const userName = email.split('@')[0] || 'Member';
-        createSession(userName, 'member');
-        setStatus('Logged in successfully.');
-      });
-
-      signupBtn.addEventListener('click', function () {
-        const email = (emailInput.value || '').trim();
-        const password = (passwordInput.value || '').trim();
-
-        if (!email || !password || password.length < 6) {
-          setStatus('Create an account with a valid email and password of at least 6 characters.', true);
-          return;
-        }
-
-        const userName = email.split('@')[0] || 'Member';
-        createSession(userName, 'member');
-        setStatus('Account created successfully.');
-      });
-
-      anonBtn.addEventListener('click', function () {
-        createSession('Guest', 'guest');
-        setStatus('You are now browsing as a guest.');
-      });
-
-      signOutBtn.addEventListener('click', function () {
-        clearUser();
-        emailInput.value = '';
-        passwordInput.value = '';
-        postInput.value = '';
-        profileNameInput.value = '';
-        showLogin();
-        setStatus('You have signed out.');
-      });
-
-      postBtn.addEventListener('click', function () {
-        const text = postInput.value.trim();
-        if (!text) {
-          postStatus.textContent = 'Write a quick update before posting.';
-          return;
-        }
-
-        const current = readUser() || { name: 'Guest' };
-        let posts = [];
-        try { posts = JSON.parse(localStorage.getItem(POSTS_KEY) || '[]'); } catch (error) {}
-
-        posts.push({
-          name: current.name || 'Guest',
-          text,
-          time: new Date().toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
-        });
-
-        localStorage.setItem(POSTS_KEY, JSON.stringify(posts));
-        postInput.value = '';
-        postStatus.textContent = 'Your community update has been posted.';
-        renderPosts();
-      });
-
-      newsletterForm.addEventListener('submit', function (event) {
-        event.preventDefault();
-        const value = document.getElementById('newsletterEmail').value.trim();
-        if (!value) {
-          newsletterStatus.textContent = 'Please enter a valid email address.';
-          return;
-        }
-        newsletterStatus.textContent = 'Thanks! You are subscribed to BWE TV updates.';
-        newsletterForm.reset();
-      });
-
-      donatePaypalBtn.addEventListener('click', function () {
-        setStatus('PayPal support is ready to open in a new tab.');
-        window.open('https://www.paypal.com', '_blank', 'noopener');
-      });
-
-      donateMtnBtn.addEventListener('click', function () {
-        setStatus('MTN MoMo support is selected for the BWE TV mission.');
-      });
-
-      profilePicInput.addEventListener('change', function (event) {
-        const file = event.target.files && event.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = function (e) { profilePreview.src = e.target.result; };
-        reader.readAsDataURL(file);
-      });
-
-      profileNameInput.addEventListener('input', function () {
-        const saved = readUser();
-        if (!saved) return;
-        saved.name = profileNameInput.value.trim() || 'Guest';
-        writeUser(saved);
-        currentViewer.textContent = saved.name;
-      });
-
-      document.getElementById('mobileMenuBtn').addEventListener('click', function () {
-        const nav = document.getElementById('mobileMenu');
-        const expanded = this.getAttribute('aria-expanded') === 'true';
-        this.setAttribute('aria-expanded', String(!expanded));
-        nav.classList.toggle('hidden');
-      });
-
-      document.querySelectorAll('[data-nav-link]').forEach(function (link) {
-        if (link.getAttribute('href') === location.pathname.split('/').pop()) {
-          link.classList.add('nav-link-active');
-        }
-      });
-
-      const savedUser = readUser();
-      if (savedUser) {
-        showCommunity(savedUser);
-      } else {
-        showLogin();
-      }
-      renderPosts();
-    })();
-  </script>
+  <script src="community.js" defer></script>
 </body>
 </html>
