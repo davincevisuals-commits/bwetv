@@ -3,18 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BWE TV Privacy Notice | Data and Community Use</title>
-  <meta name="description" content="Read the BWE TV privacy notice for website visitors, live chat participants, and community members.">
-  <meta property="og:title" content="BWE TV Privacy Notice | Data and Community Use">
-  <meta property="og:description" content="Read the BWE TV privacy notice for website visitors, live chat participants, and community members.">
+  <title>BWE TV Episodes | Watch Published Episodes</title>
+  <meta name="description" content="Browse published BWE TV episodes, search by show, and watch available videos.">
+  <meta property="og:title" content="BWE TV Episodes | Watch Published Episodes">
+  <meta property="og:description" content="Browse published BWE TV episodes, search by show, and watch available videos.">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="BWE TV">
-  <meta property="og:url" content="https://davincevisuals-commits.github.io/bwetv/privacy.html">
+  <meta property="og:url" content="https://davincevisuals-commits.github.io/bwetv/episodes.html">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="BWE TV Privacy Notice | Data and Community Use">
-  <meta name="twitter:description" content="Read the BWE TV privacy notice for website visitors, live chat participants, and community members.">
-  <link rel="canonical" href="https://davincevisuals-commits.github.io/bwetv/privacy.html">
+  <meta name="twitter:title" content="BWE TV Episodes | Watch Published Episodes">
+  <meta name="twitter:description" content="Browse published BWE TV episodes, search by show, and watch available videos.">
+  <link rel="canonical" href="https://davincevisuals-commits.github.io/bwetv/episodes.html">
   <link rel="preconnect" href="https://cdn.jsdelivr.net">
+  <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <link href="site.css" rel="stylesheet">
   <style>
@@ -35,17 +36,18 @@
         <a href="index.html" data-nav-link class="hover:text-yellow-200 transition">Home</a>
         <a href="schedule.html" data-nav-link class="hover:text-yellow-200 transition">Programs</a>
         <a href="shows.html" data-nav-link class="hover:text-yellow-200 transition">Shows</a>
+        <a href="episodes.html" data-nav-link class="hover:text-yellow-200 transition">Episodes</a>
         <a href="community.html" data-nav-link class="hover:text-yellow-200 transition">Community</a>
         <a href="live-chat.html" data-nav-link class="hover:text-yellow-200 transition">Live Chat</a>
       </nav>
       <button id="mobileMenuBtn" class="md:hidden rounded p-2 text-2xl transition hover:bg-yellow-800" aria-expanded="false" aria-controls="mobileMenu" aria-label="Open navigation menu">☰</button>
     </div>
-
     <nav id="mobileMenu" class="mobile-menu hidden brand-header-sub md:hidden" aria-label="Mobile navigation">
       <div class="site-shell flex flex-col space-y-3 p-4">
         <a href="index.html" data-nav-link class="hover:text-yellow-200 transition">Home</a>
         <a href="schedule.html" data-nav-link class="hover:text-yellow-200 transition">Programs</a>
         <a href="shows.html" data-nav-link class="hover:text-yellow-200 transition">Shows</a>
+        <a href="episodes.html" data-nav-link class="hover:text-yellow-200 transition">Episodes</a>
         <a href="community.html" data-nav-link class="hover:text-yellow-200 transition">Community</a>
         <a href="live-chat.html" data-nav-link class="hover:text-yellow-200 transition">Live Chat</a>
       </div>
@@ -53,14 +55,30 @@
   </header>
 
   <main id="main-content" class="px-6 py-10">
-    <div class="site-shell max-w-4xl rounded-2xl bg-white p-8 shadow-sm">
-      <h1 class="text-3xl font-bold text-gray-900">Privacy Notice</h1>
-      <div class="mt-4 space-y-4 text-gray-600">
-        <p>BWE TV uses basic website technologies and community tools to support live chat, account access, and site updates.</p>
-        <p>If you join the live chat or community area, your selected guest name or signed-in email identifier may be shown alongside your messages.</p>
-        <p>Use the contact page for privacy questions or to request follow-up regarding published community content.</p>
+    <section class="site-shell">
+      <div class="mb-8 rounded-2xl bg-gradient-to-r from-red-600 to-red-800 p-8 text-white">
+        <h1 class="text-3xl font-bold md:text-4xl">BWE TV Episodes</h1>
+        <p class="mt-3 max-w-3xl text-lg opacity-90">Browse published episodes from your favorite BWE TV shows and watch available videos.</p>
       </div>
-    </div>
+
+      <section class="mb-6 rounded-2xl bg-white p-6 shadow-sm" aria-label="Filter episodes">
+        <div class="grid gap-4 md:grid-cols-2">
+          <div>
+            <label for="episodeSearch" class="mb-2 block text-sm font-semibold text-gray-700">Search episodes</label>
+            <input id="episodeSearch" type="search" placeholder="Search by episode, show, or description" class="w-full rounded border border-gray-300 p-3">
+          </div>
+          <div>
+            <label for="showFilter" class="mb-2 block text-sm font-semibold text-gray-700">Filter by show ID</label>
+            <input id="showFilter" type="search" placeholder="For example: morning-rise" class="w-full rounded border border-gray-300 p-3">
+          </div>
+        </div>
+        <p id="episodeStatus" class="mt-4 text-sm text-gray-600" role="status" aria-live="polite">Loading published episodes...</p>
+      </section>
+
+      <section id="episodesContainer" class="grid gap-6 md:grid-cols-2 lg:grid-cols-3" aria-label="Published episodes" aria-live="polite">
+        <div class="rounded-xl bg-white p-6 text-gray-600 shadow-sm">Loading episodes...</div>
+      </section>
+    </section>
   </main>
 
   <footer class="brand-header mt-8 p-4 text-center text-white">
@@ -68,6 +86,7 @@
       <p>© 2026 BWE TV</p>
       <div class="footer-link-grid mt-3 text-sm font-semibold">
         <a href="about.html" class="hover:text-yellow-200 transition">About</a>
+        <a href="privacy.html" class="hover:text-yellow-200 transition">Privacy</a>
         <a href="contact.html" class="hover:text-yellow-200 transition">Contact</a>
         <a href="schedule.html" class="hover:text-yellow-200 transition">Programs</a>
         <a href="community.html" class="hover:text-yellow-200 transition">Community</a>
@@ -75,7 +94,8 @@
     </div>
   </footer>
 
-  <script src="content.js" defer></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js" defer></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js" defer></script>
+  <script src="firestore-catalog.js" defer></script>
 </body>
 </html>
-
