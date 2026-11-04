@@ -28,6 +28,46 @@
     }
     .brand-header { background: var(--bwe-brand); }
     .brand-header-sub { background: var(--bwe-brand-strong); }
+    .live-chat-panel {
+      position: relative;
+      isolation: isolate;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.55);
+      border-radius: 1.35rem;
+      background: linear-gradient(165deg,rgba(237,224,200,0.64) 0%,rgba(214,201,168,0.58) 38%,rgba(30,43,49,0.68) 100%);
+      box-shadow: 0 12px 32px rgba(0,0,0,0.28);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+    .live-chat-panel::before {
+      content: "";
+      position: absolute;
+      inset: -8px;
+      z-index: 0;
+      background: url("./20260602_190647(1).webp") center/cover no-repeat;
+      filter: blur(9px);
+      transform: scale(1.04);
+      pointer-events: none;
+    }
+    .live-chat-panel > * { position: relative; z-index: 1; }
+    .live-chat-panel #liveChat {
+      border-color: rgba(255,255,255,0.45);
+      background: rgba(248,245,240,0.22);
+      backdrop-filter: blur(5px);
+    }
+    .live-chat-panel #chatInput {
+      border-color: rgba(160,96,58,0.35);
+      border-radius: 0.6rem;
+      background: rgba(248,245,240,0.9);
+    }
+    .live-chat-panel #chatInput::placeholder { color: #8290a2; opacity: 1; }
+    .live-chat-panel #chatBtn {
+      border: 0;
+      border-radius: 0.65rem;
+      background: linear-gradient(135deg,#ff6844,#f45130);
+      box-shadow: 0 5px 14px rgba(244,81,48,0.3);
+    }
+    .live-chat-panel #chatBtn:hover { background: linear-gradient(135deg,#f45130,#df4025); }
   </style>
 </head>
 <body class="bg-white text-black">
@@ -67,7 +107,7 @@
     </section>
 
     <section class="bg-gray-50 px-6 py-8">
-      <div class="site-shell mx-auto max-w-3xl rounded-lg bg-white p-6 shadow">
+      <div class="live-chat-panel site-shell mx-auto max-w-3xl rounded-lg bg-white p-6 shadow">
         <div class="mb-3 flex items-center justify-between">
           <h2 class="text-2xl font-bold text-gray-900">Live Chat</h2>
           <span id="chatStatus" class="rounded bg-gray-800 px-2 py-1 text-xs" role="status" aria-live="polite">Connecting...</span>
