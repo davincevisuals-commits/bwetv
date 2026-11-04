@@ -53,9 +53,20 @@
   }
 
   function setStatus(message, isError = false) {
-    if (!elements.loginStatus) return;
-    elements.loginStatus.textContent = message;
-    elements.loginStatus.className = "mt-4 text-sm " + (isError ? "text-red-600" : "text-gray-600");
+    let text = message;
+    if (isError && /permission|insufficient/i.test(String(message))) {
+      text += " — sign in as the verified admin email (bwetv.ug@gmail.com) and make sure its email is verified in Firebase.";
+    }
+    if (elements.loginStatus) {
+      elements.loginStatus.textContent = text;
+      elements.loginStatus.className = "mt-4 text-sm " + (isError ? "text-red-600" : "text-gray-600");
+    }
+    const bar = document.getElementById("dashboardStatus");
+    if (bar) {
+      bar.textContent = text;
+      bar.className = "sticky top-2 z-40 rounded-xl border px-4 py-3 text-sm font-semibold shadow " +
+        (isError ? "border-red-300 bg-red-50 text-red-700" : "border-green-300 bg-green-50 text-green-800");
+    }
   }
 
   function initializeFirebase() {
