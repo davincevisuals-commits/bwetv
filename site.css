@@ -176,3 +176,5 @@ main { display:block; }
 @media (prefers-reduced-motion: reduce) {
   .hero-copy .live-dot { animation:none; }
 }
+.live-stats-panel { border-top:1px solid rgba(160,96,58,0.25); padding-top:1rem; }
+.live-stat { background:rgba(255,255,255,0.72); color:#3d1f0e; }

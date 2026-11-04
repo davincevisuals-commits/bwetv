@@ -1,0 +1,131 @@
+(function () {
+  'use strict';
+
+  const viewerCount = document.getElementById('live-viewer-count');
+  const communityCount = document.getElementById('community-member-count');
+  const status = document.getElementById('live-stats-status');
+  const player = document.getElementById('livePlayer');
+  const communityPage = Boolean(document.getElementById('communitySection'));
+  if (!viewerCount && !communityPage) return;
+
+  function setStatus(message, isError) {
+    if (!status) return;
+    status.textContent = message;
+    status.dataset.state = isError ? 'error' : 'ready';
+  }
+
+  function handleError(error) {
+    console.error('BWE live stats error:', error);
+    setStatus('Live stats are temporarily unavailable.', true);
+  }
+
+  function countViewerSessions(snapshot) {
+    let count = 0;
+    snapshot.forEach((userSnapshot) => {
+      userSnapshot.forEach((sessionSnapshot) => {
+        if (sessionSnapshot.val() === true) count += 1;
+      });
+    });
+    viewerCount.textContent = String(count);
+  }
+
+  function countCommunityMembers(snapshot) {
+    let count = 0;
+    snapshot.forEach((userSnapshot) => {
+      if (userSnapshot.hasChildren()) count += 1;
+    });
+    communityCount.textContent = String(count);
+  }
+
+  if (!window.firebase || !window.firebase.auth || !window.firebase.database) {
+    setStatus('Live stats are temporarily unavailable.', true);
+    return;
+  }
+
+  const auth = window.firebase.auth();
+  const db = window.firebase.database();
+  const viewerRef = viewerCount ? db.ref('presence/viewers') : null;
+  const communityRef = communityCount ? db.ref('presence/community') : null;
+  const viewerTracker = createPresenceTracker(db, 'viewers', handleError);
+  const communityTracker = createPresenceTracker(db, 'community', handleError);
+
+  if (viewerRef) viewerRef.on('value', countViewerSessions, handleError);
+  if (communityRef) communityRef.on('value', countCommunityMembers, handleError);
+
+  db.ref('.info/connected').on('value', (snapshot) => {
+    const connected = snapshot.val() === true;
+    viewerTracker.setConnected(connected);
+    communityTracker.setConnected(connected);
+    setStatus(connected ? 'Live stats update in real time.' : 'Reconnecting to live stats…', !connected);
+  }, handleError);
+
+  auth.onAuthStateChanged((user) => {
+    viewerTracker.setUser(user && viewerCount ? user.uid : null);
+    const memberId = user && !user.isAnonymous && communityPage ? user.uid : null;
+    communityTracker.setActive(Boolean(memberId));
+    communityTracker.setUser(memberId);
+  });
+
+  if (player) {
+    player.addEventListener('playing', () => {
+      viewerTracker.setActive((player.currentSrc || '').startsWith('https://stream.bwetv.live/hls/bwetv/'));
+    });
+    ['pause', 'ended', 'error', 'emptied'].forEach((eventName) => {
+      player.addEventListener(eventName, () => viewerTracker.setActive(false));
+    });
+  }
+
+  function createPresenceTracker(database, category, onError) {
+    const state = { userId: null, ref: null, active: false, connected: false };
+    let updates = Promise.resolve();
+
+    function enqueueSync() {
+      const currentRef = state.ref;
+      if (!currentRef) return;
+
+      updates = updates.then(async () => {
+        if (!state.connected) return;
+        if (currentRef !== state.ref || !state.active) {
+          await currentRef.onDisconnect().cancel();
+          await currentRef.remove();
+          return;
+        }
+
+        await currentRef.onDisconnect().remove();
+        if (currentRef !== state.ref || !state.connected || !state.active) {
+          await currentRef.onDisconnect().cancel();
+          await currentRef.remove();
+          return;
+        }
+        await currentRef.set(true);
+      }).catch(onError);
+    }
+
+    return {
+      setUser(userId) {
+        if (state.userId === userId) return;
+        const previousRef = state.ref;
+        state.userId = userId;
+        state.ref = userId ? database.ref(`presence/${category}/${userId}`).push() : null;
+        if (previousRef) {
+          updates = updates.then(async () => {
+            if (!state.connected) return;
+            await previousRef.onDisconnect().cancel();
+            await previousRef.remove();
+          }).catch(onError);
+        }
+        enqueueSync();
+      },
+      setActive(active) {
+        if (state.active === active) return;
+        state.active = active;
+        enqueueSync();
+      },
+      setConnected(connected) {
+        if (state.connected === connected) return;
+        state.connected = connected;
+        enqueueSync();
+      }
+    };
+  }
+})();

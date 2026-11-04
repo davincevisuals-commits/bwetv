@@ -185,6 +185,17 @@
             <li>• Community-driven discussion</li>
             <li>• Family-friendly entertainment</li>
           </ul>
+          <div class="live-stats-panel mt-5 grid grid-cols-2 gap-3" aria-label="Live community statistics">
+            <div class="live-stat rounded-lg p-3 text-center">
+              <p id="live-viewer-count" class="text-2xl font-bold" aria-live="polite">—</p>
+              <p class="mt-1 text-xs font-semibold">Watching live</p>
+            </div>
+            <div class="live-stat rounded-lg p-3 text-center">
+              <p id="community-member-count" class="text-2xl font-bold" aria-live="polite">—</p>
+              <p class="mt-1 text-xs font-semibold">Members online</p>
+            </div>
+          </div>
+          <p id="live-stats-status" class="mt-2 text-xs" role="status" aria-live="polite">Connecting to live stats…</p>
         </aside>
       </div>
     </section>
@@ -265,6 +276,7 @@
     });
   </script>
   <script src="content.js?v=20261104-live" defer></script>
+  <script src="live-stats.js?v=20261104" defer></script>
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       if (window.initializeFirebase) {
