@@ -157,7 +157,7 @@
 
     const applyIdentity = (user) => {
       if (user && !user.isAnonymous) {
-        userName = user.displayName || (user.email ? user.email.split('@')[0] : getStoredName());
+        userName = (user.displayName && user.displayName !== 'Guest' && user.displayName) || (user.email ? user.email.split('@')[0] : getStoredName());
         userId = user.uid;
       } else {
         userName = getStoredName();
