@@ -81,8 +81,8 @@
       return null;
     }
 
-    const userName = getStoredName();
-    const userId = getStoredUserId();
+    let userName = getStoredName();
+    let userId = getStoredUserId();
 
     function setStatus(message, isError = false) {
       chatStatus.textContent = message;
@@ -155,21 +155,38 @@
       return null;
     }
 
+    const applyIdentity = (user) => {
+      if (user && !user.isAnonymous) {
+        userName = user.displayName || (user.email ? user.email.split('@')[0] : getStoredName());
+        userId = user.uid;
+      } else {
+        userName = getStoredName();
+        userId = getStoredUserId();
+      }
+    };
+
+    // Wait for Firebase to restore a saved login before deciding to sign in anonymously.
+    const authReady = auth
+      ? new Promise((resolve) => {
+          const off = auth.onAuthStateChanged((user) => { off(); resolve(user); });
+        })
+      : Promise.resolve(null);
+
     const ensureAuthenticated = () => {
       if (!auth) {
         return Promise.resolve();
       }
-      if (auth.currentUser) {
-        return Promise.resolve(auth.currentUser);
-      }
-      return auth.signInAnonymously().catch((error) => {
-        console.error('BWE chat auth error:', error);
-        setStatus('Live chat is blocked by Firebase auth rules. Enable anonymous auth and allow chat read/write access.', true);
-        throw error;
+      return authReady.then((user) => {
+        const current = auth.currentUser || user;
+        if (current) return current;
+        return auth.signInAnonymously().catch((error) => {
+          console.error('BWE chat auth error:', error);
+          setStatus('Live chat is blocked by Firebase auth rules. Enable anonymous auth and allow chat read/write access.', true);
+          throw error;
+        });
       });
     };
 
-    const messagesRef = db.ref(chatPath);
     const chatRef = messagesRef.limitToLast(limit);
     const connectionRef = db.ref('.info/connected');
     const updateConnectionStatus = (snapshot) => {
@@ -178,6 +195,7 @@
 
     if (auth) {
       auth.onAuthStateChanged((user) => {
+        applyIdentity(user);
         if (!user) {
           ensureAuthenticated().catch(() => {});
         }
@@ -195,6 +213,7 @@
         return;
       }
 
+      applyIdentity(auth && auth.currentUser);
       const payload = {
         text,
         user: userName,
