@@ -25,11 +25,15 @@
     resetEpisodeFormButton: document.getElementById("resetEpisodeFormButton"),
     refreshEpisodesButton: document.getElementById("refreshEpisodesButton"),
     saveSettingsButton: document.getElementById("saveSettingsButton"),
+    heroSlideList: document.getElementById("heroSlideList"),
+    addHeroSlideButton: document.getElementById("addHeroSlideButton"),
+    saveHeroButton: document.getElementById("saveHeroButton"),
     settingsForm: document.getElementById("settingsForm"),
     tabs: [...document.querySelectorAll("[data-tab]")],
     tabsContent: {
       shows: document.getElementById("showsTab"),
       episodes: document.getElementById("episodesTab"),
+      hero: document.getElementById("heroTab"),
       settings: document.getElementById("settingsTab")
     }
   };
@@ -481,6 +485,90 @@
     }
   }
 
+  const HERO_FIELDS = [
+    ["title", "Title", "text", "Morning Rise"],
+    ["tagline", "Tagline", "text", "Start your day with local news"],
+    ["category", "Category", "text", "News"],
+    ["image", "Cover image URL (https:// or assets/...)", "text", "https://example.com/cover.jpg"],
+    ["video", "Video URL (MP4, plays muted on loop)", "text", "https://example.com/clip.mp4"],
+    ["youtube", "YouTube highlight (link or video ID)", "text", "https://youtu.be/xxxxxxxxxxx"],
+    ["link", "Button link", "text", "#showsContainer"],
+    ["cta", "Button text", "text", "Browse shows"]
+  ];
+
+  function addHeroSlideRow(slide = {}) {
+    if (!elements.heroSlideList) return;
+    if (elements.heroSlideList.children.length >= 8) {
+      setStatus("A maximum of 8 hero slides is allowed.", true);
+      return;
+    }
+    const row = document.createElement("div");
+    row.className = "hero-slide-row rounded-xl border border-gray-200 p-4";
+    const grid = document.createElement("div");
+    grid.className = "grid gap-3 md:grid-cols-2";
+    HERO_FIELDS.forEach(([key, label, type, placeholder]) => {
+      const wrap = document.createElement("div");
+      const lab = document.createElement("label");
+      lab.className = "mb-1 block text-xs font-semibold text-gray-700";
+      lab.textContent = label;
+      const input = document.createElement("input");
+      input.className = "field";
+      input.type = type;
+      input.placeholder = placeholder;
+      input.dataset.key = key;
+      input.value = slide[key] || "";
+      wrap.append(lab, input);
+      grid.appendChild(wrap);
+    });
+    const remove = document.createElement("button");
+    remove.type = "button";
+    remove.className = "mt-3 rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm font-semibold text-red-700";
+    remove.textContent = "Remove slide";
+    remove.addEventListener("click", () => row.remove());
+    row.append(grid, remove);
+    elements.heroSlideList.appendChild(row);
+  }
+
+  async function loadHero() {
+    if (!elements.heroSlideList) return;
+    elements.heroSlideList.textContent = "";
+    try {
+      const db = initializeFirebase();
+      const snapshot = await db.collection("settings").doc("showsHero").get();
+      const slides = snapshot.exists && Array.isArray(snapshot.data().slides) ? snapshot.data().slides : [];
+      slides.forEach((slide) => addHeroSlideRow(slide));
+    } catch (error) {
+      console.error("Unable to load hero slides", error);
+      setStatus("Unable to load hero slides: " + (error.message || "unknown error"), true);
+    }
+  }
+
+  async function saveHero() {
+    const slides = [...elements.heroSlideList.querySelectorAll(".hero-slide-row")].map((row) => {
+      const slide = {};
+      row.querySelectorAll("input[data-key]").forEach((input) => { slide[input.dataset.key] = input.value.trim(); });
+      return slide;
+    }).filter((slide) => slide.title);
+
+    const badUrl = slides.find((s) => [s.image, s.video, s.link].some((u) => u && !/^(https:\/\/|assets\/|\.\/|#)/i.test(u)));
+    if (badUrl) {
+      setStatus("Slide \"" + badUrl.title + "\": URLs must start with https://, assets/ or #.", true);
+      return;
+    }
+
+    try {
+      const db = initializeFirebase();
+      await db.collection("settings").doc("showsHero").set({
+        slides,
+        updatedAt: window.firebase.firestore.FieldValue.serverTimestamp()
+      });
+      setStatus("Hero slides saved. Refresh the Shows page to see them.");
+    } catch (error) {
+      console.error("Unable to save hero slides", error);
+      setStatus("Unable to save hero slides: " + (error.message || "unknown error"), true);
+    }
+  }
+
   async function signIn(email, password) {
     const auth = window.firebase.auth();
     await auth.signInWithEmailAndPassword(email, password);
@@ -493,7 +581,7 @@
       elements.loginPanel.classList.add("hidden");
       elements.dashboardPanel.classList.remove("hidden");
       setStatus("Signed in successfully.");
-      Promise.all([loadShows(), loadEpisodes(), loadSettings()]);
+      Promise.all([loadShows(), loadEpisodes(), loadSettings(), loadHero()]);
     } else {
       elements.loginPanel.classList.remove("hidden");
       elements.dashboardPanel.classList.add("hidden");
@@ -535,6 +623,8 @@
   elements.showForm.addEventListener("submit", saveShow);
   elements.episodeForm.addEventListener("submit", saveEpisode);
   elements.saveSettingsButton.addEventListener("click", saveSettings);
+  elements.addHeroSlideButton.addEventListener("click", () => addHeroSlideRow());
+  elements.saveHeroButton.addEventListener("click", saveHero);
   elements.resetShowFormButton.addEventListener("click", resetShowForm);
   elements.resetEpisodeFormButton.addEventListener("click", resetEpisodeForm);
   elements.refreshShowsButton.addEventListener("click", loadShows);
