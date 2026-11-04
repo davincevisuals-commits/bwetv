@@ -187,6 +187,7 @@
       });
     };
 
+    const messagesRef = db.ref(chatPath);
     const chatRef = messagesRef.limitToLast(limit);
     const connectionRef = db.ref('.info/connected');
     const updateConnectionStatus = (snapshot) => {
