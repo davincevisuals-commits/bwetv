@@ -43,6 +43,41 @@
     .brand-header { background: var(--bwe-brand); }
     .brand-header-sub { background: var(--bwe-brand-strong); }
     .section-surface { background: var(--bwe-surface); }
+
+    /* Shows hero carousel */
+    .sh-viewport { position: relative; overflow: hidden; border-radius: 1rem; box-shadow: 0 12px 32px rgba(0,0,0,0.25); outline-offset: 3px; }
+    .sh-track { display: flex; transition: transform 0.7s cubic-bezier(0.22, 0.61, 0.36, 1); will-change: transform; }
+    .sh-slide { position: relative; flex: 0 0 100%; min-height: 20rem; display: flex; align-items: flex-end; overflow: hidden; }
+    .sh-media { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transform: scale(1.06); transition: transform 6s ease-out; }
+    .sh-active .sh-media { transform: scale(1); }
+    .sh-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.75), rgba(0,0,0,0.15) 60%, rgba(0,0,0,0.25)); }
+    .sh-content { position: relative; z-index: 1; width: 100%; padding: 1.5rem 3.5rem 3rem; text-align: left; color: #fff; opacity: 0; transform: translateX(40px); transition: opacity 0.6s ease 0.25s, transform 0.6s ease 0.25s; }
+    .sh-active .sh-content { opacity: 1; transform: none; }
+    .sh-chip { display: inline-block; margin-bottom: 0.5rem; border-radius: 9999px; background: rgba(255,255,255,0.85); color: #111827; padding: 0.15rem 0.6rem; font-size: 10px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; }
+    .sh-title { font-size: 2rem; font-weight: 800; line-height: 1.15; }
+    .sh-tagline { margin-top: 0.4rem; max-width: 36rem; font-size: 1.05rem; opacity: 0.95; }
+    .sh-actions { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 1rem; }
+    .sh-watch { background: rgba(255,255,255,0.18); color: #fff; border: 1px solid rgba(255,255,255,0.6); }
+    .sh-watch:hover { background: rgba(255,255,255,0.3); }
+    .sh-nav { position: absolute; top: 50%; z-index: 3; transform: translateY(-50%); width: 2.5rem; height: 2.5rem; border-radius: 9999px; border: 0; background: rgba(0,0,0,0.45); color: #fff; font-size: 1.6rem; line-height: 1; cursor: pointer; transition: background 0.2s ease; }
+    .sh-nav:hover, .sh-nav:focus-visible { background: rgba(220,38,38,0.9); }
+    .sh-prev { left: 0.6rem; } .sh-next { right: 0.6rem; }
+    .sh-dots { position: absolute; left: 0; right: 0; bottom: 0.9rem; z-index: 3; display: flex; justify-content: center; gap: 0.5rem; }
+    .sh-dot { width: 0.65rem; height: 0.65rem; border-radius: 9999px; border: 0; background: rgba(255,255,255,0.5); cursor: pointer; transition: width 0.3s ease, background 0.3s ease; }
+    .sh-dot-active { width: 1.8rem; background: #fff; }
+    .sh-player { position: absolute; inset: 0; z-index: 4; background: #000; }
+    .sh-player iframe { width: 100%; height: 100%; border: 0; }
+    .sh-close { position: absolute; top: 0.6rem; right: 0.6rem; width: 2.2rem; height: 2.2rem; border-radius: 9999px; border: 0; background: rgba(0,0,0,0.7); color: #fff; cursor: pointer; }
+    @media (max-width: 640px) {
+      .sh-slide { min-height: 17rem; }
+      .sh-content { padding: 1rem 1rem 2.6rem; }
+      .sh-title { font-size: 1.5rem; }
+      .sh-nav { display: none; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .sh-track, .sh-media, .sh-content { transition: none; }
+      .sh-content { opacity: 1; transform: none; }
+    }
   </style>
 </head>
 <body class="bg-white text-black">
@@ -80,6 +115,12 @@
       <div class="site-shell">
         <h1 class="mb-2 text-4xl font-bold">Our Shows</h1>
         <p class="text-lg opacity-90">Browse our complete catalog of engaging programs and discover what to watch next.</p>
+      </div>
+    </section>
+
+    <section class="bg-white p-6 pb-2" aria-label="Featured shows">
+      <div class="site-shell">
+        <div id="showsHero"></div>
       </div>
     </section>
 
@@ -142,5 +183,6 @@
   <script src="content.js" defer></script>
   <script src="show-episodes.js" defer></script>
   <script src="linked-show-episodes.js" defer></script>
+  <script src="shows-hero.js" defer></script>
 </body>
 </html>
