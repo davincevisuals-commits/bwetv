@@ -226,8 +226,9 @@
 
   el.anonBtn.addEventListener('click', function () {
     if (!auth) { showCommunity({ uid: 'local', displayName: 'Guest' }); return; }
+    try { sessionStorage.setItem('bwetv-community-guest', '1'); } catch (e) {}
     auth.signInAnonymously()
-      .then(() => setStatus('You are now browsing as a guest.'))
+      .then((cred) => { setStatus('You are now browsing as a guest.'); if (cred && cred.user) showCommunity(cred.user); })
       .catch(() => showCommunity({ uid: 'local', displayName: 'Guest' }));
   });
 
@@ -326,7 +327,12 @@
 
   updateCounter();
   if (auth) {
-    auth.onAuthStateChanged((user) => { if (user) showCommunity(user); else showLogin(); });
+    auth.onAuthStateChanged((user) => {
+      // The live chat page signs in anonymously; only treat it as a guest login if chosen here.
+      let chosenGuest = false;
+      try { chosenGuest = sessionStorage.getItem('bwetv-community-guest') === '1'; } catch (e) {}
+      if (user && (!user.isAnonymous || chosenGuest)) showCommunity(user); else showLogin();
+    });
   } else {
     showLogin();
   }
