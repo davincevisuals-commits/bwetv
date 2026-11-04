@@ -108,28 +108,130 @@ function getNextProgram(programs) {
   return programs.find((program) => timeToMinutes(program.time) > nowMinutes) || programs[0];
 }
 
+function escapeProgramHtml(value) {
+  return String(value == null ? '' : value).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+function formatMinutes(total) {
+  const hours = Math.floor(total / 60);
+  const mins = total % 60;
+  if (hours && mins) return `${hours}h ${mins}m`;
+  if (hours) return `${hours}h`;
+  return `${mins}m`;
+}
+
+function getProgramWindow(programs, index) {
+  const start = timeToMinutes(programs[index].time);
+  const end = index < programs.length - 1 ? timeToMinutes(programs[index + 1].time) : start + 90;
+  return { start, end };
+}
+
+function getProgramStatus(programs, index, nowMinutes) {
+  const { start, end } = getProgramWindow(programs, index);
+  if (nowMinutes >= start && nowMinutes < end) return 'live';
+  if (nowMinutes < start) return 'upcoming';
+  return 'done';
+}
+
+// Shows the live program first, then the next ones; wraps to tomorrow's start when the day is over.
+function pickFeaturedPrograms(programs, nowMinutes, count) {
+  const live = programs.findIndex((_, i) => getProgramStatus(programs, i, nowMinutes) === 'live');
+  const firstUpcoming = programs.findIndex((_, i) => getProgramStatus(programs, i, nowMinutes) === 'upcoming');
+  const startIndex = live >= 0 ? live : (firstUpcoming >= 0 ? firstUpcoming : 0);
+  return programs.slice(startIndex, startIndex + count).map((program) => {
+    const index = programs.indexOf(program);
+    return { program, index, status: live >= 0 || firstUpcoming >= 0 ? getProgramStatus(programs, index, nowMinutes) : 'upcoming' };
+  });
+}
+
 function renderFeaturedPrograms() {
   const container = document.getElementById('featured-programs');
   if (!container) return;
 
-  const programs = getProgramsForDay('Today').slice(0, 3);
-  const activeProgram = getCurrentProgram(getProgramsForDay('Today'));
+  const programs = getProgramsForDay('Today');
+  if (!programs.length) return;
 
-  container.innerHTML = programs.map((program) => {
-    const isNow = activeProgram && activeProgram.title === program.title;
-    return `
-      <article class="surface-card rounded-xl p-4 shadow-sm ${isNow ? 'ring-2 ring-red-300' : ''}">
-        <div class="flex items-center justify-between gap-3 mb-3">
-          <span class="rounded-full border border-red-200 bg-red-50 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.15em] text-red-700">${program.type}</span>
-          <span class="text-xs font-semibold text-gray-600">${program.time}</span>
-        </div>
-        <h3 class="text-xl font-bold text-gray-900">${program.title}</h3>
-        <p class="mt-2 text-sm text-gray-600">${program.host}</p>
-        <p class="mt-3 text-sm leading-6 text-gray-700">${program.summary}</p>
-        ${isNow ? '<div class="mt-4 inline-flex rounded-full bg-red-600 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.15em] text-white">Now airing</div>' : ''}
-      </article>
-    `;
-  }).join('');
+  const now = new Date();
+  const nowMinutes = now.getHours() * 60 + now.getMinutes();
+  const picks = pickFeaturedPrograms(programs, nowMinutes, 3);
+  const firstUpcomingKey = picks.find((p) => p.status === 'upcoming');
+  const signature = picks.map((p) => `${p.program.time}${p.program.title}${p.status}`).join('|');
+  const rebuild = container.dataset.signature !== signature;
+
+  if (rebuild) {
+    container.dataset.signature = signature;
+    container.innerHTML = picks.map((pick, i) => {
+      const { program, status } = pick;
+      const isNext = firstUpcomingKey && firstUpcomingKey.program === program;
+      const badge = status === 'live'
+        ? '<span class="program-badge program-badge-live"><span class="program-live-dot"></span>On now</span>'
+        : (isNext ? '<span class="program-badge program-badge-next">Up next</span>' : '<span class="program-badge">Later</span>');
+      return `
+        <article class="program-card surface-card program-reveal rounded-xl p-4 shadow-sm ${status === 'live' ? 'program-live' : ''}"
+                 style="animation-delay:${i * 90}ms" tabindex="0" role="button" aria-expanded="false"
+                 data-index="${pick.index}" data-status="${status}">
+          <div class="mb-3 flex items-center justify-between gap-3">
+            <span class="rounded-full border border-red-200 bg-red-50 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.15em] text-red-700">${escapeProgramHtml(program.type)}</span>
+            <span class="text-xs font-semibold text-gray-600">${escapeProgramHtml(program.time)}</span>
+          </div>
+          <h3 class="text-xl font-bold text-gray-900">${escapeProgramHtml(program.title)}</h3>
+          <p class="mt-2 text-sm text-gray-600">${escapeProgramHtml(program.host)}</p>
+          <p class="program-summary mt-3 text-sm leading-6 text-gray-700">${escapeProgramHtml(program.summary)}</p>
+          <div class="mt-4 flex items-center justify-between gap-2">
+            ${badge}
+            <span class="program-countdown text-xs font-semibold text-gray-600"></span>
+          </div>
+          <div class="program-progress" aria-hidden="true"><div class="program-progress-bar"></div></div>
+          <span class="program-more mt-3 block text-xs font-semibold text-red-700">Tap for details ▾</span>
+        </article>`;
+    }).join('');
+  }
+
+  container.querySelectorAll('.program-card').forEach((card) => {
+    const index = Number(card.dataset.index);
+    const { start, end } = getProgramWindow(programs, index);
+    const status = card.dataset.status;
+    const countdown = card.querySelector('.program-countdown');
+    const bar = card.querySelector('.program-progress-bar');
+    if (status === 'live') {
+      const pct = Math.max(0, Math.min(100, ((nowMinutes - start) / (end - start)) * 100));
+      bar.style.width = `${pct}%`;
+      countdown.textContent = `${formatMinutes(Math.max(end - nowMinutes, 0))} left`;
+    } else {
+      bar.style.width = '0%';
+      const until = start - nowMinutes;
+      countdown.textContent = until > 0 ? `Starts in ${formatMinutes(until)}` : 'Starts tomorrow';
+    }
+  });
+}
+
+function initProgramInteractions() {
+  const container = document.getElementById('featured-programs');
+  if (!container || container.dataset.bound) return;
+  container.dataset.bound = '1';
+
+  const toggle = (card) => {
+    const open = card.classList.toggle('program-open');
+    card.setAttribute('aria-expanded', String(open));
+    const more = card.querySelector('.program-more');
+    if (more) more.textContent = open ? 'Hide details ▴' : 'Tap for details ▾';
+  };
+
+  container.addEventListener('click', (event) => {
+    const card = event.target.closest('.program-card');
+    if (card) toggle(card);
+  });
+  container.addEventListener('keydown', (event) => {
+    if (event.key !== 'Enter' && event.key !== ' ') return;
+    const card = event.target.closest('.program-card');
+    if (!card) return;
+    event.preventDefault();
+    toggle(card);
+  });
+
+  renderFeaturedPrograms();
+  setInterval(() => { if (!document.hidden) renderFeaturedPrograms(); }, 30000);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) renderFeaturedPrograms(); });
 }
 
 function renderWeekOverview() {
@@ -274,6 +376,7 @@ function downloadSchedule() {
 
 function initializeProgramExperience() {
   renderFeaturedPrograms();
+  initProgramInteractions();
   renderWeekOverview();
   renderSchedule();
 }
