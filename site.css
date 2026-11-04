@@ -100,18 +100,17 @@ main { display:block; }
 .btn-success { background:var(--grad-btn-succ); color:#fff; box-shadow:0 2px 8px rgba(74,77,48,0.45); }
 
 .brand-footer { background:var(--footer-grad, var(--grad-footer)) !important; border-top:1px solid var(--footer-border, rgba(255,255,255,0.18)); color:var(--footer-text, #fff); }
-.bwe-footer-inner { display:grid; grid-template-columns:1.2fr 1.8fr 1.2fr; align-items:center; gap:1.5rem; min-height:11rem; padding:2.2rem 0 1.6rem; }
+.bwe-footer-inner { display:grid; grid-template-columns:1.2fr 1.8fr 1.2fr; align-items:center; gap:1.5rem; min-height:10rem; padding:1.25rem 0; }
 .bwe-footer-brand { display:flex; justify-content:center; }
 .bwe-footer-logo { display:inline-flex; align-items:center; justify-content:center; font-weight:900; font-size:clamp(1.7rem,2.1vw,3rem); letter-spacing:-0.06em; color:#fff; }
 .bwe-footer-logo span { display:inline-block; margin-left:0.3rem; padding:0.2rem 0.55rem; border-radius:0.3rem; background:linear-gradient(135deg,#ff5d4d,#dc2b1b); box-shadow:0 4px 10px rgba(0,0,0,0.2); }
 .bwe-footer-center { text-align:center; }
-.bwe-footer-tagline { margin:0 0 1.1rem; font-size:clamp(1rem,1.4vw,1.75rem); line-height:1.3; color:rgba(255,255,255,0.92); font-weight:400; font-style:italic; }
-.bwe-footer-links { display:flex; flex-wrap:wrap; justify-content:center; gap:0.9rem 1.7rem; font-size:clamp(0.95rem,1vw,1.35rem); font-weight:700; }
+.bwe-footer-tagline { margin:0 0 0.7rem; font-size:clamp(0.9rem,1vw,1rem); line-height:1.3; color:rgba(255,255,255,0.92); font-weight:600; }
+.bwe-footer-links { display:flex; flex-wrap:wrap; justify-content:center; gap:0.55rem 1.4rem; font-size:0.95rem; font-weight:700; }
 .bwe-footer-links a { color:rgba(255,255,255,0.92); text-decoration:none; }
 .bwe-footer-right { text-align:left; padding-left:1.25rem; }
 .bwe-footer-social { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:0.45rem; font-size:clamp(0.96rem,1vw,1.25rem); color:rgba(255,255,255,0.92); }
-.bwe-footer-right .rights { display:inline-block; margin-top:0.85rem; font-size:0.9rem; color:rgba(255,255,255,0.88); }
-.bwe-footer-meta { margin-top:0.3rem; padding-top:0.9rem; border-top:1px solid var(--footer-border, rgba(255,255,255,0.18)); text-align:center; color:rgba(255,255,255,0.84); font-size:0.94rem; }
+.bwe-footer-rights { margin:0.7rem 0 0; font-size:0.8rem; color:rgba(255,255,255,0.88); }
 .footer-link-grid { display:flex; flex-wrap:wrap; justify-content:center; gap:0.75rem 1.5rem; }
 .footer-link-grid a { text-decoration:none; }
 
