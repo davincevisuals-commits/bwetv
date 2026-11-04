@@ -84,7 +84,7 @@
             <p class="lead">Community stories, local voices, and the moments that matter most — streamed live across Bweyale and beyond.</p>
             <div class="live-status-bar">
               <span class="live-dot" aria-hidden="true"></span>
-              <span><strong>Streaming now</strong> · Local news, culture, and live community coverage</span>
+              <span><strong>Streaming now</strong> · <span id="live-program-info" aria-live="polite" aria-atomic="true">Local news, culture, and live community coverage</span></span>
             </div>
           </div>
 
@@ -264,7 +264,7 @@
       });
     });
   </script>
-  <script src="content.js?v=20261104" defer></script>
+  <script src="content.js?v=20261104-live" defer></script>
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       if (window.initializeFirebase) {

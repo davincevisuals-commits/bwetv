@@ -205,8 +205,24 @@ function renderFeaturedPrograms() {
   });
 }
 
+function renderLiveProgramStatus() {
+  const info = document.getElementById('live-program-info');
+  if (!info) return;
+
+  const programs = getProgramsForDay('Today');
+  const now = new Date();
+  const nowMinutes = now.getHours() * 60 + now.getMinutes();
+  const liveProgram = programs.find((_, index) => getProgramStatus(programs, index, nowMinutes) === 'live');
+  const text = liveProgram
+    ? `${liveProgram.title} — ${liveProgram.summary}`
+    : 'Local news, culture, and live community coverage';
+
+  if (info.textContent !== text) info.textContent = text;
+}
+
 function initProgramInteractions() {
   const container = document.getElementById('featured-programs');
+  renderLiveProgramStatus();
   if (!container || container.dataset.bound) return;
   container.dataset.bound = '1';
 
@@ -230,8 +246,16 @@ function initProgramInteractions() {
   });
 
   renderFeaturedPrograms();
-  setInterval(() => { if (!document.hidden) renderFeaturedPrograms(); }, 30000);
-  document.addEventListener('visibilitychange', () => { if (!document.hidden) renderFeaturedPrograms(); });
+  setInterval(() => {
+    if (document.hidden) return;
+    renderFeaturedPrograms();
+    renderLiveProgramStatus();
+  }, 30000);
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) return;
+    renderFeaturedPrograms();
+    renderLiveProgramStatus();
+  });
 }
 
 function renderWeekOverview() {
