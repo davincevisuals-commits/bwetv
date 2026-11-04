@@ -89,14 +89,14 @@
     if (user) recordVisit();
     else if (visitCount) auth.signInAnonymously().catch(handleError);
     viewerTracker.setUser(user && viewerCount ? user.uid : null);
-    const memberId = user && !user.isAnonymous && communityPage ? user.uid : null;
+    const memberId = user && !user.isAnonymous ? user.uid : null;
     communityTracker.setActive(Boolean(memberId));
     communityTracker.setUser(memberId);
   });
 
   if (player) {
     player.addEventListener('playing', () => {
-      viewerTracker.setActive((player.currentSrc || '').startsWith('https://stream.bwetv.live/hls/bwetv/'));
+      viewerTracker.setActive(true);
     });
     ['pause', 'ended', 'error', 'emptied'].forEach((eventName) => {
       player.addEventListener(eventName, () => viewerTracker.setActive(false));

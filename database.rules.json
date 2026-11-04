@@ -13,29 +13,31 @@
       "live-chat": {
         "messages": {
           ".read": true,
-          ".indexOn": ["timestamp"],
+          ".indexOn": [
+            "timestamp"
+          ],
           "$messageId": {
             ".write": "auth != null && !data.exists()",
             ".validate": "newData.hasChildren(['text', 'timestamp']) && newData.child('text').isString() && newData.child('text').val().length > 0 && newData.child('text').val().length <= 300 && newData.child('timestamp').isNumber()"
           }
         }
-      },
-      "presence": {
-        ".read": true,
-        "viewers": {
-          "$uid": {
-            "$sessionId": {
-              ".write": "auth != null && auth.uid === $uid",
-              ".validate": "newData.isBoolean() && newData.val() == true"
-            }
+      }
+    },
+    "presence": {
+      ".read": true,
+      "viewers": {
+        "$uid": {
+          "$sessionId": {
+            ".write": "auth != null && auth.uid === $uid",
+            ".validate": "newData.isBoolean() && newData.val() == true"
           }
-        },
-        "community": {
-          "$uid": {
-            "$sessionId": {
-              ".write": "auth != null && auth.uid === $uid",
-              ".validate": "newData.isBoolean() && newData.val() == true"
-            }
+        }
+      },
+      "community": {
+        "$uid": {
+          "$sessionId": {
+            ".write": "auth != null && auth.uid === $uid",
+            ".validate": "newData.isBoolean() && newData.val() == true"
           }
         }
       }
