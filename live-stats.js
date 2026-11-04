@@ -3,10 +3,11 @@
 
   const viewerCount = document.getElementById('live-viewer-count');
   const communityCount = document.getElementById('community-member-count');
+  const visitCount = document.getElementById('site-visit-count');
   const status = document.getElementById('live-stats-status');
   const player = document.getElementById('livePlayer');
   const communityPage = Boolean(document.getElementById('communitySection'));
-  if (!viewerCount && !communityPage) return;
+  if (!viewerCount && !visitCount && !communityPage) return;
 
   function setStatus(message, isError) {
     if (!status) return;
@@ -49,6 +50,27 @@
   const viewerTracker = createPresenceTracker(db, 'viewers', handleError);
   const communityTracker = createPresenceTracker(db, 'community', handleError);
 
+  const visitsRef = db.ref('stats/visits');
+  if (visitCount) {
+    visitsRef.on('value', (snapshot) => {
+      visitCount.textContent = Number(snapshot.val() || 0).toLocaleString();
+    }, handleError);
+  }
+
+  // Count one visit per browser session, once Firebase has an authenticated user.
+  let visitRecorded = false;
+  function recordVisit() {
+    if (visitRecorded) return;
+    try {
+      if (sessionStorage.getItem('bwetv-visit-counted')) { visitRecorded = true; return; }
+    } catch (error) {}
+    visitRecorded = true;
+    visitsRef.transaction((current) => (Number(current) || 0) + 1).then((result) => {
+      if (!result.committed) { visitRecorded = false; return; }
+      try { sessionStorage.setItem('bwetv-visit-counted', '1'); } catch (error) {}
+    }).catch((error) => { visitRecorded = false; handleError(error); });
+  }
+
   if (viewerRef) viewerRef.on('value', countViewerSessions, handleError);
   if (communityRef) communityRef.on('value', countCommunityMembers, handleError);
 
@@ -60,6 +82,8 @@
   }, handleError);
 
   auth.onAuthStateChanged((user) => {
+    if (user) recordVisit();
+    else if (visitCount) auth.signInAnonymously().catch(handleError);
     viewerTracker.setUser(user && viewerCount ? user.uid : null);
     const memberId = user && !user.isAnonymous && communityPage ? user.uid : null;
     communityTracker.setActive(Boolean(memberId));

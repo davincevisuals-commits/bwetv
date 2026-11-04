@@ -2,6 +2,13 @@
   "rules": {
     ".read": false,
     ".write": false,
+    "stats": {
+      "visits": {
+        ".read": true,
+        ".write": "auth != null",
+        ".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() == (data.exists() ? data.val() + 1 : 1)"
+      }
+    },
     "channels": {
       "live-chat": {
         "messages": {
