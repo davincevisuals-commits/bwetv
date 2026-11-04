@@ -309,6 +309,8 @@
   el.nameInput.addEventListener('input', function () {
     const name = el.nameInput.value.trim() || 'Guest';
     el.viewer.textContent = name;
+    // Don't persist the placeholder when the field is empty or mid-edit.
+    if (!el.nameInput.value.trim()) return;
     if (auth && auth.currentUser && auth.currentUser.updateProfile) {
       auth.currentUser.updateProfile({ displayName: name }).catch(() => {});
     }
