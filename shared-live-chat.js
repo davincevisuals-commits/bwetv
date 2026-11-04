@@ -197,6 +197,7 @@
       const payload = {
         text,
         user: userName,
+        author: userName,
         userId,
         timestamp: Date.now()
       };
