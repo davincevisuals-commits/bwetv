@@ -3,7 +3,8 @@ service cloud.firestore {
   match /databases/{database}/documents {
     function isAdmin() {
       return request.auth != null
-        && request.auth.token.email == 'bwetv.ug@gmail.com';
+        && request.auth.token.email == 'bwetv.ug@gmail.com'
+        && request.auth.token.email_verified == true;
     }
 
     match /episodes/{episodeId} {
@@ -25,14 +26,24 @@ service cloud.firestore {
       allow read: if request.auth != null;
       allow create, update: if request.auth != null && request.auth.uid == userId
         && request.resource.data.keys().hasOnly(['name', 'photoData'])
+        && (!('name' in request.resource.data) || (request.resource.data.name is string && request.resource.data.name.size() <= 30))
         && (!('photoData' in request.resource.data) || request.resource.data.photoData.size() < 200000);
       allow delete: if false;
     }
 
     match /posts/{postId} {
       allow read: if true;
-      allow create: if request.auth != null;
-      allow update, delete: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow create: if request.auth != null
+        && request.resource.data.keys().hasOnly(['userId', 'name', 'text', 'createdAt'])
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.name is string
+        && request.resource.data.name.size() <= 60
+        && request.resource.data.text is string
+        && request.resource.data.text.size() > 0
+        && request.resource.data.text.size() <= 500
+        && request.resource.data.createdAt == request.time;
+      allow update: if false;
+      allow delete: if request.auth != null && resource.data.userId == request.auth.uid;
     }
 
     match /newsletter/{email} {
@@ -43,12 +54,6 @@ service cloud.firestore {
         && email.matches('^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$');
       allow read: if isAdmin();
       allow update, delete: if false;
-    }
-
-    match /chat/{messageId} {
-      allow read: if true;
-      allow create: if request.auth != null;
-      allow update, delete: if request.auth != null && resource.data.userId == request.auth.uid;
     }
   }
 }
