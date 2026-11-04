@@ -38,13 +38,17 @@
     communityCount.textContent = String(count);
   }
 
-  if (!window.firebase || !window.firebase.auth || !window.firebase.database) {
-    setStatus('Live stats are temporarily unavailable.', true);
+  // Deferred scripts run before the page's DOMContentLoaded handler initializes Firebase.
+  if (window.initializeFirebase) window.initializeFirebase();
+
+  let auth, db;
+  try {
+    auth = window.firebase.auth();
+    db = window.firebase.database();
+  } catch (error) {
+    handleError(error);
     return;
   }
-
-  const auth = window.firebase.auth();
-  const db = window.firebase.database();
   const viewerRef = viewerCount ? db.ref('presence/viewers') : null;
   const communityRef = communityCount ? db.ref('presence/community') : null;
   const viewerTracker = createPresenceTracker(db, 'viewers', handleError);
