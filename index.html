@@ -7,7 +7,7 @@
   <meta name="description" content="Watch BWE TV live, browse today’s programs, and join the community conversation from any device." />
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
   <link href="https://vjs.zencdn.net/7.20.3/video-js.css" rel="stylesheet" />
-  <link href="site.css?v=20261104" rel="stylesheet" />
+  <link href="site.css?v=20261105" rel="stylesheet" />
   <link href="styles.css" rel="stylesheet" />
   <link href="social-icons.css" rel="stylesheet" />
   <style>
@@ -100,7 +100,7 @@
             <a href="community.html" class="btn btn-secondary">Join the Community</a>
             <button id="chatToggleBtn" type="button" class="btn btn-secondary" aria-expanded="false" aria-controls="homeChatPanel">Open Community Chat</button>
           </div>
-          <aside id="homeChatPanel" hidden class="chat-shell flex flex-col rounded-xl mt-4" aria-labelledby="home-chat-heading">
+          <aside id="homeChatPanel" hidden style="display:none;" class="chat-shell flex flex-col rounded-xl mt-4" aria-labelledby="home-chat-heading">
             <div class="flex items-center justify-between p-3" style="border-bottom:1px solid rgba(160,96,58,.3);">
               <h2 id="home-chat-heading" class="text-xl font-bold text-white">Community Chat</h2>
               <span class="rounded-full px-2 py-1 text-xs font-bold uppercase tracking-wide" style="background:rgba(255,255,255,.16); border:1px solid rgba(255,255,255,.18); color:#fff;">Live</span>
@@ -258,6 +258,7 @@
       btn.addEventListener('click', function () {
         var open = panel.hidden;
         panel.hidden = !open;
+        panel.style.display = open ? 'flex' : 'none';
         btn.setAttribute('aria-expanded', String(open));
         btn.textContent = open ? 'Close Community Chat' : 'Open Community Chat';
       });
