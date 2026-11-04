@@ -165,3 +165,4 @@ main { display:block; }
   .program-reveal, .program-live, .program-live-dot { animation:none; opacity:1; }
   .program-progress-bar { transition:none; }
 }
+.chat-shell[hidden]{display:none !important}

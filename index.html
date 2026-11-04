@@ -76,8 +76,8 @@
 
   <main id="main-content">
     <section class="hero-section px-6 py-8 text-white">
-      <div class="site-shell grid grid-cols-1 gap-6 lg:grid-cols-3 lg:items-start">
-        <div class="lg:col-span-2">
+      <div class="site-shell grid grid-cols-1 gap-6">
+        <div>
           <div class="hero-copy mb-5">
             <p class="live-now-label">LIVE NOW FROM BWEYALE</p>
             <h1 class="mb-3">Watch BWE TV live and stay connected with your community</h1>
@@ -98,23 +98,24 @@
           <div class="stack-mobile flex flex-wrap gap-3">
             <a href="schedule.html" class="btn btn-primary">Watch today’s lineup</a>
             <a href="community.html" class="btn btn-secondary">Join the Community</a>
+            <button id="chatToggleBtn" type="button" class="btn btn-secondary" aria-expanded="false" aria-controls="homeChatPanel">Open Community Chat</button>
           </div>
+          <aside id="homeChatPanel" hidden class="chat-shell flex flex-col rounded-xl mt-4" aria-labelledby="home-chat-heading">
+            <div class="flex items-center justify-between p-3" style="border-bottom:1px solid rgba(160,96,58,.3);">
+              <h2 id="home-chat-heading" class="text-xl font-bold text-white">Community Chat</h2>
+              <span class="rounded-full px-2 py-1 text-xs font-bold uppercase tracking-wide" style="background:rgba(255,255,255,.16); border:1px solid rgba(255,255,255,.18); color:#fff;">Live</span>
+            </div>
+            <div id="homeChat" class="chat-scroll flex-1 p-3 space-y-3 text-white"></div>
+            <div class="p-3" style="border-top:1px solid rgba(160,96,58,.3);">
+              <div class="flex gap-2">
+                <input id="homeChatInput" type="text" maxlength="260" placeholder="Share your thoughts..." aria-label="Type your message" class="member-form-input text-sm" />
+                <button id="homeChatSendBtn" type="button" class="btn btn-primary text-sm">Send</button>
+              </div>
+              <p id="homeChatStatus" class="mt-2 text-xs text-white/85">Join the conversation.</p>
+            </div>
+          </aside>
         </div>
 
-        <aside class="chat-shell flex flex-col rounded-xl" aria-labelledby="home-chat-heading">
-          <div class="flex items-center justify-between p-3" style="border-bottom:1px solid rgba(160,96,58,.3);">
-            <h2 id="home-chat-heading" class="text-xl font-bold text-white">Community Chat</h2>
-            <span class="rounded-full px-2 py-1 text-xs font-bold uppercase tracking-wide" style="background:rgba(255,255,255,.16); border:1px solid rgba(255,255,255,.18); color:#fff;">Live</span>
-          </div>
-          <div id="homeChat" class="chat-scroll flex-1 p-3 space-y-3 text-white"></div>
-          <div class="p-3" style="border-top:1px solid rgba(160,96,58,.3);">
-            <div class="flex gap-2">
-              <input id="homeChatInput" type="text" maxlength="260" placeholder="Share your thoughts..." aria-label="Type your message" class="member-form-input text-sm" />
-              <button id="homeChatSendBtn" type="button" class="btn btn-primary text-sm">Send</button>
-            </div>
-            <p id="homeChatStatus" class="mt-2 text-xs text-white/85">Join the conversation.</p>
-          </div>
-        </aside>
       </div>
     </section>
 
@@ -251,6 +252,17 @@
     };
   </script>
   <script src="shared-live-chat.js" defer></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      var btn = document.getElementById('chatToggleBtn'), panel = document.getElementById('homeChatPanel');
+      btn.addEventListener('click', function () {
+        var open = panel.hidden;
+        panel.hidden = !open;
+        btn.setAttribute('aria-expanded', String(open));
+        btn.textContent = open ? 'Close Community Chat' : 'Open Community Chat';
+      });
+    });
+  </script>
   <script src="content.js?v=20261104" defer></script>
   <script>
     document.addEventListener('DOMContentLoaded', function () {
