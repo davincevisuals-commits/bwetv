@@ -169,7 +169,8 @@
       });
     };
 
-    const chatRef = db.ref(chatPath).limitToLast(limit);
+    const messagesRef = db.ref(chatPath);
+    const chatRef = messagesRef.limitToLast(limit);
     const connectionRef = db.ref('.info/connected');
     const updateConnectionStatus = (snapshot) => {
       setStatus(snapshot.val() ? 'Connected' : 'Connecting...');
@@ -206,7 +207,7 @@
       chatButton.disabled = true;
 
       ensureAuthenticated()
-        .then(() => chatRef.push(payload))
+        .then(() => messagesRef.push(payload))
         .then(() => {
           chatInput.value = '';
           updateButtonState();
@@ -250,7 +251,7 @@
 
     ensureAuthenticated().catch(() => {});
 
-    return { chatRef, sendMessage };
+    return { chatRef, messagesRef, sendMessage };
   }
 
   window.BWELiveChat = { init: setupSharedChat };
