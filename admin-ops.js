@@ -237,10 +237,13 @@
       canvas.width = width;
       canvas.height = Math.round(width * sh / sw);
       canvas.getContext("2d").drawImage(image, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
-      for (const quality of [0.85, 0.7, 0.55]) {
-        const dataUrl = canvas.toDataURL("image/webp", quality);
-        if (dataUrl.startsWith("data:image/webp") && dataUrl.length < 750000) {
-          return { dataUrl, width: canvas.width, height: canvas.height };
+      // Safari cannot encode WebP and silently returns PNG, so fall back to JPEG.
+      for (const type of ["image/webp", "image/jpeg"]) {
+        for (const quality of [0.85, 0.7, 0.55]) {
+          const dataUrl = canvas.toDataURL(type, quality);
+          if (dataUrl.startsWith("data:" + type) && dataUrl.length < 750000) {
+            return { dataUrl, width: canvas.width, height: canvas.height };
+          }
         }
       }
       width = Math.round(width * 0.75);
