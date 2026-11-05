@@ -153,11 +153,12 @@
       chatRef = rtdb().ref(CHAT_PATH).limitToLast(50);
       chatRef.on("value", renderMessages, fail("Unable to load chat"));
       const [settings, viewers] = await Promise.all([
-        rtdb().ref("moderation/settings/chatEnabled").get(),
-        rtdb().ref("presence/viewers").get()
+        rtdb().ref("moderation/settings/chatEnabled").get().catch(() => null),
+        rtdb().ref("presence/viewers").get().catch(() => null)
       ]);
-      $("chatEnabledInput").checked = settings.val() !== false;
-      $("chatSessionCount").textContent = "Active viewers: " + viewers.numChildren();
+      if (!settings) status("Chat settings are blocked. Deploy the latest rules: firebase deploy --only firestore:rules,database --project bwetv-ug", true);
+      $("chatEnabledInput").checked = !settings || settings.val() !== false;
+      $("chatSessionCount").textContent = viewers ? "Active viewers: " + viewers.numChildren() : "Active viewers: unavailable";
       loadRestrictions();
     } catch (error) {
       fail("Unable to load chat tools")(error);
