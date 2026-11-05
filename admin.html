@@ -518,6 +518,11 @@
             <select id="mediaPurposeInput" class="field"><option value="show">Show</option><option value="episode">Episode</option><option value="banner">Banner</option><option value="logo">Logo</option></select>
             <select id="mediaCropInput" class="field"><option value="16:9">Crop 16:9</option><option value="1:1">Crop 1:1</option><option value="4:3">Crop 4:3</option><option value="original">Keep ratio</option></select>
             <select id="mediaWidthInput" class="field"><option value="1280">Max width 1280</option><option value="800">Max width 800</option><option value="400">Max width 400</option></select>
+            <select id="mediaQualityInput" class="field"><option value="0.85">Quality: High</option><option value="0.7">Quality: Medium</option><option value="0.5">Quality: Small file</option></select>
+            <div class="md:col-span-4">
+              <p id="mediaPreviewInfo" class="text-sm text-gray-600">Choose an image to preview the cropped, shrunk result.</p>
+              <img id="mediaPreview" alt="" class="mt-2 hidden max-h-60 rounded-lg border border-gray-200" />
+            </div>
             <button type="submit" class="rounded-xl bg-red-600 px-5 py-3 text-sm font-bold text-white hover:bg-red-700 md:col-span-2">Upload</button>
           </form>
           <div id="mediaList" class="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4"></div>
@@ -551,6 +556,6 @@
   <script src="content.js?v=20261105" defer></script>
   <script src="admin.js?v=20261105" defer></script>
   <script src="admin-content.js?v=20261105" defer></script>
-  <script src="admin-ops.js?v=20261105b" defer></script>
+  <script src="admin-ops.js?v=20261105c" defer></script>
 </body>
 </html>
