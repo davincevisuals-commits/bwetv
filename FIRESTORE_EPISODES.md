@@ -27,7 +27,7 @@ The existing `content.js` Firebase configuration is reused. It is safe for a bro
 Deploy the rules in `firestore.rules` from the repository root using the Firebase CLI:
 
 ```sh
-firebase deploy --only firestore:rules
+firebase deploy --only firestore:rules --project bwetv-ug
 ```
 
 The Firebase project must be selected for this repository and the CLI must be signed in with an account authorized to deploy rules. The rules allow admin writes only for the verified email listed below; make sure it matches the Firebase Authentication admin account before deploying.
