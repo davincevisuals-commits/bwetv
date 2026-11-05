@@ -23,7 +23,7 @@
     .brand-header-sub { background: var(--bwe-brand-strong); }
   </style>
 </head>
-<body class="bg-gray-50 text-gray-900">
+<body class="bg-gray-50 text-gray-900" data-cms-page="privacy">
   <a class="skip-link" href="#main-content">Skip to main content</a>
 
   <header class="brand-header sticky top-0 z-50 text-white shadow-lg">
@@ -54,8 +54,8 @@
 
   <main id="main-content" class="px-6 py-10">
     <div class="site-shell max-w-4xl rounded-2xl bg-white p-8 shadow-sm">
-      <h1 class="text-3xl font-bold text-gray-900">Privacy Notice</h1>
-      <div class="mt-4 space-y-4 text-gray-600">
+      <h1 class="text-3xl font-bold text-gray-900" data-cms-title>Privacy Notice</h1>
+      <div data-cms-body class="mt-4 space-y-4 text-gray-600">
         <p>BWE TV uses basic website technologies and community tools to support live chat, account access, and site updates.</p>
         <p>If you join the live chat or community area, your selected guest name or signed-in email identifier may be shown alongside your messages.</p>
         <p>Use the contact page for privacy questions or to request follow-up regarding published community content.</p>
@@ -75,6 +75,9 @@
     </div>
   </footer>
 
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js" defer></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js" defer></script>
   <script src="content.js" defer></script>
+  <script src="site-content.js" defer></script>
 </body>
 </html>

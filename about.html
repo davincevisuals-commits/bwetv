@@ -23,7 +23,7 @@
     .brand-header-sub { background: var(--bwe-brand-strong); }
   </style>
 </head>
-<body class="bg-gray-50 text-gray-900">
+<body class="bg-gray-50 text-gray-900" data-cms-page="about">
   <a class="skip-link" href="#main-content">Skip to main content</a>
 
   <header class="brand-header sticky top-0 z-50 text-white shadow-lg">
@@ -54,22 +54,12 @@
 
   <main id="main-content" class="px-6 py-10">
     <div class="site-shell max-w-4xl rounded-2xl bg-white p-8 shadow-sm">
-      <h1 class="text-3xl font-bold text-gray-900">About BWE TV</h1>
-      <p class="mt-4 text-gray-600">BWE TV is a Uganda-based broadcasting platform focused on community storytelling, informative programming, and accessible live engagement for viewers across districts and beyond.</p>
+      <h1 class="text-3xl font-bold text-gray-900" data-cms-title>About BWE TV</h1>
 
-      <div class="mt-8 grid gap-6 md:grid-cols-2">
-        <section>
-          <h2 class="text-xl font-bold text-gray-900">What we share</h2>
-          <ul class="mt-3 list-disc space-y-2 pl-5 text-gray-600">
-            <li>Live community-focused programming</li>
-            <li>Daily schedules and show discovery</li>
-            <li>Interactive conversations through community chat</li>
-          </ul>
-        </section>
-        <section>
-          <h2 class="text-xl font-bold text-gray-900">Why it matters</h2>
-          <p class="mt-3 text-gray-600">The platform connects local audiences with timely news, cultural programming, wellness content, and entertainment while making participation simple on mobile and desktop.</p>
-        </section>
+      <div data-cms-body class="mt-4 space-y-4 text-gray-600">
+        <p>BWE TV is a Uganda-based broadcasting platform focused on community storytelling, informative programming, and accessible live engagement for viewers across districts and beyond.</p>
+        <p>We share live community-focused programming, daily schedules, show discovery, and interactive conversations through community chat.</p>
+        <p>The platform connects local audiences with timely news, cultural programming, wellness content, and entertainment while making participation simple on mobile and desktop.</p>
       </div>
     </div>
   </main>
@@ -86,6 +76,9 @@
     </div>
   </footer>
 
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js" defer></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js" defer></script>
   <script src="content.js" defer></script>
+  <script src="site-content.js" defer></script>
 </body>
 </html>

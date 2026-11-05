@@ -271,8 +271,8 @@ function renderWeekOverview() {
     return `
       <button type="button" data-day="${day}" class="day-pill rounded-xl border px-3 py-3 text-left transition ${active ? 'border-red-500 bg-red-600 text-white shadow-sm' : 'border-gray-200 bg-white text-gray-800 hover:border-red-200 hover:bg-red-50'}">
         <div class="text-[10px] font-bold uppercase tracking-[0.2em] ${active ? 'text-red-100' : 'text-gray-500'}">${day.slice(0, 3)}</div>
-        <div class="mt-2 text-sm font-bold">${first ? first.title : 'No data'}</div>
-        <div class="mt-1 text-[11px] ${active ? 'text-red-100' : 'text-gray-500'}">${first ? first.time : '—'}</div>
+        <div class="mt-2 text-sm font-bold">${first ? escapeProgramHtml(first.title) : 'No data'}</div>
+        <div class="mt-1 text-[11px] ${active ? 'text-red-100' : 'text-gray-500'}">${first ? escapeProgramHtml(first.time) : '—'}</div>
       </button>
     `;
   }).join('');
@@ -303,9 +303,9 @@ function renderSchedule() {
   if (currentInfo) {
     currentInfo.innerHTML = `
       <p class="mb-1 text-xs font-bold uppercase tracking-[0.2em] text-yellow-200">${activeDay === 'Today' ? 'Now airing' : 'Featured'}</p>
-      <p class="text-2xl font-bold text-white">${currentProgram ? currentProgram.title : 'No programming available'}</p>
-      <p class="mt-1 text-sm text-white/85">${currentProgram ? `${currentProgram.time} • ${currentProgram.host}` : 'Check back later'}</p>
-      ${nextProgram ? `<p class="mt-2 text-xs text-white/80">Up next: ${nextProgram.title} at ${nextProgram.time}</p>` : ''}
+      <p class="text-2xl font-bold text-white">${currentProgram ? escapeProgramHtml(currentProgram.title) : 'No programming available'}</p>
+      <p class="mt-1 text-sm text-white/85">${currentProgram ? `${escapeProgramHtml(currentProgram.time)} • ${escapeProgramHtml(currentProgram.host)}` : 'Check back later'}</p>
+      ${nextProgram ? `<p class="mt-2 text-xs text-white/80">Up next: ${escapeProgramHtml(nextProgram.title)} at ${escapeProgramHtml(nextProgram.time)}</p>` : ''}
     `;
   }
 
@@ -322,18 +322,18 @@ function renderSchedule() {
         <div class="schedule-item rounded-xl border ${isLive ? 'border-red-200 bg-red-50' : 'border-gray-200 bg-white'} p-4 shadow-sm">
           <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <div>
-              <p class="text-xs font-bold uppercase tracking-[0.2em] text-red-600">${program.time}</p>
-              <h3 class="mt-1 text-xl font-bold text-gray-900">${program.title}</h3>
-              <p class="mt-1 text-sm text-gray-600">Hosted by ${program.host}</p>
+              <p class="text-xs font-bold uppercase tracking-[0.2em] text-red-600">${escapeProgramHtml(program.time)}</p>
+              <h3 class="mt-1 text-xl font-bold text-gray-900">${escapeProgramHtml(program.title)}</h3>
+              <p class="mt-1 text-sm text-gray-600">Hosted by ${escapeProgramHtml(program.host)}</p>
             </div>
             <div class="flex items-center gap-2">
-              <span class="rounded-full border border-gray-200 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.15em] text-gray-700">${program.type}</span>
+              <span class="rounded-full border border-gray-200 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.15em] text-gray-700">${escapeProgramHtml(program.type)}</span>
               ${isLive ? '<span class="rounded-full bg-red-600 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.15em] text-white">Live</span>' : ''}
               ${isNext ? '<span class="rounded-full bg-amber-100 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.15em] text-amber-700">Up next</span>' : ''}
               ${isPast && !isLive ? '<span class="rounded-full bg-gray-100 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.15em] text-gray-600">Earlier</span>' : ''}
             </div>
           </div>
-          <p class="mt-3 text-sm leading-6 text-gray-700">${program.summary}</p>
+          <p class="mt-3 text-sm leading-6 text-gray-700">${escapeProgramHtml(program.summary)}</p>
         </div>
       `;
     }).join('');
@@ -406,6 +406,31 @@ function initializeProgramExperience() {
 }
 
 if (typeof window !== 'undefined') {
+  window.BWEScheduleDefaults = JSON.parse(JSON.stringify(PROGRAM_DATA));
+  window.applyBWESchedule = function (days) {
+    if (!days || typeof days !== 'object' || Array.isArray(days)) return;
+    for (const day of DAYS_OF_WEEK) {
+      if (!Array.isArray(days[day])) continue;
+      PROGRAM_DATA[day] = days[day].filter((program) => {
+        return program && typeof program === 'object'
+          && typeof program.time === 'string' && /^([01]\d|2[0-3]):[0-5]\d$/.test(program.time)
+          && typeof program.title === 'string'
+          && typeof program.host === 'string'
+          && typeof program.summary === 'string'
+          && typeof program.type === 'string';
+      }).map((program) => ({
+        time: program.time.slice(0, 5),
+        title: program.title.slice(0, 160),
+        host: program.host.slice(0, 120),
+        summary: program.summary.slice(0, 500),
+        type: program.type.slice(0, 60)
+      })).sort((a, b) => timeToMinutes(a.time) - timeToMinutes(b.time));
+    }
+    renderFeaturedPrograms();
+    renderLiveProgramStatus();
+    renderWeekOverview();
+    renderSchedule();
+  };
   window.selectDay = selectDay;
   window.setReminder = setReminder;
   window.shareSchedule = shareSchedule;
