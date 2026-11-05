@@ -477,6 +477,17 @@
       </div>
 
       <div id="opsTab" class="hidden space-y-8">
+        <section id="adBookingsSection" class="card hidden p-6">
+          <div class="flex items-center justify-between gap-3">
+            <div>
+              <h3 class="text-xl font-bold text-gray-900">Advertising inquiries</h3>
+              <p class="mt-1 text-sm text-gray-600">Review advertiser requests and update their status. New inquiries appear first.</p>
+            </div>
+            <button id="refreshAdBookingsButton" type="button" class="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm font-semibold text-gray-700">Refresh</button>
+          </div>
+          <div id="adBookingList" class="mt-4 space-y-3 text-sm" role="list"></div>
+        </section>
+
         <section id="rolesSection" class="card p-6">
           <h3 class="text-xl font-bold text-gray-900">Team &amp; roles</h3>
           <p class="mt-1 text-sm text-gray-600">Super admin (bwetv.ug@gmail.com) has full access. Editors manage shows, episodes, pages, homepage, schedule and media. Moderators manage live chat. The person must sign in with an email-verified account.</p>
@@ -556,6 +567,6 @@
   <script src="content.js?v=20261105" defer></script>
   <script src="admin.js?v=20261105" defer></script>
   <script src="admin-content.js?v=20261105" defer></script>
-  <script src="admin-ops.js?v=20261105d" defer></script>
+  <script src="admin-ops.js?v=20261105e" defer></script>
 </body>
 </html>

@@ -213,6 +213,86 @@
     }
   }
 
+  async function loadAdBookings() {
+    const list = $("adBookingList");
+    list.textContent = "Loading inquiries…";
+    try {
+      const snapshot = await fs().collection("adBookings").orderBy("createdAt", "desc").limit(50).get();
+      list.replaceChildren();
+      if (snapshot.empty) {
+        list.textContent = "No advertising inquiries yet.";
+        return;
+      }
+      snapshot.forEach((doc) => {
+        const booking = doc.data();
+        const card = document.createElement("article");
+        card.className = "rounded-xl border border-gray-200 bg-white p-4";
+        card.setAttribute("role", "listitem");
+        const heading = document.createElement("h4");
+        heading.className = "font-bold text-gray-900";
+        heading.textContent = `${booking.organization || booking.name} — ${booking.format}`;
+        const contact = document.createElement("p");
+        contact.className = "mt-1 text-gray-700";
+        contact.textContent = `${booking.name} · ${booking.email} · ${booking.phone}`;
+        const dates = document.createElement("p");
+        dates.className = "mt-1 text-gray-600";
+        dates.textContent = `Campaign dates: ${booking.startDate} to ${booking.endDate}`;
+        const details = document.createElement("p");
+        details.className = "mt-2 whitespace-pre-wrap text-gray-700";
+        details.textContent = booking.details;
+        card.append(heading, contact, dates, details);
+        if (booking.creativeUrl) {
+          const link = document.createElement("a");
+          link.className = "mt-2 inline-block text-blue-700 underline";
+          link.href = booking.creativeUrl;
+          link.target = "_blank";
+          link.rel = "noopener noreferrer";
+          link.textContent = "View campaign material";
+          card.appendChild(link);
+        }
+        const controls = document.createElement("div");
+        controls.className = "mt-3 flex flex-wrap items-center gap-2";
+        const statusSelect = document.createElement("select");
+        statusSelect.className = "rounded-lg border border-gray-300 px-3 py-2";
+        [["new", "New"], ["contacted", "Contacted"], ["confirmed", "Confirmed"], ["declined", "Declined"]].forEach(([value, label]) => {
+          const option = document.createElement("option");
+          option.value = value;
+          option.textContent = label;
+          statusSelect.appendChild(option);
+        });
+        statusSelect.value = booking.status;
+        const saveButton = button("Update status", "border-gray-200 bg-gray-50 text-gray-700", async () => {
+          saveButton.disabled = true;
+          try {
+            await doc.ref.update({
+              status: statusSelect.value,
+              updatedAt: window.firebase.firestore.FieldValue.serverTimestamp()
+            });
+            status("Advertising inquiry updated.");
+          } catch (error) {
+            fail("Unable to update advertising inquiry")(error);
+          } finally {
+            saveButton.disabled = false;
+          }
+        });
+        controls.append(statusSelect, saveButton);
+        card.appendChild(controls);
+        list.appendChild(card);
+      });
+    } catch (error) {
+      list.textContent = "Could not load advertising inquiries.";
+      throw error;
+    }
+  }
+
+  async function canManageAdBookings(user) {
+    if (!user || !user.emailVerified) return false;
+    const email = (user.email || "").toLowerCase();
+    if (email === SUPER_ADMIN) return true;
+    const role = await fs().collection("roles").doc(email).get();
+    return role.exists && role.data().role === "editor";
+  }
+
   // ----- Media -----
   function loadImage(file) {
     return new Promise((resolve, reject) => {
@@ -382,6 +462,7 @@
     $("chatEnabledInput").addEventListener("change", (event) =>
       rtdb().ref("moderation/settings/chatEnabled").set(event.target.checked).catch(fail("Unable to change chat settings")));
     $("refreshAnalyticsButton").addEventListener("click", loadAnalytics);
+    $("refreshAdBookingsButton").addEventListener("click", () => loadAdBookings().catch(fail("Unable to load advertising inquiries")));
     $("mediaForm").addEventListener("submit", uploadMedia);
     ["mediaFileInput", "mediaCropInput", "mediaWidthInput", "mediaQualityInput"].forEach((id) => $(id).addEventListener("change", previewMedia));
     $("socialText").addEventListener("input", updateSocialPreview);
@@ -395,6 +476,10 @@
       const isSuper = (user.email || "").toLowerCase() === SUPER_ADMIN;
       $("rolesSection").classList.toggle("hidden", !isSuper);
       $("refreshAnalyticsButton").closest("section").classList.toggle("hidden", !isSuper);
+      canManageAdBookings(user).then((canManage) => {
+        $("adBookingsSection").classList.toggle("hidden", !canManage);
+        if (canManage) loadAdBookings().catch(fail("Unable to load advertising inquiries"));
+      }).catch(fail("Unable to check advertising inquiry access"));
       if (isSuper) { loadRoles(); loadAnalytics(); }
       loadChat();
       loadMedia();
