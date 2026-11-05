@@ -89,14 +89,18 @@
     if (typeof settings.fontFamily === "string" && /^[\w\s,"'-]{1,120}$/.test(settings.fontFamily)) {
       root.style.setProperty("--bwe-font-family", settings.fontFamily);
     }
-    if (settings.logoUrl && /^(https:\/\/|assets\/|\.\/)/i.test(settings.logoUrl)) {
-      document.querySelectorAll(".brand-logo-image").forEach((image) => {
-        image.src = settings.logoUrl;
+    resolveMedia(settings.logoUrl).then((src) => {
+      if (src) document.querySelectorAll(".brand-logo-image").forEach((image) => { image.src = src; });
+    });
+    resolveMedia(settings.heroImage).then((src) => {
+      if (src) root.style.setProperty("--bwe-home-hero-image", `url("${src.replace(/["\\]/g, "")}")`);
+    });
+    [["facebook", settings.facebookUrl], ["instagram", settings.instagramUrl], ["youtube", settings.youtubeUrl]].forEach(([name, url]) => {
+      if (!/^https:\/\//i.test(url || "")) return;
+      document.querySelectorAll(".bwe-footer-social a").forEach((anchor) => {
+        if ((anchor.getAttribute("aria-label") || "").toLowerCase().includes(name)) anchor.href = url;
       });
-    }
-    if (settings.heroImage && /^(https:\/\/|assets\/|\.\/)/i.test(settings.heroImage)) {
-      root.style.setProperty("--bwe-home-hero-image", `url("${settings.heroImage.replace(/["\\]/g, "")}")`);
-    }
+    });
 
     document.querySelectorAll("[data-live-player]").forEach((player) => {
       if (settings.liveStreamUrl && /^https:\/\//i.test(settings.liveStreamUrl)) {
@@ -185,9 +189,35 @@
     section.classList.toggle("hidden", !container.childElementCount);
   }
 
+  async function resolveMedia(value) {
+    if (typeof value !== "string" || !value) return "";
+    if (/^(https:\/\/|assets\/|\.\/)/i.test(value)) return value;
+    const match = /^media:([a-z0-9-]{1,60})$/.exec(value);
+    const db = getDb();
+    if (!match || !db) return "";
+    try {
+      const doc = await db.collection("media").doc(match[1]).get();
+      const url = doc.exists ? doc.data().dataUrl : "";
+      return /^data:image\/(webp|png|jpeg);base64,/.test(url || "") ? url : "";
+    } catch (error) {
+      return "";
+    }
+  }
+
+  function trackView(db) {
+    const page = (document.body.dataset.cmsPage || (document.body.hasAttribute("data-homepage") ? "home" : "other")).replace(/[^a-z0-9-]/gi, "").slice(0, 40) || "other";
+    const key = "bwe-view-" + page;
+    try { if (sessionStorage.getItem(key)) return; sessionStorage.setItem(key, "1"); } catch (error) { return; }
+    const day = new Date().toISOString().slice(0, 10);
+    const ref = db.collection("analytics").doc(day + "_" + page);
+    ref.set({ day, page, views: 1 }).catch(() =>
+      ref.update({ views: window.firebase.firestore.FieldValue.increment(1) }).catch(() => {}));
+  }
+
   async function loadContent() {
     const db = getDb();
     if (!db) return;
+    trackView(db);
     const pageId = document.body.dataset.cmsPage;
     const requests = [
       db.collection("settings").doc("site").get(),
