@@ -37,7 +37,7 @@
     .brand-logo-image { height:44px; width:auto; max-width:180px; object-fit:contain; }
     .brand-header .brand-logo-link { display:inline-flex; align-items:center; }
     .brand-footer .brand-logo-image { height:52px; }
-    .hero-section { position:relative; background:linear-gradient(to bottom right,rgba(0,0,0,.2),rgba(0,0,0,.35)),url("./20260602_190647(1).webp") center/cover no-repeat; }
+    .hero-section { position:relative; background:linear-gradient(to bottom right,rgba(0,0,0,.2),rgba(0,0,0,.35)),var(--bwe-home-hero-image,url("./20260602_190647(1).webp")) center/cover no-repeat; }
     .hero-section::before { content:""; position:absolute; inset:0; background:linear-gradient(to bottom,rgba(0,0,0,.05),rgba(0,0,0,.12)); pointer-events:none; }
     .hero-section > * { position:relative; z-index:1; }
     .surface-card { background:linear-gradient(145deg,rgba(248,245,240,.88),rgba(237,224,200,.65))!important; backdrop-filter:blur(6px); border:1px solid rgba(160,96,58,.28); }
@@ -46,9 +46,10 @@
     .chat-scroll::-webkit-scrollbar{width:5px}.chat-scroll::-webkit-scrollbar-track{background:rgba(61,31,14,.15)}.chat-scroll::-webkit-scrollbar-thumb{background:rgba(160,96,58,.55);border-radius:999px}
   </style>
 </head>
-<body>
+<body data-homepage data-cms-page="home">
   <a class="skip-link" href="#main-content">Skip to main content</a>
 
+  <div id="siteAnnouncement" class="hidden bg-yellow-300 px-4 py-2 text-center text-sm font-bold text-gray-900"></div>
   <header class="brand-header sticky top-0 z-50 text-white shadow-lg">
     <div class="site-shell flex items-center justify-between p-4">
       <a href="index.html" class="brand-logo-link" aria-label="BWE TV home">
@@ -80,8 +81,8 @@
         <div>
           <div class="hero-copy mb-5">
             <p class="live-now-label">LIVE NOW FROM BWEYALE</p>
-            <h1 class="mb-3">Watch BWE TV live and stay connected with your community</h1>
-            <p class="lead">Community stories, local voices, and the moments that matter most — streamed live across Bweyale and beyond.</p>
+            <h1 class="mb-3" data-home-heading>Watch BWE TV live and stay connected with your community</h1>
+            <p class="lead" data-home-intro>Community stories, local voices, and the moments that matter most — streamed live across Bweyale and beyond.</p>
             <div class="live-status-bar">
               <span class="live-dot" aria-hidden="true"></span>
               <span><strong>Streaming now</strong> · <span id="live-program-info" aria-live="polite" aria-atomic="true">Local news, culture, and live community coverage</span></span>
@@ -89,7 +90,7 @@
           </div>
 
           <div class="live-player-shell mb-4">
-            <video id="livePlayer" class="video-js vjs-default-skin w-full h-auto" controls preload="metadata" aria-label="BWE TV live stream player" data-setup='{"fluid":true,"playbackRates":[0.7,1,1.5,2]}'>
+            <video id="livePlayer" data-live-player class="video-js vjs-default-skin w-full h-auto" controls preload="metadata" aria-label="BWE TV live stream player" data-setup='{"fluid":true,"playbackRates":[0.7,1,1.5,2]}'>
               <source src="https://stream.bwetv.live/hls/bwetv/index.m3u8" type="application/x-mpegURL" />
               <source src="video.mp4" type="video/mp4" />
             </video>
@@ -121,9 +122,26 @@
 
     <section class="section-surface p-6">
       <div class="site-shell">
-        <h2 class="text-3xl font-bold">Today’s Programs</h2>
-        <p class="mt-2" style="color:#5a4a38;">Catch what is on now and what is coming up next across the BWE TV schedule.</p>
+        <h2 class="text-3xl font-bold" data-home-featured-heading>Today’s Programs</h2>
+        <p class="mt-2" style="color:#5a4a38;" data-home-featured-intro>Catch what is on now and what is coming up next across the BWE TV schedule.</p>
         <div class="mt-6 grid gap-5 md:grid-cols-2 xl:grid-cols-3" id="featured-programs"></div>
+      </div>
+    </section>
+
+    <section id="homeHighlightsSection" class="hidden bg-white px-6 py-8">
+      <div class="site-shell">
+        <h2 class="mb-5 text-3xl font-bold text-brand">Community Highlights</h2>
+        <div id="homeHighlights" class="grid gap-4 md:grid-cols-3"></div>
+      </div>
+    </section>
+
+    <section class="section-surface px-6 py-8">
+      <div class="site-shell flex flex-col items-start justify-between gap-4 rounded-xl p-5 md:flex-row md:items-center">
+        <div>
+          <h2 class="text-2xl font-bold">Stay connected with BWE TV</h2>
+          <p class="mt-2">Join the community for updates, conversations, and the latest programmes.</p>
+        </div>
+        <a href="community.html#newsletterForm" class="btn btn-primary">Join the newsletter</a>
       </div>
     </section>
 
@@ -237,6 +255,7 @@
 
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js" defer></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js" defer></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js" defer></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js" defer></script>
   <script>
     window.BWE_FIREBASE_CONFIG = window.BWE_FIREBASE_CONFIG || {
@@ -280,6 +299,7 @@
     });
   </script>
   <script src="content.js?v=20261104-live" defer></script>
+  <script src="site-content.js" defer></script>
   <script src="live-stats.js?v=20261104e" defer></script>
   <script>
     document.addEventListener('DOMContentLoaded', function () {

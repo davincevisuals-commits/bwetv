@@ -30,7 +30,7 @@
     .brand-header-sub { background: var(--bwe-brand-strong); }
   </style>
 </head>
-<body class="bg-white text-black">
+<body class="bg-white text-black" data-cms-page="community">
   <a class="skip-link" href="#main-content">Skip to main content</a>
 
   <header class="brand-header sticky top-0 z-50 text-white shadow-lg">
@@ -61,8 +61,10 @@
   <main id="main-content">
     <section class="bg-gradient-to-r from-red-600 to-red-800 px-6 py-10 text-center text-white">
       <div class="site-shell">
-        <h1 class="mb-3 text-4xl font-bold">Join the BWE TV Community</h1>
-        <p class="mx-auto max-w-3xl text-lg opacity-90">Chat with viewers in real time, share your thoughts on the latest programmes, and support the mission behind BWE TV.</p>
+        <h1 class="mb-3 text-4xl font-bold" data-cms-title>Join the BWE TV Community</h1>
+        <div data-cms-body class="mx-auto max-w-3xl text-lg opacity-90">
+          <p>Chat with viewers in real time, share your thoughts on the latest programmes, and support the mission behind BWE TV.</p>
+        </div>
       </div>
     </section>
 
@@ -171,6 +173,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js" defer></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js" defer></script>
   <script src="content.js" defer></script>
+  <script src="site-content.js" defer></script>
   <script src="community.js" defer></script>
   <script src="live-stats.js?v=20261104e" defer></script>
 </body>

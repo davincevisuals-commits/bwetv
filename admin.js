@@ -34,7 +34,8 @@
       shows: document.getElementById("showsTab"),
       episodes: document.getElementById("episodesTab"),
       hero: document.getElementById("heroTab"),
-      settings: document.getElementById("settingsTab")
+      settings: document.getElementById("settingsTab"),
+      studio: document.getElementById("studioTab")
     }
   };
 
@@ -438,7 +439,9 @@
       instagramUrl: "",
       brandColor: "#bf1506",
       accentColor: "#facc15",
-      heroImage: ""
+      heroImage: "",
+      logoUrl: "",
+      fontFamily: "Inter, Segoe UI, Roboto, Arial, sans-serif"
     };
   }
 
@@ -454,6 +457,8 @@
     document.getElementById("brandColorInput").value = values.brandColor || "#bf1506";
     document.getElementById("accentColorInput").value = values.accentColor || "#facc15";
     document.getElementById("heroImageInput").value = values.heroImage || "";
+    document.getElementById("logoUrlInput").value = values.logoUrl || "";
+    document.getElementById("fontFamilyInput").value = values.fontFamily || "Inter, Segoe UI, Roboto, Arial, sans-serif";
   }
 
   async function loadSettings() {
@@ -485,8 +490,23 @@
         brandColor: getInputValue("brandColorInput").trim() || "#bf1506",
         accentColor: getInputValue("accentColorInput").trim() || "#facc15",
         heroImage: getInputValue("heroImageInput").trim(),
+        logoUrl: getInputValue("logoUrlInput").trim(),
+        fontFamily: getInputValue("fontFamilyInput").trim() || "Inter, Segoe UI, Roboto, Arial, sans-serif",
         updatedAt: window.firebase.firestore.FieldValue.serverTimestamp()
       };
+
+      if (!/^#[0-9a-f]{6}$/i.test(settings.brandColor) || !/^#[0-9a-f]{6}$/i.test(settings.accentColor)) {
+        setStatus("Brand and accent colors must be six-digit hexadecimal values.", true);
+        return;
+      }
+      if (!/^[\w\s,"'-]{1,120}$/.test(settings.fontFamily)) {
+        setStatus("Font family can contain letters, numbers, spaces, commas, quotes, and hyphens only.", true);
+        return;
+      }
+      if (settings.logoUrl && !/^(https:\/\/|assets\/|\.\/)/i.test(settings.logoUrl)) {
+        setStatus("Logo URL must use https:// or a local assets/ path.", true);
+        return;
+      }
 
       await db.collection("settings").doc("site").set(settings, { merge: true });
       setStatus("Settings saved successfully.");
