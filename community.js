@@ -49,9 +49,21 @@
       'auth/invalid-credential': 'Incorrect email or password.',
       'auth/email-already-in-use': 'An account with that email already exists.',
       'auth/weak-password': 'Password must be at least 6 characters.',
-      'auth/too-many-requests': 'Too many attempts. Please try again later.'
+      'auth/too-many-requests': 'Too many attempts. Please try again later.',
+      'auth/network-request-failed': 'Could not reach Firebase Authentication. Check your connection and try again.',
+      'auth/operation-not-allowed': 'This sign-in method is disabled in Firebase Authentication. Contact the site administrator.',
+      'auth/user-disabled': 'This account has been disabled. Contact the site administrator.',
+      'auth/invalid-api-key': 'Firebase Authentication is not configured correctly. Contact the site administrator.'
     };
-    return map[e && e.code] || 'Something went wrong. Please try again.';
+    return map[e && e.code] || (e && e.message) || 'Something went wrong. Please try again.';
+  }
+
+  function setAuthButtonsDisabled(disabled) {
+    [el.loginBtn, el.signupBtn, el.anonBtn, el.resetBtn].forEach((button) => {
+      button.disabled = disabled;
+      button.classList.toggle('opacity-50', disabled);
+      button.classList.toggle('cursor-not-allowed', disabled);
+    });
   }
 
   function showCommunity(user) {
@@ -201,45 +213,86 @@
     return { email: el.email.value.trim(), password: el.password.value };
   }
 
-  el.loginBtn.addEventListener('click', function () {
+  el.loginBtn.addEventListener('click', async function () {
     const c = credentials();
     if (!c.email || !c.password) { setStatus('Please enter your email and password.', true); return; }
     if (!auth) { setStatus('Sign in is unavailable right now. Try Guest.', true); return; }
-    auth.signInWithEmailAndPassword(c.email, c.password)
-      .then(() => setStatus('Logged in successfully.'))
-      .catch((e) => setStatus(friendlyError(e), true));
+    setAuthButtonsDisabled(true);
+    setStatus('Signing in…');
+    try {
+      await auth.signInWithEmailAndPassword(c.email, c.password);
+      try { sessionStorage.removeItem('bwetv-community-guest'); } catch (e) {}
+      setStatus('Logged in successfully.');
+    } catch (e) {
+      console.error('Community sign-in failed:', e);
+      setStatus(friendlyError(e), true);
+    } finally {
+      setAuthButtonsDisabled(false);
+    }
   });
 
-  el.signupBtn.addEventListener('click', function () {
+  el.signupBtn.addEventListener('click', async function () {
     const c = credentials();
     if (!c.email || c.password.length < 6) {
       setStatus('Create an account with a valid email and password of at least 6 characters.', true);
       return;
     }
     if (!auth) { setStatus('Sign up is unavailable right now. Try Guest.', true); return; }
-    auth.createUserWithEmailAndPassword(c.email, c.password)
-      .then((cred) => {
-        setStatus('Account created successfully.');
-        if (cred.user.sendEmailVerification) cred.user.sendEmailVerification().catch(() => {});
-      })
-      .catch((e) => setStatus(friendlyError(e), true));
+    setAuthButtonsDisabled(true);
+    setStatus('Creating your account…');
+    try {
+      const cred = await auth.createUserWithEmailAndPassword(c.email, c.password);
+      try { sessionStorage.removeItem('bwetv-community-guest'); } catch (e) {}
+      setStatus('Account created successfully.');
+      if (cred.user.sendEmailVerification) {
+        cred.user.sendEmailVerification()
+          .then(() => setStatus('Account created. Check your email to verify your address.'))
+          .catch((error) => {
+            console.error('Unable to send verification email:', error);
+            setStatus('Account created, but the verification email could not be sent. You can try signing in and requesting another.', true);
+          });
+      }
+    } catch (e) {
+      console.error('Community account creation failed:', e);
+      setStatus(friendlyError(e), true);
+    } finally {
+      setAuthButtonsDisabled(false);
+    }
   });
 
-  el.anonBtn.addEventListener('click', function () {
-    if (!auth) { showCommunity({ uid: 'local', displayName: 'Guest' }); return; }
+  el.anonBtn.addEventListener('click', async function () {
+    if (!auth) { setStatus('Guest access is unavailable because Firebase Authentication did not initialize.', true); return; }
+    setAuthButtonsDisabled(true);
+    setStatus('Joining as a guest…');
     try { sessionStorage.setItem('bwetv-community-guest', '1'); } catch (e) {}
-    auth.signInAnonymously()
-      .then((cred) => { setStatus('You are now browsing as a guest.'); if (cred && cred.user) showCommunity(cred.user); })
-      .catch(() => showCommunity({ uid: 'local', displayName: 'Guest' }));
+    try {
+      const cred = await auth.signInAnonymously();
+      setStatus('You are now browsing as a guest.');
+      if (cred && cred.user) showCommunity(cred.user);
+    } catch (e) {
+      console.error('Community guest sign-in failed:', e);
+      try { sessionStorage.removeItem('bwetv-community-guest'); } catch (storageError) {}
+      setStatus(friendlyError(e), true);
+    } finally {
+      setAuthButtonsDisabled(false);
+    }
   });
 
-  el.resetBtn.addEventListener('click', function () {
+  el.resetBtn.addEventListener('click', async function () {
     const email = el.email.value.trim();
     if (!email) { setStatus('Enter your email above, then click Forgot password.', true); return; }
     if (!auth) { setStatus('Password reset is unavailable right now.', true); return; }
-    auth.sendPasswordResetEmail(email)
-      .then(() => setStatus('Password reset email sent. Check your inbox.'))
-      .catch((e) => setStatus(friendlyError(e), true));
+    setAuthButtonsDisabled(true);
+    setStatus('Sending password reset email…');
+    try {
+      await auth.sendPasswordResetEmail(email);
+      setStatus('Password reset email sent. Check your inbox.');
+    } catch (e) {
+      console.error('Password reset failed:', e);
+      setStatus(friendlyError(e), true);
+    } finally {
+      setAuthButtonsDisabled(false);
+    }
   });
 
   el.togglePw.addEventListener('click', function () {
@@ -255,6 +308,7 @@
 
   el.signOutBtn.addEventListener('click', function () {
     el.email.value = ''; el.password.value = ''; el.postInput.value = '';
+    try { sessionStorage.removeItem('bwetv-community-guest'); } catch (e) {}
     updateCounter();
     if (auth) auth.signOut().catch(() => {});
     showLogin();

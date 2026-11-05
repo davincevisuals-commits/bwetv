@@ -167,35 +167,60 @@
 
     // Wait for Firebase to restore a saved login before deciding to sign in anonymously.
     const authReady = auth
-      ? new Promise((resolve) => {
-          const off = auth.onAuthStateChanged((user) => { off(); resolve(user); });
+      ? new Promise((resolve, reject) => {
+          let unsubscribe = null;
+          unsubscribe = auth.onAuthStateChanged((user) => {
+            if (unsubscribe) unsubscribe();
+            resolve(user);
+          }, reject);
         })
       : Promise.resolve(null);
 
+    let authenticationPromise = null;
+    let authenticationFailed = false;
     const ensureAuthenticated = () => {
       if (!auth) {
         return Promise.resolve();
       }
-      return authReady.then((user) => {
+      if (auth.currentUser) return Promise.resolve(auth.currentUser);
+      if (authenticationPromise) return authenticationPromise;
+      authenticationPromise = authReady.then((user) => {
         const current = auth.currentUser || user;
         if (current) return current;
         return auth.signInAnonymously().catch((error) => {
           console.error('BWE chat auth error:', error);
-          setStatus('Live chat is blocked by Firebase auth rules. Enable anonymous auth and allow chat read/write access.', true);
+          const message = error && error.code === 'auth/operation-not-allowed'
+            ? 'Live chat guest access is disabled in Firebase Authentication. Contact the site administrator.'
+            : 'Live chat could not sign in. Check your connection and Firebase Authentication settings.';
+          authenticationFailed = true;
+          setStatus(message, true);
           throw error;
         });
       });
+      authenticationPromise = authenticationPromise.finally(() => { authenticationPromise = null; });
+      return authenticationPromise;
     };
 
     const messagesRef = db.ref(chatPath);
     const chatRef = messagesRef.limitToLast(limit);
     const connectionRef = db.ref('.info/connected');
+    let readFailed = false;
+    const handleReadError = (error) => {
+      console.error('BWE chat read error:', error);
+      const permissionDenied = error && /permission/i.test(String(error.code || error.message));
+      readFailed = true;
+      setStatus(permissionDenied
+        ? 'Live chat cannot read messages. Check the Realtime Database chat read rules.'
+        : 'Live chat cannot load messages. Check your connection and Firebase Database settings.', true);
+    };
     const updateConnectionStatus = (snapshot) => {
-      setStatus(snapshot.val() ? 'Connected' : 'Connecting...');
+      if (authenticationFailed || readFailed) return;
+      setStatus(snapshot.val() ? 'Connected' : 'Reconnecting…');
     };
 
     if (auth) {
       auth.onAuthStateChanged((user) => {
+        if (user) authenticationFailed = false;
         applyIdentity(user);
         if (!user) {
           ensureAuthenticated().catch(() => {});
@@ -204,9 +229,12 @@
     }
 
     showEmptyState();
-    chatRef.on('child_added', addMessage);
-    chatRef.on('child_removed', removeMessage);
-    connectionRef.on('value', updateConnectionStatus);
+    chatRef.on('child_added', addMessage, handleReadError);
+    chatRef.on('child_removed', removeMessage, handleReadError);
+    connectionRef.on('value', updateConnectionStatus, (error) => {
+      console.error('BWE chat connection error:', error);
+      setStatus('Live chat cannot connect to the Realtime Database. Check your connection and Firebase settings.', true);
+    });
 
     function sendMessage() {
       const text = normalizeMessage(chatInput.value);
