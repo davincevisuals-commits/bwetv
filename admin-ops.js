@@ -223,7 +223,7 @@
     });
   }
 
-  function renderImage(image, crop, maxWidth) {
+  function renderImage(image, crop, maxWidth, maxQuality = 0.85) {
     let sx = 0, sy = 0, sw = image.naturalWidth, sh = image.naturalHeight;
     if (crop !== "original") {
       const [w, h] = crop.split(":").map(Number);
@@ -239,7 +239,7 @@
       canvas.getContext("2d").drawImage(image, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
       // Safari cannot encode WebP and silently returns PNG, so fall back to JPEG.
       for (const type of ["image/webp", "image/jpeg"]) {
-        for (const quality of [0.85, 0.7, 0.55]) {
+        for (const quality of [maxQuality, maxQuality * 0.8, maxQuality * 0.6]) {
           const dataUrl = canvas.toDataURL(type, quality);
           if (dataUrl.startsWith("data:" + type) && dataUrl.length < 750000) {
             return { dataUrl, width: canvas.width, height: canvas.height };
@@ -251,12 +251,28 @@
     throw new Error("Image is too large to store; choose a smaller image or width.");
   }
 
+  async function previewMedia() {
+    const file = $("mediaFileInput").files[0];
+    const info = $("mediaPreviewInfo");
+    const img = $("mediaPreview");
+    if (!file) { img.classList.add("hidden"); info.textContent = "Choose an image to preview the cropped, shrunk result."; return; }
+    try {
+      const result = renderImage(await loadImage(file), $("mediaCropInput").value, Number($("mediaWidthInput").value), Number($("mediaQualityInput").value));
+      img.src = result.dataUrl;
+      img.classList.remove("hidden");
+      info.textContent = `Original ${Math.round(file.size / 1024)} KB → ${result.width}×${result.height}px, about ${Math.round(result.dataUrl.length * 0.75 / 1024)} KB.`;
+    } catch (error) {
+      img.classList.add("hidden");
+      info.textContent = error.message;
+    }
+  }
+
   async function uploadMedia(event) {
     event.preventDefault();
     const file = $("mediaFileInput").files[0];
     if (!file) return;
     try {
-      const result = renderImage(await loadImage(file), $("mediaCropInput").value, Number($("mediaWidthInput").value));
+      const result = renderImage(await loadImage(file), $("mediaCropInput").value, Number($("mediaWidthInput").value), Number($("mediaQualityInput").value));
       const name = $("mediaNameInput").value.trim();
       const id = (name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40) || "image") + "-" + Date.now().toString(36);
       await fs().collection("media").doc(id).set({
@@ -366,6 +382,7 @@
       rtdb().ref("moderation/settings/chatEnabled").set(event.target.checked).catch(fail("Unable to change chat settings")));
     $("refreshAnalyticsButton").addEventListener("click", loadAnalytics);
     $("mediaForm").addEventListener("submit", uploadMedia);
+    ["mediaFileInput", "mediaCropInput", "mediaWidthInput", "mediaQualityInput"].forEach((id) => $(id).addEventListener("change", previewMedia));
     $("socialText").addEventListener("input", updateSocialPreview);
     $("socialLink").addEventListener("input", updateSocialPreview);
     document.querySelectorAll("[data-share]").forEach((node) => node.addEventListener("click", () => share(node.dataset.share)));
