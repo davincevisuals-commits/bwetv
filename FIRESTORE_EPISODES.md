@@ -24,7 +24,13 @@ The existing `content.js` Firebase configuration is reused. It is safe for a bro
 
 ## Firestore rules
 
-Deploy the rules in `firestore.rules` using the Firebase CLI. Replace the admin email with the BWE TV administrator account before deploying.
+Deploy the rules in `firestore.rules` from the repository root using the Firebase CLI:
+
+```sh
+firebase deploy --only firestore:rules
+```
+
+The Firebase project must be selected for this repository and the CLI must be signed in with an account authorized to deploy rules. The rules allow admin writes only for the verified email listed below; make sure it matches the Firebase Authentication admin account before deploying.
 
 Current admin email configured in the repository:
 
