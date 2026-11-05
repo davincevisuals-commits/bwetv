@@ -2,6 +2,7 @@
   const firebaseConfig = {
     apiKey: "AIzaSyCg9fxgrXlEuKW_m5MvDnG26Uf6lLdiYik",
     authDomain: "bwetv-ug.firebaseapp.com",
+    databaseURL: "https://bwetv-ug-default-rtdb.firebaseio.com",
     projectId: "bwetv-ug",
     storageBucket: "bwetv-ug.firebasestorage.app",
     messagingSenderId: "481870926362",
@@ -35,6 +36,7 @@
       episodes: document.getElementById("episodesTab"),
       hero: document.getElementById("heroTab"),
       settings: document.getElementById("settingsTab"),
+      ops: document.getElementById("opsTab"),
       studio: document.getElementById("studioTab")
     }
   };
@@ -503,8 +505,8 @@
         setStatus("Font family can contain letters, numbers, spaces, commas, quotes, and hyphens only.", true);
         return;
       }
-      if (settings.logoUrl && !/^(https:\/\/|assets\/|\.\/)/i.test(settings.logoUrl)) {
-        setStatus("Logo URL must use https:// or a local assets/ path.", true);
+      if (settings.logoUrl && !/^(https:\/\/|assets\/|\.\/|media:[\w-]+$)/i.test(settings.logoUrl)) {
+        setStatus("Logo URL must use https://, a local assets/ path, or a media:ID library reference.", true);
         return;
       }
 

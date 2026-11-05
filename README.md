@@ -67,6 +67,14 @@ Before deploying, publish the Firestore rules in `firestore.rules` (`firebase de
 
 Content and metadata are delivered to site visitors by JavaScript from Firestore. This works for browser visitors, but static hosting cannot dynamically rewrite the deployed HTML head, `robots.txt`, or `sitemap.xml`; crawlers that do not execute JavaScript may not see CMS SEO changes. A future backend/rendering step is needed for reliable crawler metadata and automatic timed publishing. Image upload/cropping, chat moderation, role management, analytics, and social publishing also require separate backend or storage integrations and are not enabled by this dashboard.
 
+## Admin Operations (free Firebase Spark plan)
+
+The admin **Operations** tab adds team roles (editor/moderator), chat moderation (remove, mute, ban, pause chat), basic page-view analytics, image upload with crop/resize (stored in Firestore as `media:ID`, no Storage needed) and a social share composer.
+
+Deploy the rules for these to work: `firebase deploy --only firestore:rules,database`.
+
+Not included (need the paid Blaze plan or secret tokens): direct Facebook/Instagram/YouTube posting, Cloud Functions, Firebase Storage, pre-approval of chat messages. Analytics are unverified client counts.
+
 ## License
 
 © 2026 BWE TV - All rights reserved

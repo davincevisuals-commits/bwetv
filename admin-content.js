@@ -2,6 +2,7 @@
   const firebaseConfig = {
     apiKey: "AIzaSyCg9fxgrXlEuKW_m5MvDnG26Uf6lLdiYik",
     authDomain: "bwetv-ug.firebaseapp.com",
+    databaseURL: "https://bwetv-ug-default-rtdb.firebaseio.com",
     projectId: "bwetv-ug",
     storageBucket: "bwetv-ug.firebasestorage.app",
     messagingSenderId: "481870926362",

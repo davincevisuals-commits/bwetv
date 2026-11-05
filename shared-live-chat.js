@@ -222,6 +222,7 @@
         userId,
         timestamp: Date.now()
       };
+      if (auth && auth.currentUser) payload.uid = auth.currentUser.uid;
 
       setStatus('Sending...');
       chatButton.disabled = true;
@@ -235,7 +236,10 @@
         })
         .catch((error) => {
           console.error('BWE chat send error:', error);
-          setStatus('Send failed. Please ensure Firebase auth is enabled and the chat rules allow access.', true);
+          const denied = error && /permission/i.test(String(error.code || error.message));
+          setStatus(denied
+            ? 'You cannot send messages right now. Chat may be paused or your account restricted.'
+            : 'Send failed. Please ensure Firebase auth is enabled and the chat rules allow access.', true);
           updateButtonState();
         });
     }
