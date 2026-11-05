@@ -75,6 +75,12 @@ Deploy the rules for these to work: `firebase deploy --only firestore:rules,data
 
 Not included (need the paid Blaze plan or secret tokens): direct Facebook/Instagram/YouTube posting, Cloud Functions, Firebase Storage, pre-approval of chat messages. Analytics are unverified client counts.
 
+## Advertising inquiries
+
+The `adbooker.html` page lets potential advertisers request information about campaign formats and dates. Requests are saved in the Firestore `adBookings` collection and can be reviewed and moved through New, Contacted, Confirmed, and Declined in the admin Operations tab by verified administrators and editors. A request is not a confirmed booking; the team follows up to agree availability and pricing. Creative files are not uploaded; the form accepts an optional public HTTPS link.
+
+Deploy `firestore.rules` (`firebase deploy --only firestore:rules`) before enabling the form. The collection allows public submissions but restricts reads and status updates to staff; only the super admin can delete requests. Add a CAPTCHA or server-side rate limiting if public form abuse becomes a concern.
+
 ## License
 
 © 2026 BWE TV - All rights reserved
