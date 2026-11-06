@@ -63,6 +63,8 @@ To connect your streaming server:
 
 Sign in at `admin.html` with the verified Firebase admin account (`bwetv.ug@gmail.com`). The Content Studio adds draft/publish page editing for About, Contact, Community, and Privacy; page metadata; homepage announcements and highlight cards; broadcast schedules; stream availability; JSON backup/restore; and shows/episodes CSV import/export.
 
+In **Settings**, add HTTPS profile URLs for Facebook, X, Instagram, YouTube, and TikTok and save them to update the homepage footer. Blank fields retain the footer's default platform links. The TikTok icon is from [Simple Icons](https://simpleicons.org/) (CC0 1.0).
+
 Before deploying, publish the Firestore rules in `firestore.rules` (`firebase deploy --only firestore:rules`). The admin email restriction is enforced by these rules; do not loosen it to make the dashboard appear to work.
 
 Content and metadata are delivered to site visitors by JavaScript from Firestore. This works for browser visitors, but static hosting cannot dynamically rewrite the deployed HTML head, `robots.txt`, or `sitemap.xml`; crawlers that do not execute JavaScript may not see CMS SEO changes. A future backend/rendering step is needed for reliable crawler metadata and automatic timed publishing. Image upload/cropping, chat moderation, role management, analytics, and social publishing also require separate backend or storage integrations and are not enabled by this dashboard.
