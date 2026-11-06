@@ -59,25 +59,28 @@
     const role = $("roleSelect").value;
     if (!email || email === SUPER_ADMIN) return status("Enter a different email address.", true);
     try {
-      await fs().collection("roles").doc(email).set({ role, updatedAt: window.firebase.firestore.FieldValue.serverTimestamp() });
       const moderatorRef = rtdb().ref("moderation/moderators/" + emailKey(email));
-      await (role === "moderator" ? moderatorRef.set(true) : moderatorRef.remove());
+      if (role !== "moderator") await moderatorRef.remove();
+      await fs().collection("roles").doc(email).set({ role, updatedAt: window.firebase.firestore.FieldValue.serverTimestamp() });
+      if (role === "moderator") await moderatorRef.set(true);
       $("roleForm").reset();
       status(`${email} is now ${role}.`);
       loadRoles();
     } catch (error) {
-      fail("Unable to save role")(error);
+      console.error("Unable to save role", error);
+      status("Role update may be incomplete across Firestore and chat. Retry granting this role to synchronize both systems: " + error.message, true);
     }
   }
 
   async function removeRole(email) {
     if (!window.confirm(`Remove access for ${email}?`)) return;
     try {
-      await fs().collection("roles").doc(email).delete();
       await rtdb().ref("moderation/moderators/" + emailKey(email)).remove();
+      await fs().collection("roles").doc(email).delete();
       loadRoles();
     } catch (error) {
-      fail("Unable to remove role")(error);
+      console.error("Unable to remove role", error);
+      status("Role removal may be incomplete across Firestore and chat. Retry removal to synchronize both systems: " + error.message, true);
     }
   }
 
@@ -144,6 +147,32 @@
     } catch (error) {
       list.textContent = "Could not load restrictions.";
       fail("Unable to load restrictions")(error);
+    }
+  }
+
+  async function loadCommunityPosts() {
+    const list = $("moderationPostList");
+    list.textContent = "Loading posts…";
+    try {
+      const snapshot = await fs().collection("posts").orderBy("createdAt", "desc").limit(50).get();
+      list.replaceChildren();
+      if (snapshot.empty) list.textContent = "No community posts.";
+      snapshot.forEach((doc) => {
+        const post = doc.data();
+        const row = document.createElement("div");
+        row.className = "rounded-lg border border-gray-200 p-3";
+        const text = document.createElement("p");
+        text.className = "break-words whitespace-pre-wrap";
+        text.textContent = `${post.name || "Guest"}: ${post.text || ""}`;
+        row.append(text, button("Remove", "border-red-200 bg-red-50 text-red-700", () => {
+          if (!window.confirm("Remove this community post?")) return;
+          doc.ref.delete().then(loadCommunityPosts).catch(fail("Unable to remove community post"));
+        }));
+        list.appendChild(row);
+      });
+    } catch (error) {
+      list.textContent = "Could not load community posts.";
+      fail("Unable to load community posts")(error);
     }
   }
 
@@ -460,6 +489,7 @@
     if (!$("opsTab") || !window.firebase || !window.firebase.auth) return;
     $("roleForm").addEventListener("submit", saveRole);
     $("refreshChatButton").addEventListener("click", loadChat);
+    $("refreshPostsButton").addEventListener("click", loadCommunityPosts);
     $("chatEnabledInput").addEventListener("change", (event) =>
       rtdb().ref("moderation/settings/chatEnabled").set(event.target.checked).catch(fail("Unable to change chat settings")));
     $("refreshAnalyticsButton").addEventListener("click", loadAnalytics);
@@ -472,19 +502,23 @@
     document.querySelectorAll("[data-share]").forEach((node) => node.addEventListener("click", () => share(node.dataset.share)));
     updateSocialPreview();
 
-    window.firebase.auth().onAuthStateChanged((user) => {
+    document.addEventListener("bwe-admin-auth", (event) => {
+      const { user, role } = event.detail;
       currentUser = user;
       if (!user) { if (chatRef) chatRef.off(); chatRef = null; return; }
-      const isSuper = (user.email || "").toLowerCase() === SUPER_ADMIN;
+      const isSuper = role === "admin";
       $("rolesSection").classList.toggle("hidden", !isSuper);
       $("refreshAnalyticsButton").closest("section").classList.toggle("hidden", !isSuper);
+      $("chatModerationSection").classList.toggle("hidden", role === "editor");
+      $("mediaSection").classList.toggle("hidden", role === "moderator");
       canManageAdBookings(user).then((canManage) => {
         $("adBookingsSection").classList.toggle("hidden", !canManage);
         if (canManage) loadAdBookings().catch(fail("Unable to load advertising inquiries"));
       }).catch(fail("Unable to check advertising inquiry access"));
       if (isSuper) { loadRoles(); loadAnalytics(); }
-      loadChat();
-      loadMedia();
+      if (role !== "editor") loadChat();
+      loadCommunityPosts();
+      if (role !== "moderator") loadMedia();
       loadSocialLinks();
     });
   }

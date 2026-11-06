@@ -77,6 +77,12 @@ Deploy the rules for these to work: `firebase deploy --only firestore:rules,data
 
 Not included (need the paid Blaze plan or secret tokens): direct Facebook/Instagram/YouTube posting, Cloud Functions, Firebase Storage, pre-approval of chat messages. Analytics are unverified client counts.
 
+Administrators, editors, and moderators can remove community posts in Operations. The Firestore rules must be deployed before this works. Role changes span Firestore and Realtime Database; if an update reports an incomplete synchronization, retry the same grant or removal.
+
+The Content Studio JSON backup includes shows, episodes, settings, pages, page revisions, and media. It does not include Firebase Authentication accounts, roles, community posts, chat, analytics, newsletter subscriptions, or advertising inquiries. Keep separate backups of those services as appropriate. Restore merges documents and can partially complete if a batch fails.
+
+Schedules use Uganda time (Africa/Kampala). The final program is assumed to last 90 minutes unless another program follows it.
+
 ## Advertising inquiries
 
 The `adbooker.html` page lets potential advertisers request information about campaign formats and dates. Requests are saved in the Firestore `adBookings` collection and can be reviewed and moved through New, Contacted, Confirmed, and Declined in the admin Operations tab by verified administrators and editors. A request is not a confirmed booking; the team follows up to agree availability and pricing. Creative files are not uploaded; the form accepts an optional public HTTPS link.

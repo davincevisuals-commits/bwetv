@@ -66,9 +66,18 @@ const PROGRAM_DATA = {
 };
 
 const DAYS_OF_WEEK = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+const BROADCAST_TIME_ZONE = "Africa/Kampala";
+
+function getBroadcastTime() {
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: BROADCAST_TIME_ZONE, weekday: "long", hour: "2-digit", minute: "2-digit", hourCycle: "h23"
+  }).formatToParts(new Date());
+  const value = (type) => parts.find((part) => part.type === type).value;
+  return { day: value("weekday"), minutes: Number(value("hour")) * 60 + Number(value("minute")) };
+}
 
 function getTodayLabel() {
-  return new Date().toLocaleDateString('en-US', { weekday: 'long' });
+  return getBroadcastTime().day;
 }
 
 function timeToMinutes(timeString) {
@@ -85,9 +94,7 @@ function getProgramsForDay(dayName) {
 }
 
 function getCurrentProgram(programs) {
-  if (!programs.length) return null;
-
-  const nowMinutes = new Date().getHours() * 60 + new Date().getMinutes();
+  const nowMinutes = getBroadcastTime().minutes;
 
   for (let index = 0; index < programs.length; index += 1) {
     const program = programs[index];
@@ -98,14 +105,20 @@ function getCurrentProgram(programs) {
     }
   }
 
-  return programs[0];
+  if (programs === getProgramsForDay('Today')) {
+    const yesterday = DAYS_OF_WEEK[(DAYS_OF_WEEK.indexOf(getTodayLabel()) + 6) % DAYS_OF_WEEK.length];
+    const previous = getProgramsForDay(yesterday);
+    const last = previous[previous.length - 1];
+    if (last && timeToMinutes(last.time) + 90 > 1440 + nowMinutes) return last;
+  }
+  return null;
 }
 
 function getNextProgram(programs) {
   if (!programs.length) return null;
 
-  const nowMinutes = new Date().getHours() * 60 + new Date().getMinutes();
-  return programs.find((program) => timeToMinutes(program.time) > nowMinutes) || programs[0];
+  const nowMinutes = getBroadcastTime().minutes;
+  return programs.find((program) => timeToMinutes(program.time) > nowMinutes) || null;
 }
 
 function escapeProgramHtml(value) {
@@ -148,14 +161,19 @@ function renderFeaturedPrograms() {
   const container = document.getElementById('featured-programs');
   if (!container) return;
 
-  const programs = getProgramsForDay('Today');
-  if (!programs.length) return;
-
-  const now = new Date();
-  const nowMinutes = now.getHours() * 60 + now.getMinutes();
-  const picks = pickFeaturedPrograms(programs, nowMinutes, 3);
+  let programs = getProgramsForDay('Today');
+  const nowMinutes = getBroadcastTime().minutes;
+  const tomorrow = DAYS_OF_WEEK[(DAYS_OF_WEEK.indexOf(getTodayLabel()) + 1) % DAYS_OF_WEEK.length];
+  const nextDay = !programs.some((_, index) => getProgramStatus(programs, index, nowMinutes) !== 'done');
+  if (nextDay) programs = getProgramsForDay(tomorrow);
+  if (!programs.length) {
+    container.replaceChildren();
+    delete container.dataset.signature;
+    return;
+  }
+  const picks = pickFeaturedPrograms(programs, nextDay ? -1 : nowMinutes, 3);
   const firstUpcomingKey = picks.find((p) => p.status === 'upcoming');
-  const signature = picks.map((p) => `${p.program.time}${p.program.title}${p.status}`).join('|');
+  const signature = `${nextDay}|` + picks.map((p) => `${p.program.time}${p.program.title}${p.status}`).join('|');
   const rebuild = container.dataset.signature !== signature;
 
   if (rebuild) {
@@ -200,7 +218,7 @@ function renderFeaturedPrograms() {
     } else {
       bar.style.width = '0%';
       const until = start - nowMinutes;
-      countdown.textContent = until > 0 ? `Starts in ${formatMinutes(until)}` : 'Starts tomorrow';
+      countdown.textContent = nextDay ? 'Starts tomorrow' : (until > 0 ? `Starts in ${formatMinutes(until)}` : 'Starts soon');
     }
   });
 }
@@ -210,9 +228,7 @@ function renderLiveProgramStatus() {
   if (!info) return;
 
   const programs = getProgramsForDay('Today');
-  const now = new Date();
-  const nowMinutes = now.getHours() * 60 + now.getMinutes();
-  const liveProgram = programs.find((_, index) => getProgramStatus(programs, index, nowMinutes) === 'live');
+  const liveProgram = getCurrentProgram(programs);
   const text = liveProgram
     ? `${liveProgram.title} — ${liveProgram.summary}`
     : 'Local news, culture, and live community coverage';
@@ -302,7 +318,7 @@ function renderSchedule() {
 
   if (currentInfo) {
     currentInfo.innerHTML = `
-      <p class="mb-1 text-xs font-bold uppercase tracking-[0.2em] text-yellow-200">${activeDay === 'Today' ? 'Now airing' : 'Featured'}</p>
+      <p class="mb-1 text-xs font-bold uppercase tracking-[0.2em] text-yellow-200">${activeDay === 'Today' ? (currentProgram ? 'Now airing' : 'Off air') : 'Featured'}</p>
       <p class="text-2xl font-bold text-white">${currentProgram ? escapeProgramHtml(currentProgram.title) : 'No programming available'}</p>
       <p class="mt-1 text-sm text-white/85">${currentProgram ? `${escapeProgramHtml(currentProgram.time)} • ${escapeProgramHtml(currentProgram.host)}` : 'Check back later'}</p>
       ${nextProgram ? `<p class="mt-2 text-xs text-white/80">Up next: ${escapeProgramHtml(nextProgram.title)} at ${escapeProgramHtml(nextProgram.time)}</p>` : ''}
@@ -311,11 +327,10 @@ function renderSchedule() {
 
   if (container) {
     container.innerHTML = programs.map((program, index) => {
-      const isLive = activeDay === 'Today' && currentProgram && currentProgram.title === program.title;
-      const now = new Date();
-      const nowMinutes = now.getHours() * 60 + now.getMinutes();
+      const isLive = activeDay === 'Today' && currentProgram === program;
+      const nowMinutes = getBroadcastTime().minutes;
       const programMinutes = timeToMinutes(program.time);
-      const isNext = activeDay === 'Today' && nextProgram && program.title === nextProgram.title && !isLive;
+      const isNext = activeDay === 'Today' && nextProgram === program && !isLive;
       const isPast = activeDay === 'Today' && programMinutes < nowMinutes && !isLive;
 
       return `

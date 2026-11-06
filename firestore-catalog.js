@@ -224,7 +224,6 @@
       const snapshot = await firestore
         .collection("episodes")
         .where("status", "==", "published")
-        .limit(50)
         .get();
 
       episodes = snapshot.docs.map((document) => ({

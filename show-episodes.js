@@ -94,26 +94,32 @@ function sortShowsList(items) {
   return list.sort((a, b) => b.rating - a.rating);
 }
 
+function escapeShowHtml(value) {
+  return String(value == null ? "" : value).replace(/[&<>"']/g, (character) => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+  })[character]);
+}
+
 function createShowCard(show) {
   return `
-    <article class="show-card overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
-      <div class="bg-gradient-to-br ${show.accent} p-6">
-        <div class="mb-3 text-4xl" aria-hidden="true">${show.icon}</div>
+    <article data-show-id="${escapeShowHtml(show.id)}" class="show-card overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+      <div class="bg-gradient-to-br ${escapeShowHtml(show.accent)} p-6">
+        <div class="mb-3 text-4xl" aria-hidden="true">${escapeShowHtml(show.icon)}</div>
         <div class="flex items-center justify-between gap-3">
-          <span class="rounded-full bg-white/80 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-gray-800">${show.category}</span>
+          <span class="rounded-full bg-white/80 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-gray-800">${escapeShowHtml(show.category)}</span>
           <span class="rounded-full bg-white px-2 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-red-600">★ ${Number(show.rating || 0).toFixed(1)}</span>
         </div>
       </div>
       <div class="p-5">
         <div class="mb-3 flex items-start justify-between gap-3">
-          <h3 class="text-2xl font-bold text-gray-900">${show.name}</h3>
+          <h3 class="text-2xl font-bold text-gray-900">${escapeShowHtml(show.name)}</h3>
           <span class="rounded-full border border-gray-200 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.15em] text-gray-600">${show.episodes} eps</span>
         </div>
-        <p class="mb-3 text-sm font-semibold text-red-600">Hosted by ${show.host}</p>
-        <p class="mb-4 text-sm leading-6 text-gray-700">${show.description}</p>
+        <p class="mb-3 text-sm font-semibold text-red-600">Hosted by ${escapeShowHtml(show.host)}</p>
+        <p class="mb-4 text-sm leading-6 text-gray-700">${escapeShowHtml(show.description)}</p>
         <div class="flex flex-wrap gap-2">
           <a href="schedule.html" class="btn btn-primary text-sm">Watch schedule</a>
-          <button type="button" class="btn btn-secondary text-sm" data-show-id="${show.id}">Quick view</button>
+          <button type="button" class="btn btn-secondary text-sm" data-show-id="${escapeShowHtml(show.id)}">Quick view</button>
         </div>
       </div>
     </article>
@@ -130,7 +136,7 @@ function renderShowCatalog() {
   const filtered = sortShowsList(getFilteredShows());
   container.innerHTML = filtered.map(createShowCard).join("");
 
-  const quickViewButtons = container.querySelectorAll("[data-show-id]");
+  const quickViewButtons = container.querySelectorAll("button[data-show-id]");
   quickViewButtons.forEach((button) => {
     button.addEventListener("click", () => {
       const showId = button.getAttribute("data-show-id");

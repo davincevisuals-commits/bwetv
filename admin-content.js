@@ -44,7 +44,7 @@
     }
   };
   const supportedDays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
-  const allowedBackupCollections = ["shows", "episodes", "settings", "pages"];
+  const allowedBackupCollections = ["shows", "episodes", "settings", "pages", "media"];
 
   function getDb() {
     if (!window.firebase || !window.firebase.firestore) throw new Error("Firebase Firestore did not load.");
@@ -342,13 +342,21 @@
           data: serializeFirestore(doc.data())
         }));
       }
+      const revisions = {};
+      for (const page of collections.pages) {
+        const snapshot = await db.collection("pages").doc(page.id).collection("revisions").get();
+        revisions[page.id] = snapshot.docs.map((doc) => ({ id: doc.id, data: serializeFirestore(doc.data()) }));
+      }
       const backup = {
         format: "bwetv-admin-backup",
         version: 1,
         exportedAt: new Date().toISOString(),
-        collections
+        collections,
+        revisions
       };
-      const url = URL.createObjectURL(new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" }));
+      const blob = new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" });
+      if (blob.size > 100 * 1024 * 1024) throw new Error("Backup exceeds the 100 MB import limit. Use a separate Firestore backup for this dataset.");
+      const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
       link.download = `bwetv-backup-${new Date().toISOString().slice(0, 10)}.json`;
@@ -362,7 +370,7 @@
   }
 
   async function importBackup(file) {
-    if (file.size > 10 * 1024 * 1024) throw new Error("Backup file must be smaller than 10 MB.");
+    if (file.size > 100 * 1024 * 1024) throw new Error("Backup file must be smaller than 100 MB.");
     const backup = JSON.parse(await file.text());
     if (!backup || backup.format !== "bwetv-admin-backup" || backup.version !== 1 || !backup.collections || typeof backup.collections !== "object") {
       throw new Error("This is not a supported BWE TV backup file.");
@@ -377,6 +385,21 @@
           || !entry.data || typeof entry.data !== "object" || Array.isArray(entry.data)) {
           throw new Error(`Backup contains an invalid record in "${name}".`);
         }
+        if (backup.revisions !== undefined) {
+          if (!backup.revisions || typeof backup.revisions !== "object" || Array.isArray(backup.revisions)) {
+            throw new Error("Backup revisions must be an object.");
+          }
+          for (const [pageId, entries] of Object.entries(backup.revisions)) {
+            if (!/^[A-Za-z0-9_-]{1,140}$/.test(pageId) || !Array.isArray(entries)) throw new Error("Backup contains invalid page revisions.");
+            for (const entry of entries) {
+              if (!entry || typeof entry.id !== "string" || !/^[A-Za-z0-9_-]{1,140}$/.test(entry.id)
+                || !entry.data || typeof entry.data !== "object" || Array.isArray(entry.data)) {
+                throw new Error("Backup contains an invalid page revision.");
+              }
+              records.push({ collection: "pages", pageId, id: entry.id, data: restoreFirestoreDates(entry.data) });
+            }
+          }
+        }
         records.push({ collection: name, id: entry.id, data: restoreFirestoreDates(entry.data) });
       }
     }
@@ -384,12 +407,26 @@
     if (!window.confirm(`Import ${records.length} records? Existing matching document IDs will be merged with this backup.`)) return;
 
     const db = getDb();
-    for (let offset = 0; offset < records.length; offset += 400) {
+    let offset = 0;
+    while (offset < records.length) {
       const batch = db.batch();
-      records.slice(offset, offset + 400).forEach(({ collection, id, data }) => {
-        batch.set(db.collection(collection).doc(id), data, { merge: true });
-      });
-      await batch.commit();
+      let bytes = 0;
+      let count = 0;
+      while (offset < records.length && count < 400) {
+        const { collection, pageId, id, data } = records[offset];
+        const size = new Blob([JSON.stringify(data)]).size + 1024;
+        if (count && bytes + size > 8 * 1024 * 1024) break;
+        const ref = pageId ? db.collection("pages").doc(pageId).collection("revisions").doc(id) : db.collection(collection).doc(id);
+        batch.set(ref, data, { merge: true });
+        bytes += size;
+        count += 1;
+        offset += 1;
+      }
+      try {
+        await batch.commit();
+      } catch (error) {
+        throw new Error(`Restore stopped after ${offset - count} records; earlier batches may have been imported. ${error.message}`);
+      }
     }
     showStatus(`Imported ${records.length} records.`);
     await Promise.all([loadPage(), loadHomeContent(), loadSchedule()]);
@@ -585,8 +622,8 @@
       showStatus("Firebase Authentication is unavailable. Check the Firebase script tags.", true);
       return;
     }
-    window.firebase.auth().onAuthStateChanged((user) => {
-      if (!user) return;
+    document.addEventListener("bwe-admin-auth", (event) => {
+      if (!event.detail.user || event.detail.role === "moderator") return;
       Promise.all([loadPage(), loadHomeContent(), loadSchedule()]);
     });
   });
