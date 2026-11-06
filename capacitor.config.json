@@ -1,0 +1,8 @@
+{
+  "appId": "com.bwetv.live",
+  "appName": "BWE TV",
+  "webDir": "www",
+  "android": {
+    "allowMixedContent": false
+  }
+}

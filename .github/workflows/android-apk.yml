@@ -1,0 +1,62 @@
+name: Build Android APK
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - ".github/workflows/android-apk.yml"
+      - "android/**"
+      - "capacitor.config.json"
+      - "package.json"
+      - "package-lock.json"
+      - "scripts/**"
+      - "*.html"
+      - "*.js"
+      - "*.css"
+      - "assets/**"
+      - "video.mp4"
+      - "*.webp"
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          packages: "platform-tools platforms;android-35 build-tools;35.0.0"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run website regression tests
+        run: npm test
+
+      - name: Build debug APK
+        run: npm run mobile:build:debug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: bwetv-android-debug-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 14

@@ -1,3 +1,8 @@
 node_modules/
 npm-debug.log*
 .DS_Store
+www/
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
