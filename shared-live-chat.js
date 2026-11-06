@@ -242,21 +242,28 @@
         return;
       }
 
-      applyIdentity(auth && auth.currentUser);
-      const payload = {
-        text,
-        user: userName,
-        author: userName,
-        userId,
-        timestamp: Date.now()
-      };
-      if (auth && auth.currentUser) payload.uid = auth.currentUser.uid;
-
       setStatus('Sending...');
       chatButton.disabled = true;
 
       ensureAuthenticated()
-        .then(() => messagesRef.push(payload))
+        .then((user) => {
+          const authenticatedUser = (auth && auth.currentUser) || user;
+          if (!authenticatedUser || !authenticatedUser.uid) {
+            const error = new Error('Live chat requires an authenticated user.');
+            error.code = 'auth/not-authenticated';
+            throw error;
+          }
+
+          applyIdentity(authenticatedUser);
+          return messagesRef.push({
+            text,
+            user: userName,
+            author: userName,
+            userId,
+            uid: authenticatedUser.uid,
+            timestamp: Date.now()
+          });
+        })
         .then(() => {
           chatInput.value = '';
           updateButtonState();
@@ -264,10 +271,17 @@
         })
         .catch((error) => {
           console.error('BWE chat send error:', error);
-          const denied = error && /permission/i.test(String(error.code || error.message));
-          setStatus(denied
-            ? 'You cannot send messages right now. Chat may be paused or your account restricted.'
-            : 'Send failed. Please ensure Firebase auth is enabled and the chat rules allow access.', true);
+          const code = String(error && error.code || '');
+          const denied = /permission/i.test(code || String(error && error.message));
+          if (code === 'auth/operation-not-allowed') {
+            setStatus('Live chat guest access is disabled in Firebase Authentication. Contact the site administrator.', true);
+          } else if (denied) {
+            setStatus('Message blocked: chat may be paused or your account may be muted or banned. If neither applies, ask the site administrator to verify the deployed Realtime Database rules.', true);
+          } else if (code.startsWith('auth/') || code === 'auth/not-authenticated') {
+            setStatus('Live chat could not sign in. Check your connection and Firebase Authentication settings.', true);
+          } else {
+            setStatus('Send failed. Please check your connection and Firebase Database settings.', true);
+          }
           updateButtonState();
         });
     }
