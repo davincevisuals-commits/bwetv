@@ -43,7 +43,8 @@
     return match ? match[1] : "";
   }
 
-  function episodeMatchesShow(episode, showName) {
+  function episodeMatchesShow(episode, showName, showId) {
+    if (episode.showId && showId && String(episode.showId) === showId) return true;
     const showSlug = slug(showName);
     const accepted = new Set([showSlug, ...(aliases[showSlug] || []).map(slug)]);
     const references = [episode.showId, episode.show, episode.showName, episode.showTitle, episode.program]
@@ -131,7 +132,7 @@
       if (!heading) return;
       const showName = heading.textContent.trim();
       const matches = publishedEpisodes
-        .filter((episode) => episodeMatchesShow(episode, showName))
+        .filter((episode) => episodeMatchesShow(episode, showName, card.dataset.showId))
         .sort((a, b) => timestamp(b.publishedAt || b.createdAt) - timestamp(a.publishedAt || a.createdAt));
 
       const previous = card.querySelector(".show-episodes");
@@ -148,7 +149,6 @@
       const snapshot = await window.firebase.firestore()
         .collection("episodes")
         .where("status", "==", "published")
-        .limit(50)
         .get();
       publishedEpisodes = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
       renderLinkedEpisodes();

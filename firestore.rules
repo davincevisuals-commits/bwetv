@@ -18,6 +18,13 @@ service cloud.firestore {
       return isAdmin() || isEditor();
     }
 
+    function isModerator() {
+      return request.auth != null
+        && request.auth.token.email_verified == true
+        && exists(/databases/$(database)/documents/roles/$(request.auth.token.email))
+        && get(/databases/$(database)/documents/roles/$(request.auth.token.email)).data.role == 'moderator';
+    }
+
     match /roles/{email} {
       allow read: if isAdmin() || (request.auth != null && request.auth.token.email == email);
       allow create, update: if isAdmin()
@@ -94,7 +101,8 @@ service cloud.firestore {
         && request.resource.data.text.size() <= 500
         && request.resource.data.createdAt == request.time;
       allow update: if false;
-      allow delete: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow delete: if (request.auth != null && resource.data.userId == request.auth.uid)
+        || isStaff() || isModerator();
     }
 
     match /newsletter/{email} {

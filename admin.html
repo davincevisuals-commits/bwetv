@@ -216,7 +216,7 @@
 
             <div class="md:col-span-2 flex items-center justify-between gap-3">
               <label class="inline-flex items-center gap-2 text-sm font-semibold text-gray-700">
-                <input id="episodeActiveInput" type="checkbox" checked />
+                <input id="episodeActiveInput" type="checkbox" />
                 Publish now
               </label>
               <button type="submit" class="rounded-xl bg-red-600 px-5 py-3 text-sm font-bold text-white hover:bg-red-700">Save Episode</button>
@@ -482,7 +482,7 @@
               <input id="importCsvInput" class="field mt-2" type="file" accept="text/csv,.csv" />
             </label>
           </div>
-          <p class="mt-3 text-xs text-gray-500">Import merges records by ID. Review and confirm before replacing existing records.</p>
+          <p class="mt-3 text-xs text-gray-500">Backups include shows, episodes, settings, pages, page revisions and media. They do not include accounts, roles, posts, chat, analytics, newsletter subscriptions or advertising inquiries. Import merges records by ID. Review and confirm before replacing existing records.</p>
         </section>
       </div>
 
@@ -509,7 +509,7 @@
           <div id="roleList" class="mt-4 space-y-2 text-sm"></div>
         </section>
 
-        <section class="card p-6">
+        <section id="chatModerationSection" class="card p-6">
           <h3 class="text-xl font-bold text-gray-900">Live chat moderation</h3>
           <div class="mt-3 flex flex-wrap items-center gap-4">
             <label class="inline-flex items-center gap-2 text-sm font-semibold text-gray-700"><input id="chatEnabledInput" type="checkbox" /> Chat open to viewers</label>
@@ -523,6 +523,14 @@
 
         <section class="card p-6">
           <div class="flex items-center justify-between gap-3">
+            <h3 class="text-xl font-bold text-gray-900">Community post moderation</h3>
+            <button id="refreshPostsButton" type="button" class="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm font-semibold text-gray-700">Refresh</button>
+          </div>
+          <div id="moderationPostList" class="mt-4 max-h-96 space-y-2 overflow-y-auto text-sm"></div>
+        </section>
+
+        <section class="card p-6">
+          <div class="flex items-center justify-between gap-3">
             <h3 class="text-xl font-bold text-gray-900">Analytics (last 14 days)</h3>
             <button id="refreshAnalyticsButton" type="button" class="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm font-semibold text-gray-700">Refresh</button>
           </div>
@@ -530,7 +538,7 @@
           <div id="analyticsSummary" class="mt-4 grid gap-4 md:grid-cols-2"></div>
         </section>
 
-        <section class="card p-6">
+        <section id="mediaSection" class="card p-6">
           <h3 class="text-xl font-bold text-gray-900">Media library</h3>
           <p class="mt-1 text-sm text-gray-600">Images are cropped, resized and stored in Firestore (free tier). Use <code>media:ID</code> in the logo or hero image fields in Settings.</p>
           <form id="mediaForm" class="mt-4 grid gap-3 md:grid-cols-4">

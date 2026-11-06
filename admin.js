@@ -122,6 +122,12 @@
     setTab("shows");
   }
 
+  function escapeHtml(value) {
+    return String(value == null ? "" : value).replace(/[&<>"']/g, (character) => ({
+      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+    })[character]);
+  }
+
   function renderShows(shows) {
     if (!elements.showList) return;
 
@@ -134,15 +140,15 @@
       <div class="rounded-xl border border-gray-200 bg-gray-50 p-4">
         <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>
-            <p class="text-[10px] font-bold uppercase tracking-[0.2em] ${show.active === false ? "text-gray-500" : "text-red-600"}">${show.category || "General"}</p>
-            <h4 class="mt-1 text-lg font-bold text-gray-900">${show.name}</h4>
-            <p class="text-sm text-gray-600">${show.host}</p>
+            <p class="text-[10px] font-bold uppercase tracking-[0.2em] ${show.active === false ? "text-gray-500" : "text-red-600"}">${escapeHtml(show.category || "General")}</p>
+            <h4 class="mt-1 text-lg font-bold text-gray-900">${escapeHtml(show.name)}</h4>
+            <p class="text-sm text-gray-600">${escapeHtml(show.host)}</p>
             <p class="mt-1 text-xs ${show.active === false ? "text-gray-500" : "text-green-600"}">${show.active === false ? "Draft" : "Published"}</p>
           </div>
           <div class="flex flex-wrap gap-2">
-            <button type="button" data-show-edit="${show.id}" class="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-100">Edit</button>
-            <button type="button" data-show-toggle="${show.id}" class="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm font-semibold text-amber-700 hover:bg-amber-100">${show.active === false ? "Publish" : "Unpublish"}</button>
-            <button type="button" data-show-delete="${show.id}" class="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-semibold text-red-700 hover:bg-red-100">Delete</button>
+            <button type="button" data-show-edit="${escapeHtml(show.id)}" class="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-100">Edit</button>
+            <button type="button" data-show-toggle="${escapeHtml(show.id)}" class="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm font-semibold text-amber-700 hover:bg-amber-100">${show.active === false ? "Publish" : "Unpublish"}</button>
+            <button type="button" data-show-delete="${escapeHtml(show.id)}" class="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-semibold text-red-700 hover:bg-red-100">Delete</button>
           </div>
         </div>
       </div>
@@ -262,7 +268,7 @@
     document.getElementById("episodeSeasonInput").value = "1";
     document.getElementById("episodeNumberInput").value = "1";
     document.getElementById("episodeStatusInput").value = "draft";
-    document.getElementById("episodeActiveInput").checked = true;
+    document.getElementById("episodeActiveInput").checked = false;
     document.getElementById("episodeIdInput").value = "";
     document.getElementById("episodeDateInput").valueAsDate = new Date();
   }
@@ -302,15 +308,15 @@
       <div class="rounded-xl border border-gray-200 bg-gray-50 p-4">
         <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>
-            <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-red-600">${episode.showId || "General"}</p>
-            <h4 class="mt-1 text-lg font-bold text-gray-900">${episode.title}</h4>
-            <p class="text-sm text-gray-600">S${episode.seasonNumber || 1} · E${episode.episodeNumber || 1}</p>
+            <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-red-600">${escapeHtml(episode.showId || "General")}</p>
+            <h4 class="mt-1 text-lg font-bold text-gray-900">${escapeHtml(episode.title)}</h4>
+            <p class="text-sm text-gray-600">S${escapeHtml(episode.seasonNumber || 1)} · E${escapeHtml(episode.episodeNumber || 1)}</p>
             <p class="mt-1 text-xs ${episode.status === "published" ? "text-green-600" : "text-gray-500"}">${episode.status === "published" ? "Published" : "Draft"}</p>
           </div>
           <div class="flex flex-wrap gap-2">
-            <button type="button" data-episode-edit="${episode.id}" class="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-100">Edit</button>
-            <button type="button" data-episode-toggle="${episode.id}" class="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm font-semibold text-amber-700 hover:bg-amber-100">${episode.status === "published" ? "Unpublish" : "Publish"}</button>
-            <button type="button" data-episode-delete="${episode.id}" class="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-semibold text-red-700 hover:bg-red-100">Delete</button>
+            <button type="button" data-episode-edit="${escapeHtml(episode.id)}" class="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-100">Edit</button>
+            <button type="button" data-episode-toggle="${escapeHtml(episode.id)}" class="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm font-semibold text-amber-700 hover:bg-amber-100">${episode.status === "published" ? "Unpublish" : "Publish"}</button>
+            <button type="button" data-episode-delete="${escapeHtml(episode.id)}" class="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-semibold text-red-700 hover:bg-red-100">Delete</button>
           </div>
         </div>
       </div>
@@ -415,7 +421,7 @@
         videoId: payload.videoId,
         videoUrl: payload.videoUrl,
         description: payload.description,
-        status: payload.status === "published" || payload.active ? "published" : "draft",
+        status: payload.status,
         publishedAt: window.firebase.firestore.Timestamp.fromDate(publishedAt),
         updatedAt: window.firebase.firestore.FieldValue.serverTimestamp()
       };
@@ -621,18 +627,42 @@
     await auth.signInWithEmailAndPassword(email, password);
   }
 
-  function updateAuthView(user) {
+  async function updateAuthView(user) {
     if (!elements.loginPanel || !elements.dashboardPanel) return;
 
-    if (user) {
+    elements.loginPanel.classList.remove("hidden");
+    elements.dashboardPanel.classList.add("hidden");
+    document.dispatchEvent(new CustomEvent("bwe-admin-auth", { detail: { user: null, role: null } }));
+    if (!user) {
+      setStatus("Waiting for login.");
+      return;
+    }
+
+    try {
+      if (!user.emailVerified || !user.email) {
+        setStatus("A verified staff email is required to access the dashboard.", true);
+        return;
+      }
+      const email = user.email.toLowerCase();
+      const role = email === "bwetv.ug@gmail.com" ? "admin" :
+        (await initializeFirebase().collection("roles").doc(email).get()).data()?.role;
+      if (window.firebase.auth().currentUser !== user) return;
+      if (!["admin", "editor", "moderator"].includes(role)) {
+        setStatus("This account does not have a staff role. Sign in with an authorized account.", true);
+        return;
+      }
       elements.loginPanel.classList.add("hidden");
       elements.dashboardPanel.classList.remove("hidden");
+      elements.tabs.forEach((button) => {
+        button.classList.toggle("hidden", role === "moderator" && button.dataset.tab !== "ops");
+      });
+      setTab(role === "moderator" ? "ops" : "shows");
       setStatus("Signed in successfully.");
-      Promise.all([loadShows(), loadEpisodes(), loadSettings(), loadHero()]);
-    } else {
-      elements.loginPanel.classList.remove("hidden");
-      elements.dashboardPanel.classList.add("hidden");
-      setStatus("Waiting for login.");
+      document.dispatchEvent(new CustomEvent("bwe-admin-auth", { detail: { user, role } }));
+      if (role !== "moderator") Promise.all([loadShows(), loadEpisodes(), loadSettings(), loadHero()]);
+    } catch (error) {
+      console.error("Unable to verify staff access", error);
+      setStatus("Unable to verify staff access. Check your connection and try again.", true);
     }
   }
 
@@ -643,7 +673,7 @@
   elements.loginForm.addEventListener("submit", async (event) => {
     event.preventDefault();
     const email = getInputValue("emailInput").trim();
-    const password = getInputValue("passwordInput").trim();
+    const password = getInputValue("passwordInput");
 
     if (!email || !password) {
       setStatus("Enter both email and password.", true);
@@ -669,6 +699,12 @@
 
   elements.showForm.addEventListener("submit", saveShow);
   elements.episodeForm.addEventListener("submit", saveEpisode);
+  document.getElementById("episodeStatusInput").addEventListener("change", (event) => {
+    document.getElementById("episodeActiveInput").checked = event.target.value === "published";
+  });
+  document.getElementById("episodeActiveInput").addEventListener("change", (event) => {
+    document.getElementById("episodeStatusInput").value = event.target.checked ? "published" : "draft";
+  });
   elements.saveSettingsButton.addEventListener("click", saveSettings);
   elements.addHeroSlideButton.addEventListener("click", () => addHeroSlideRow());
   elements.saveHeroButton.addEventListener("click", saveHero);
