@@ -95,10 +95,10 @@
     resolveMedia(settings.heroImage).then((src) => {
       if (src) root.style.setProperty("--bwe-home-hero-image", `url("${src.replace(/["\\]/g, "")}")`);
     });
-    [["facebook", settings.facebookUrl], ["instagram", settings.instagramUrl], ["youtube", settings.youtubeUrl]].forEach(([name, url]) => {
+    [["facebook", settings.facebookUrl], ["x", settings.xUrl], ["instagram", settings.instagramUrl], ["youtube", settings.youtubeUrl], ["tiktok", settings.tiktokUrl]].forEach(([name, url]) => {
       if (!/^https:\/\//i.test(url || "")) return;
-      document.querySelectorAll(".bwe-footer-social a").forEach((anchor) => {
-        if ((anchor.getAttribute("aria-label") || "").toLowerCase().includes(name)) anchor.href = url;
+      document.querySelectorAll(`.bwe-footer-social a[data-social="${name}"]`).forEach((anchor) => {
+        anchor.href = url;
       });
     });
 

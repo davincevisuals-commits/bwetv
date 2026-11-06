@@ -79,8 +79,8 @@
 
 .bwe-footer-social li:nth-child(5) a { color: #ffffff; }
 .bwe-footer-social li:nth-child(5) a::before {
-  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='black' d='M14.83 2.5c.72 0 1.44.06 2.14.2a6.43 6.43 0 0 1 4.1 2.5c1.1 1.2 1.8 2.8 1.8 4.5v5.8a6.1 6.1 0 0 1-1.8 4.2 6.45 6.45 0 0 1-4.0 2.1c-.8.1-1.6.2-2.4.2h-5.2a6.45 6.45 0 0 1-4.7-2.1 6.1 6.1 0 0 1-1.8-4.3V9.8a6.45 6.45 0 0 1 1.8-4.5A6.4 6.4 0 0 1 9.2 2.7c.7-.1 1.4-.2 2.1-.2h3.5zm-2.8 5.4a4.7 4.7 0 1 0 0 9.4 4.7 4.7 0 0 0 0-9.4zm6.1-2.3a1.4 1.4 0 1 0 0 2.8 1.4 1.4 0 0 0 0-2.8z'/%3E%3C/svg%3E");
-  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='black' d='M14.83 2.5c.72 0 1.44.06 2.14.2a6.43 6.43 0 0 1 4.1 2.5c1.1 1.2 1.8 2.8 1.8 4.5v5.8a6.1 6.1 0 0 1-1.8 4.2 6.45 6.45 0 0 1-4.0 2.1c-.8.1-1.6.2-2.4.2h-5.2a6.45 6.45 0 0 1-4.7-2.1 6.1 6.1 0 0 1-1.8-4.3V9.8a6.45 6.45 0 0 1 1.8-4.5A6.4 6.4 0 0 1 9.2 2.7c.7-.1 1.4-.2 2.1-.2h3.5zm-2.8 5.4a4.7 4.7 0 1 0 0 9.4 4.7 4.7 0 0 0 0-9.4zm6.1-2.3a1.4 1.4 0 1 0 0 2.8 1.4 1.4 0 0 0 0-2.8z'/%3E%3C/svg%3E");
+  -webkit-mask-image: url("assets/images/tiktok.svg");
+  mask-image: url("assets/images/tiktok.svg");
 }
 
 @media (max-width: 767px) {

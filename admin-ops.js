@@ -440,7 +440,7 @@
       const snapshot = await fs().collection("settings").doc("site").get();
       const data = snapshot.exists ? snapshot.data() : {};
       box.replaceChildren("Linked profiles (edit in Settings): ");
-      [["Facebook", data.facebookUrl], ["Instagram", data.instagramUrl], ["YouTube", data.youtubeUrl]].forEach(([name, url]) => {
+      [["Facebook", data.facebookUrl], ["X", data.xUrl], ["Instagram", data.instagramUrl], ["YouTube", data.youtubeUrl], ["TikTok", data.tiktokUrl]].forEach(([name, url]) => {
         if (!/^https:\/\//i.test(url || "")) return;
         const anchor = document.createElement("a");
         anchor.href = url;
@@ -451,7 +451,8 @@
         box.appendChild(anchor);
       });
     } catch (error) {
-      box.textContent = "";
+      box.textContent = "Could not load linked profiles.";
+      fail("Unable to load linked profiles")(error);
     }
   }
 
@@ -467,6 +468,7 @@
     ["mediaFileInput", "mediaCropInput", "mediaWidthInput", "mediaQualityInput"].forEach((id) => $(id).addEventListener("change", previewMedia));
     $("socialText").addEventListener("input", updateSocialPreview);
     $("socialLink").addEventListener("input", updateSocialPreview);
+    document.addEventListener("bwe-site-settings-saved", loadSocialLinks);
     document.querySelectorAll("[data-share]").forEach((node) => node.addEventListener("click", () => share(node.dataset.share)));
     updateSocialPreview();
 

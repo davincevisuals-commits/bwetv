@@ -439,6 +439,8 @@
       youtubeUrl: "",
       facebookUrl: "",
       instagramUrl: "",
+      xUrl: "",
+      tiktokUrl: "",
       brandColor: "#bf1506",
       accentColor: "#facc15",
       heroImage: "",
@@ -456,6 +458,8 @@
     document.getElementById("youtubeUrlInput").value = values.youtubeUrl || "";
     document.getElementById("facebookUrlInput").value = values.facebookUrl || "";
     document.getElementById("instagramUrlInput").value = values.instagramUrl || "";
+    document.getElementById("xUrlInput").value = values.xUrl || "";
+    document.getElementById("tiktokUrlInput").value = values.tiktokUrl || "";
     document.getElementById("brandColorInput").value = values.brandColor || "#bf1506";
     document.getElementById("accentColorInput").value = values.accentColor || "#facc15";
     document.getElementById("heroImageInput").value = values.heroImage || "";
@@ -489,6 +493,8 @@
         youtubeUrl: getInputValue("youtubeUrlInput").trim(),
         facebookUrl: getInputValue("facebookUrlInput").trim(),
         instagramUrl: getInputValue("instagramUrlInput").trim(),
+        xUrl: getInputValue("xUrlInput").trim(),
+        tiktokUrl: getInputValue("tiktokUrlInput").trim(),
         brandColor: getInputValue("brandColorInput").trim() || "#bf1506",
         accentColor: getInputValue("accentColorInput").trim() || "#facc15",
         heroImage: getInputValue("heroImageInput").trim(),
@@ -509,9 +515,17 @@
         setStatus("Logo URL must use https://, a local assets/ path, or a media:ID library reference.", true);
         return;
       }
+      for (const [name, id] of [["YouTube", "youtubeUrlInput"], ["Facebook", "facebookUrlInput"], ["Instagram", "instagramUrlInput"], ["X", "xUrlInput"], ["TikTok", "tiktokUrlInput"]]) {
+        const input = document.getElementById(id);
+        if (input.value.trim() && (!/^https:\/\//i.test(input.value.trim()) || !input.checkValidity())) {
+          setStatus(name + " URL must be a valid https:// URL.", true);
+          return;
+        }
+      }
 
       await db.collection("settings").doc("site").set(settings, { merge: true });
       setStatus("Settings saved successfully.");
+      document.dispatchEvent(new Event("bwe-site-settings-saved"));
     } catch (error) {
       console.error("Unable to save settings", error);
       setStatus("Unable to save settings: " + (error.message || "unknown error"), true);
