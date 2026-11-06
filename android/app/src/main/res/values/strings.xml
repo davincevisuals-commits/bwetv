@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">BWE TV</string>
+    <string name="title_activity_main">BWE TV</string>
+    <string name="package_name">com.bwetv.live</string>
+    <string name="custom_url_scheme">com.bwetv.live</string>
+</resources>

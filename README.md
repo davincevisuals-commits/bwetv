@@ -47,6 +47,22 @@ bwetv/
 3. Open any `.html` file in your web browser
 4. Navigate using the menu to explore all pages
 
+## Android app (Capacitor)
+
+The Android app packages the existing website pages and assets in a Capacitor WebView. Firebase data, chat, streaming, and third-party links still require an internet connection.
+
+1. Install Node.js, JDK 21, Android Studio, and the Android SDK (API 35 or newer).
+2. Install project dependencies with `npm install`.
+3. Generate the Android project once with `npm run mobile:add:android`.
+4. Build a debug APK with `npm run mobile:build:debug`. The APK is written to `android/app/build/outputs/apk/debug/app-debug.apk`.
+5. To install on a connected device, run `adb install -r android/app/build/outputs/apk/debug/app-debug.apk`.
+
+The source website remains at the repository root. `npm run mobile:copy` stages its pages and runtime assets in the generated, ignored `www/` directory before each Android sync/build. For a Play Store release, configure a production signing key in Android Studio and build a signed Android App Bundle; do not distribute a debug APK as a production release.
+
+Before release, test Firebase sign-in and chat on a physical Android device. The app uses the bundled web origin, so verify Firebase Authentication and email-action links from that origin as well as HLS playback, system back navigation, external links, and poor-network behavior.
+
+The **Build Android APK** GitHub Actions workflow also builds the debug APK on pushes that change app or website files. Download `app-debug.apk` from the `bwetv-android-debug-apk` artifact on the completed workflow run.
+
 ## Live Streaming Setup
 
 To connect your streaming server:
