@@ -108,3 +108,10 @@ Deploy `firestore.rules` (`firebase deploy --only firestore:rules`) before enabl
 ## License
 
 © 2026 BWE TV - All rights reserved
+
+## Release signing and Firebase rules (CI)
+
+Add these in GitHub → Settings → Secrets and variables → Actions:
+
+- `ANDROID_KEYSTORE_BASE64` (`base64 -w0 bwetv-release.jks`), `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD` — then run **Build signed Android AAB** to get `app-release.aab` for the Play Console. Back up the keystore; never commit it.
+- `FIREBASE_SERVICE_ACCOUNT` (service account JSON with Firebase Rules Admin / Cloud Datastore Owner access on `bwetv-ug`) — **Deploy Firebase rules** then publishes `firestore.rules` and `database.rules.json`.

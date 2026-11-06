@@ -1,0 +1,35 @@
+name: Deploy Firebase rules
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "firestore.rules"
+      - "database.rules.json"
+      - "firebase.json"
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Write service account credentials
+        env:
+          SA_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: |
+          test -n "$SA_JSON" || { echo "FIREBASE_SERVICE_ACCOUNT secret is missing"; exit 1; }
+          printf '%s' "$SA_JSON" > "$RUNNER_TEMP/sa.json"
+
+      - name: Deploy Firestore and Realtime Database rules
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/sa.json
+        run: npx --yes firebase-tools@latest deploy --only firestore:rules,database --project bwetv-ug --non-interactive
