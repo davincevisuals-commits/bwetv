@@ -17,8 +17,8 @@
             "timestamp"
           ],
           "$messageId": {
-            ".write": "auth != null && !data.exists() && (!newData.child('uid').exists() || newData.child('uid').val() == auth.uid) && root.child('moderation/settings/chatEnabled').val() != false && !root.child('moderation/bans').child(auth.uid).exists() && !(root.child('moderation/muted').child(auth.uid).val() > now) || (!newData.exists() && (auth != null && auth.token.email == 'bwetv.ug@gmail.com' && auth.token.email_verified == true || (auth != null && auth.token.email_verified == true && root.child('moderation/moderators').child(auth.token.email.replace('.', ',')).val() == true)))",
-            ".validate": "newData.hasChildren(['text', 'timestamp']) && newData.child('text').isString() && newData.child('text').val().length > 0 && newData.child('text').val().length <= 300 && newData.child('timestamp').isNumber()"
+            ".write": "(auth != null && !data.exists() && newData.child('uid').val() == auth.uid && root.child('moderation/settings/chatEnabled').val() != false && !root.child('moderation/bans').child(auth.uid).exists() && !(root.child('moderation/muted').child(auth.uid).val() > now)) || (!newData.exists() && (auth != null && auth.token.email == 'bwetv.ug@gmail.com' && auth.token.email_verified == true || (auth != null && auth.token.email_verified == true && root.child('moderation/moderators').child(auth.token.email.replace('.', ',')).val() == true)))",
+            ".validate": "newData.hasChildren(['text', 'timestamp', 'uid']) && newData.child('uid').isString() && newData.child('text').isString() && newData.child('text').val().length > 0 && newData.child('text').val().length <= 300 && newData.child('timestamp').isNumber()"
           }
         }
       }
