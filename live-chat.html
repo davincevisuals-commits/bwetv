@@ -157,6 +157,7 @@
       window.__bwetvFirebaseReady = true;
     };
   </script>
+  <script src="mobile-menu.js" defer></script>
   <script src="shared-live-chat.js" defer></script>
   <script src="content.js" defer></script>
   <script>
@@ -164,16 +165,6 @@
       if (window.initializeFirebase) window.initializeFirebase();
       if (window.BWELiveChat) {
         BWELiveChat.init({ chatPath: 'channels/live-chat/messages', maxLength: 260 });
-      }
-
-      var mobileMenuBtn = document.getElementById('mobileMenuBtn');
-      var mobileMenu = document.getElementById('mobileMenu');
-      if (mobileMenuBtn && mobileMenu) {
-        mobileMenuBtn.addEventListener('click', function () {
-          var expanded = this.getAttribute('aria-expanded') === 'true';
-          this.setAttribute('aria-expanded', String(!expanded));
-          mobileMenu.classList.toggle('hidden');
-        });
       }
 
       document.querySelectorAll('[data-nav-link]').forEach(function (link) {
