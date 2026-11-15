@@ -64,6 +64,49 @@ test("show cards escape text and attributes while retaining the show ID", () => 
   assert.ok(!card.includes('class="bg-gradient-to-br red" onclick='));
 });
 
+test("published episodes use a lazy-loaded YouTube embed", async () => {
+  const nodes = new Map();
+  const document = {
+    getElementById(id) {
+      if (!nodes.has(id)) nodes.set(id, {
+        value: "", addEventListener() {}, textContent: "", innerHTML: ""
+      });
+      return nodes.get(id);
+    }
+  };
+  const firebase = {
+    apps: [{}],
+    firestore() {
+      return {
+        collection() {
+          return {
+            where() {
+              return {
+                async get() {
+                  return {
+                    docs: [{
+                      id: "episode",
+                      data: () => ({ videoId: "AbCdEf12345", title: 'Episode "one"' })
+                    }]
+                  };
+                }
+              };
+            }
+          };
+        }
+      };
+    }
+  };
+  runScript("firestore-catalog.js", { document, window: { firebase } });
+  await new Promise((resolve) => setImmediate(resolve));
+  const card = nodes.get("episodesContainer").innerHTML;
+  assert.match(card, /<iframe/);
+  assert.match(card, /src="https:\/\/www\.youtube\.com\/embed\/AbCdEf12345"/);
+  assert.match(card, /title="Episode &quot;one&quot;"/);
+  assert.match(card, /loading="lazy"/);
+  assert.doesNotMatch(card, /href="https:\/\/www\.youtube\.com\/watch/);
+});
+
 test("home page loads the same HLS-capable player as the schedule", () => {
   assert.match(read("index.html"), /https:\/\/vjs\.zencdn\.net\/7\.20\.3\/video\.min\.js/);
   assert.match(read("schedule.html"), /https:\/\/vjs\.zencdn\.net\/7\.20\.3\/video\.min\.js/);
