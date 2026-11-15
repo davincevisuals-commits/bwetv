@@ -42,6 +42,48 @@ test("schedule identifies current and next programs within broadcast hours", () 
   assert.equal(vm.runInContext("getCurrentProgram(getProgramsForDay('Today')).title", evening), "Weekend Preview");
 });
 
+test("program times display AM and PM while retaining 24-hour schedule values", () => {
+  const context = runScript("content.js");
+  for (const [time, expected] of [
+    ["00:00", "12:00 AM"],
+    ["09:00", "9:00 AM"],
+    ["12:00", "12:00 PM"],
+    ["21:00", "9:00 PM"],
+    ["23:30", "11:30 PM"]
+  ]) {
+    context.time = time;
+    assert.equal(vm.runInContext("formatProgramTime(time)", context), expected);
+  }
+  assert.equal(vm.runInContext("getProgramsForDay('Monday')[0].time", context), "07:30");
+});
+
+test("homepage and schedule show AM and PM for saved programs", () => {
+  const nodes = {
+    "featured-programs": { dataset: {}, innerHTML: "", querySelectorAll: () => [] },
+    scheduleContainer: { innerHTML: "" },
+    currentShowInfo: { innerHTML: "" },
+    weekOverview: { innerHTML: "", querySelectorAll: () => [] }
+  };
+  const document = {
+    getElementById: (id) => nodes[id] || null,
+    querySelectorAll: () => [],
+    addEventListener() {}
+  };
+  const context = runScript("content.js", { document, Date: dateAt("2026-11-09T18:00:00Z") });
+  context.window.applyBWESchedule({
+    Monday: [
+      { time: "09:00", title: "Morning", host: "Host", summary: "Morning show", type: "Talk" },
+      { time: "21:00", title: "Evening", host: "Host", summary: "Evening show", type: "Talk" }
+    ]
+  });
+  assert.match(nodes["featured-programs"].innerHTML, /9:00 PM/);
+  assert.match(nodes.currentShowInfo.innerHTML, /Evening/);
+  assert.doesNotMatch(nodes.currentShowInfo.innerHTML, /Morning/);
+  assert.match(nodes.scheduleContainer.innerHTML, /9:00 AM/);
+  assert.match(nodes.scheduleContainer.innerHTML, /9:00 PM/);
+  assert.match(nodes.weekOverview.innerHTML, /9:00 AM/);
+});
+
 test("every default lineup runs from 07:30 to 23:30 and has an evening program at 21:00", () => {
   const context = runScript("content.js");
   vm.runInContext(`
@@ -144,7 +186,7 @@ test("homepage identifies tomorrow's programs after the final show ends", () => 
   const context = runScript("content.js", { document, Date: dateAt("2026-11-15T20:30:00Z") });
   vm.runInContext("renderFeaturedPrograms()", context);
   assert.match(container.innerHTML, /No more programs today\. Coming up tomorrow:/);
-  assert.match(container.innerHTML, /Tomorrow, 07:30/);
+  assert.match(container.innerHTML, /Tomorrow, 7:30 AM/);
   assert.match(container.innerHTML, /Bweyale Breakfast/);
   assert.doesNotMatch(container.innerHTML, /On now/);
 });

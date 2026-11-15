@@ -88,6 +88,11 @@ function timeToMinutes(timeString) {
   return (Number(hour) || 0) * 60 + (Number(minute) || 0);
 }
 
+function formatProgramTime(timeString) {
+  const [hour, minute] = timeString.split(':').map(Number);
+  return `${hour % 12 || 12}:${String(minute).padStart(2, '0')} ${hour < 12 ? 'AM' : 'PM'}`;
+}
+
 function getProgramsForDay(dayName) {
   if (dayName === 'Today') {
     const today = getTodayLabel();
@@ -183,7 +188,7 @@ function renderFeaturedPrograms() {
                  data-index="${pick.index}" data-status="${status}">
           <div class="mb-3 flex items-center justify-between gap-3">
             <span class="rounded-full border border-red-200 bg-red-50 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.15em] text-red-700">${escapeProgramHtml(program.type)}</span>
-            <span class="text-xs font-semibold text-gray-600">${nextDay ? 'Tomorrow, ' : ''}${escapeProgramHtml(program.time)}</span>
+            <span class="text-xs font-semibold text-gray-600">${nextDay ? 'Tomorrow, ' : ''}${formatProgramTime(program.time)}</span>
           </div>
           <h3 class="text-xl font-bold text-gray-900">${escapeProgramHtml(program.title)}</h3>
           <p class="mt-2 text-sm text-gray-600">${escapeProgramHtml(program.host)}</p>
@@ -227,7 +232,7 @@ function renderLiveProgramStatus() {
   const programs = getProgramsForDay('Today');
   const liveProgram = getCurrentProgram(programs);
   const text = !streamEnabled ? 'The stream is currently offline'
-    : !duringBroadcast ? 'Broadcast hours: 07:30–23:30 Uganda time'
+    : !duringBroadcast ? 'Broadcast hours: 7:30 AM–11:30 PM Uganda time'
     : liveProgram
     ? `${liveProgram.title} — ${liveProgram.summary}`
     : 'Program details are not available for this time';
@@ -290,7 +295,7 @@ function renderWeekOverview() {
       <button type="button" data-day="${day}" class="day-pill rounded-xl border px-3 py-3 text-left transition ${active ? 'border-red-500 bg-red-600 text-white shadow-sm' : 'border-gray-200 bg-white text-gray-800 hover:border-red-200 hover:bg-red-50'}">
         <div class="text-[10px] font-bold uppercase tracking-[0.2em] ${active ? 'text-red-100' : 'text-gray-500'}">${day.slice(0, 3)}</div>
         <div class="mt-2 text-sm font-bold">${first ? escapeProgramHtml(first.title) : 'No data'}</div>
-        <div class="mt-1 text-[11px] ${active ? 'text-red-100' : 'text-gray-500'}">${first ? escapeProgramHtml(first.time) : '—'}</div>
+        <div class="mt-1 text-[11px] ${active ? 'text-red-100' : 'text-gray-500'}">${first ? formatProgramTime(first.time) : '—'}</div>
       </button>
     `;
   }).join('');
@@ -324,8 +329,8 @@ function renderSchedule() {
     currentInfo.innerHTML = `
       <p class="mb-1 text-xs font-bold uppercase tracking-[0.2em] text-yellow-200">${activeDay === 'Today' ? (currentProgram ? 'Now airing' : duringBroadcast ? 'Schedule unavailable' : 'Outside broadcast hours') : 'Featured'}</p>
       <p class="text-2xl font-bold text-white">${currentProgram ? escapeProgramHtml(currentProgram.title) : 'No program details available'}</p>
-      <p class="mt-1 text-sm text-white/85">${currentProgram ? `${escapeProgramHtml(currentProgram.time)} • ${escapeProgramHtml(currentProgram.host)}` : 'Check back later'}</p>
-      ${nextProgram ? `<p class="mt-2 text-xs text-white/80">Up next: ${escapeProgramHtml(nextProgram.title)} at ${escapeProgramHtml(nextProgram.time)}</p>` : ''}
+      <p class="mt-1 text-sm text-white/85">${currentProgram ? `${formatProgramTime(currentProgram.time)} • ${escapeProgramHtml(currentProgram.host)}` : 'Check back later'}</p>
+      ${nextProgram ? `<p class="mt-2 text-xs text-white/80">Up next: ${escapeProgramHtml(nextProgram.title)} at ${formatProgramTime(nextProgram.time)}</p>` : ''}
     `;
   }
 
@@ -339,7 +344,7 @@ function renderSchedule() {
         <div class="schedule-item rounded-xl border ${isLive ? 'border-red-200 bg-red-50' : 'border-gray-200 bg-white'} p-4 shadow-sm">
           <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <div>
-              <p class="text-xs font-bold uppercase tracking-[0.2em] text-red-600">${escapeProgramHtml(program.time)}</p>
+              <p class="text-xs font-bold uppercase tracking-[0.2em] text-red-600">${formatProgramTime(program.time)}</p>
               <h3 class="mt-1 text-xl font-bold text-gray-900">${escapeProgramHtml(program.title)}</h3>
               <p class="mt-1 text-sm text-gray-600">Hosted by ${escapeProgramHtml(program.host)}</p>
             </div>
@@ -380,14 +385,14 @@ function setReminder() {
   const programs = getProgramsForDay(activeDay);
   const activeProgram = activeDay === 'Today' ? getCurrentProgram(programs) : programs[0];
 
-  const message = activeProgram ? `Reminder set for ${activeProgram.title} at ${activeProgram.time}.` : 'No program selected for reminder.';
+  const message = activeProgram ? `Reminder set for ${activeProgram.title} at ${formatProgramTime(activeProgram.time)} Uganda time.` : 'No program selected for reminder.';
   alert(message);
 }
 
 function shareSchedule() {
   const day = scheduleState.selectedDay || 'Today';
   const programs = getProgramsForDay(day);
-  const text = `BWE TV schedule for ${day}: ${programs.slice(0, 4).map((program) => `${program.time} ${program.title}`).join(' • ')}`;
+  const text = `BWE TV schedule for ${day} (Uganda time): ${programs.slice(0, 4).map((program) => `${formatProgramTime(program.time)} ${program.title}`).join(' • ')}`;
 
   if (navigator.share) {
     navigator.share({ title: 'BWE TV Program Schedule', text }).catch(() => {});
@@ -405,8 +410,8 @@ function shareSchedule() {
 function downloadSchedule() {
   const day = scheduleState.selectedDay || 'Today';
   const programs = getProgramsForDay(day);
-  const text = programs.map((program) => `${program.time} - ${program.title} (${program.type}) - ${program.host}`).join('\n');
-  const blob = new Blob([`BWE TV ${day} Schedule\n\n${text}`], { type: 'text/plain;charset=utf-8' });
+  const text = programs.map((program) => `${formatProgramTime(program.time)} - ${program.title} (${program.type}) - ${program.host}`).join('\n');
+  const blob = new Blob([`BWE TV ${day} Schedule (Uganda time)\n\n${text}`], { type: 'text/plain;charset=utf-8' });
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.href = url;
