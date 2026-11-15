@@ -167,7 +167,7 @@ function renderFeaturedPrograms() {
   const nextDay = !programs.some((_, index) => getProgramStatus(programs, index, nowMinutes) !== 'done');
   if (nextDay) programs = getProgramsForDay(tomorrow);
   if (!programs.length) {
-    container.replaceChildren();
+    container.innerHTML = nextDay ? '<p class="md:col-span-2 xl:col-span-3">No more programs today. No programs are scheduled for tomorrow.</p>' : '';
     delete container.dataset.signature;
     return;
   }
@@ -178,7 +178,7 @@ function renderFeaturedPrograms() {
 
   if (rebuild) {
     container.dataset.signature = signature;
-    container.innerHTML = picks.map((pick, i) => {
+    container.innerHTML = (nextDay ? '<p class="md:col-span-2 xl:col-span-3">No more programs today. Coming up tomorrow:</p>' : '') + picks.map((pick, i) => {
       const { program, status } = pick;
       const isNext = firstUpcomingKey && firstUpcomingKey.program === program;
       const badge = status === 'live'
@@ -190,7 +190,7 @@ function renderFeaturedPrograms() {
                  data-index="${pick.index}" data-status="${status}">
           <div class="mb-3 flex items-center justify-between gap-3">
             <span class="rounded-full border border-red-200 bg-red-50 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.15em] text-red-700">${escapeProgramHtml(program.type)}</span>
-            <span class="text-xs font-semibold text-gray-600">${escapeProgramHtml(program.time)}</span>
+            <span class="text-xs font-semibold text-gray-600">${nextDay ? 'Tomorrow, ' : ''}${escapeProgramHtml(program.time)}</span>
           </div>
           <h3 class="text-xl font-bold text-gray-900">${escapeProgramHtml(program.title)}</h3>
           <p class="mt-2 text-sm text-gray-600">${escapeProgramHtml(program.host)}</p>
@@ -239,39 +239,41 @@ function renderLiveProgramStatus() {
 function initProgramInteractions() {
   const container = document.getElementById('featured-programs');
   renderLiveProgramStatus();
-  if (!container || container.dataset.bound) return;
-  container.dataset.bound = '1';
+  if (container && !container.dataset.bound) {
+    container.dataset.bound = '1';
+    const toggle = (card) => {
+      const open = card.classList.toggle('program-open');
+      card.setAttribute('aria-expanded', String(open));
+      const more = card.querySelector('.program-more');
+      if (more) more.textContent = open ? 'Hide details ▴' : 'Tap for details ▾';
+    };
 
-  const toggle = (card) => {
-    const open = card.classList.toggle('program-open');
-    card.setAttribute('aria-expanded', String(open));
-    const more = card.querySelector('.program-more');
-    if (more) more.textContent = open ? 'Hide details ▴' : 'Tap for details ▾';
+    container.addEventListener('click', (event) => {
+      const card = event.target.closest('.program-card');
+      if (card) toggle(card);
+    });
+    container.addEventListener('keydown', (event) => {
+      if (event.key !== 'Enter' && event.key !== ' ') return;
+      const card = event.target.closest('.program-card');
+      if (!card) return;
+      event.preventDefault();
+      toggle(card);
+    });
+  }
+
+  if (!container && !document.getElementById('scheduleContainer') && !document.getElementById('live-program-info')) return;
+  let lastDay = getTodayLabel();
+  const refresh = () => {
+    if (document.hidden) return;
+    renderFeaturedPrograms();
+    renderLiveProgramStatus();
+    renderSchedule();
+    const today = getTodayLabel();
+    if (today !== lastDay) renderWeekOverview();
+    lastDay = today;
   };
-
-  container.addEventListener('click', (event) => {
-    const card = event.target.closest('.program-card');
-    if (card) toggle(card);
-  });
-  container.addEventListener('keydown', (event) => {
-    if (event.key !== 'Enter' && event.key !== ' ') return;
-    const card = event.target.closest('.program-card');
-    if (!card) return;
-    event.preventDefault();
-    toggle(card);
-  });
-
-  renderFeaturedPrograms();
-  setInterval(() => {
-    if (document.hidden) return;
-    renderFeaturedPrograms();
-    renderLiveProgramStatus();
-  }, 30000);
-  document.addEventListener('visibilitychange', () => {
-    if (document.hidden) return;
-    renderFeaturedPrograms();
-    renderLiveProgramStatus();
-  });
+  setInterval(refresh, 30000);
+  document.addEventListener('visibilitychange', refresh);
 }
 
 function renderWeekOverview() {

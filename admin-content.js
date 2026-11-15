@@ -213,7 +213,7 @@
       const snapshot = await getDb().collection("settings").doc("homeContent").get();
       const data = snapshot.exists ? snapshot.data() : {};
       document.getElementById("announcementInput").value = data.announcement || "";
-      document.getElementById("homeHeadingInput").value = data.featuredHeading || "Today’s Programs";
+      document.getElementById("homeHeadingInput").value = data.featuredHeading || "Program Schedule";
       document.getElementById("homeIntroInput").value = data.featuredIntro || "Catch what is on now and what is coming up next across the BWE TV schedule.";
       document.getElementById("homeHeroHeadingInput").value = data.heroHeading || "Watch BWE TV live and stay connected with your community";
       document.getElementById("homeHeroIntroInput").value = data.heroIntro || "Community stories, local voices, and the moments that matter most — streamed live across Bweyale and beyond.";
