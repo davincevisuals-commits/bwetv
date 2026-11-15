@@ -63,6 +63,8 @@ Before release, test Firebase sign-in and chat on a physical Android device. The
 
 The **Build Android APK** GitHub Actions workflow also builds the debug APK on pushes that change app or website files. Download `app-debug.apk` from the `bwetv-android-debug-apk` artifact on the completed workflow run.
 
+The public Android download page is `download.html`. To publish or update its APK, run **Build signed Android AAB** in GitHub Actions on `main` and provide a new release tag (for example `v1.0.0`). The workflow builds a signed APK with the configured Android signing secrets and publishes it as `bwetv-android.apk` on a GitHub Release; the website download link points to the latest release.
+
 ## Live Streaming Setup
 
 To connect your streaming server:
