@@ -34,25 +34,114 @@ test("schedule uses Kampala's weekday and time regardless of device timezone", (
   assert.equal(vm.runInContext("getCurrentProgram(getProgramsForDay('Today'))", context), null);
 });
 
-test("schedule identifies current and next programs and does not invent an overnight show", () => {
-  const morning = runScript("content.js", { Date: dateAt("2026-11-06T03:30:00Z") });
+test("schedule identifies current and next programs within broadcast hours", () => {
+  const morning = runScript("content.js", { Date: dateAt("2026-11-06T04:30:00Z") });
   assert.equal(vm.runInContext("getCurrentProgram(getProgramsForDay('Today')).title", morning), "Morning Rise");
   assert.equal(vm.runInContext("getNextProgram(getProgramsForDay('Today')).title", morning), "Good Morning Kiryandongo");
-  const evening = runScript("content.js", { Date: dateAt("2026-11-06T19:00:00Z") });
-  assert.equal(vm.runInContext("getCurrentProgram(getProgramsForDay('Today'))", evening), null);
-  assert.equal(vm.runInContext("getNextProgram(getProgramsForDay('Today'))", evening), null);
+  const evening = runScript("content.js", { Date: dateAt("2026-11-06T18:00:00Z") });
+  assert.equal(vm.runInContext("getCurrentProgram(getProgramsForDay('Today')).title", evening), "Weekend Preview");
 });
 
-test("the previous day's last program can continue across midnight", () => {
-  const context = runScript("content.js", { Date: dateAt("2026-11-06T21:15:00Z") });
-  vm.runInContext(`PROGRAM_DATA.Friday = [{ time: "23:30", title: "Late show" }]`, context);
-  assert.equal(vm.runInContext("getCurrentProgram(getProgramsForDay('Today')).title", context), "Late show");
+test("every default lineup runs from 07:30 to 23:30 and has an evening program at 21:00", () => {
+  const context = runScript("content.js");
+  vm.runInContext(`
+    for (const day of DAYS_OF_WEEK) {
+      const programs = getProgramsForDay(day);
+      if (getProgramWindow(programs, 0).start !== 450) throw new Error(day + ' starts late');
+      if (getProgramWindow(programs, programs.length - 1).end !== 1410) throw new Error(day + ' ends early');
+      for (let minute = 450; minute < 1410; minute += 1) {
+        if (!programs.some((_, index) => getProgramStatus(programs, index, minute) === 'live')) {
+          throw new Error(day + ' has a gap at ' + minute);
+        }
+      }
+      if (!programs.some((program, index) => getProgramStatus(programs, index, 1260) === 'live' && !/breakfast|morning/i.test(program.title))) {
+        throw new Error(day + ' has no evening program at 21:00');
+      }
+    }
+  `, context);
+});
+
+test("broadcast boundaries and sparse saved schedules never extend breakfast into the evening", () => {
+  for (const [iso, expected] of [
+    ["2026-11-09T04:29:00Z", null],
+    ["2026-11-09T04:30:00Z", "Bweyale Breakfast"],
+    ["2026-11-09T20:29:00Z", "Cultural Roots"],
+    ["2026-11-09T20:30:00Z", null]
+  ]) {
+    const context = runScript("content.js", { Date: dateAt(iso) });
+    assert.equal(vm.runInContext("getCurrentProgram(getProgramsForDay('Today'))?.title || null", context), expected);
+  }
+  const context = runScript("content.js", { Date: dateAt("2026-11-09T18:00:00Z") });
+  vm.runInContext(`PROGRAM_DATA.Monday = [
+    { time: "07:30", title: "Bweyale Breakfast" },
+    { time: "22:00", title: "Late show" }
+  ]`, context);
+  assert.equal(vm.runInContext("getCurrentProgram(getProgramsForDay('Today'))", context), null);
+  assert.equal(vm.runInContext("getNextProgram(getProgramsForDay('Today')).title", context), "Late show");
+  assert.equal(vm.runInContext("pickFeaturedPrograms(getProgramsForDay('Today'), 1260, 3)[0].program.title", context), "Late show");
+  vm.runInContext(`PROGRAM_DATA.Tuesday = [{ time: "23:30", title: "Outside hours" }]`, context);
+  assert.equal(vm.runInContext("pickFeaturedPrograms(PROGRAM_DATA.Tuesday, -1, 3).length", context), 0);
+});
+
+test("admin can load estimated slots without saving or changing stream status", () => {
+  const nodes = new Map();
+  function node(id) {
+    if (!nodes.has(id)) nodes.set(id, {
+      value: "", checked: false, listeners: {},
+      addEventListener(type, handler) { this.listeners[type] = handler; }
+    });
+    return nodes.get(id);
+  }
+  const document = {
+    getElementById: node,
+    addEventListener(type, handler) { if (type === "DOMContentLoaded") this.ready = handler; }
+  };
+  let confirmed = false;
+  const window = { BWEScheduleDefaults: { Monday: [{ time: "07:30", title: "Breakfast" }] }, firebase: { auth() {} } };
+  runScript("admin-content.js", { document, window, confirm: () => confirmed });
+  document.ready();
+  node("scheduleJsonInput").value = "existing unsaved edits";
+  node("streamEnabledInput").checked = false;
+  node("loadEstimatedScheduleButton").listeners.click();
+  assert.equal(node("scheduleJsonInput").value, "existing unsaved edits");
+  confirmed = true;
+  node("loadEstimatedScheduleButton").listeners.click();
+  assert.deepEqual(JSON.parse(node("scheduleJsonInput").value), window.BWEScheduleDefaults);
+  assert.equal(node("streamEnabledInput").checked, false);
+  assert.match(node("dashboardStatus").textContent, /Review it and save/);
+});
+
+test("live status respects broadcast hours, missing program details, and the manual stream setting", () => {
+  let now = "2026-11-09T18:00:00Z";
+  class Clock extends Date {
+    constructor(...args) { super(...(args.length ? args : [now])); }
+  }
+  const label = { dataset: {}, textContent: "" };
+  const info = { textContent: "" };
+  const document = {
+    getElementById: (id) => id === "live-program-label" ? label : id === "live-program-info" ? info : null,
+    addEventListener() {}
+  };
+  const context = runScript("content.js", { document, Date: Clock });
+  vm.runInContext("renderLiveProgramStatus()", context);
+  assert.equal(label.textContent, "Streaming now");
+  assert.match(info.textContent, /^Cultural Roots/);
+  vm.runInContext(`PROGRAM_DATA.Monday = [{ time: "07:30", title: "Bweyale Breakfast" }]`, context);
+  vm.runInContext("renderLiveProgramStatus()", context);
+  assert.equal(info.textContent, "Program details are not available for this time");
+  now = "2026-11-09T20:30:00Z";
+  vm.runInContext("renderLiveProgramStatus()", context);
+  assert.equal(label.textContent, "Outside broadcast hours");
+  label.dataset.streamEnabled = "false";
+  vm.runInContext("renderLiveProgramStatus()", context);
+  assert.equal(label.textContent, "Stream offline");
+  assert.equal(info.textContent, "The stream is currently offline");
 });
 
 test("homepage identifies tomorrow's programs after the final show ends", () => {
   const container = { dataset: {}, innerHTML: "", querySelectorAll: () => [] };
   const document = { getElementById: (id) => id === "featured-programs" ? container : null, addEventListener() {} };
-  const context = runScript("content.js", { document, Date: dateAt("2026-11-15T18:00:00Z") });
+  const context = runScript("content.js", { document, Date: dateAt("2026-11-15T20:30:00Z") });
   vm.runInContext("renderFeaturedPrograms()", context);
   assert.match(container.innerHTML, /No more programs today\. Coming up tomorrow:/);
   assert.match(container.innerHTML, /Tomorrow, 07:30/);
@@ -61,7 +150,7 @@ test("homepage identifies tomorrow's programs after the final show ends", () => 
 });
 
 test("schedule page refreshes live status and day when time passes", () => {
-  let now = "2026-11-06T17:15:00Z";
+  let now = "2026-11-06T18:00:00Z";
   class Clock extends Date {
     constructor(...args) { super(...(args.length ? args : [now])); }
   }
@@ -81,9 +170,9 @@ test("schedule page refreshes live status and day when time passes", () => {
   runScript("content.js", { document, Date: Clock, setInterval: (handler) => { refresh = handler; } });
   listeners.DOMContentLoaded();
   assert.match(nodes.currentShowInfo.innerHTML, /Weekend Preview/);
-  now = "2026-11-06T18:30:00Z";
+  now = "2026-11-06T20:30:00Z";
   refresh();
-  assert.match(nodes.currentShowInfo.innerHTML, /Off air/);
+  assert.match(nodes.currentShowInfo.innerHTML, /Outside broadcast hours/);
   assert.doesNotMatch(nodes.currentShowInfo.innerHTML, /Weekend Preview/);
   now = "2026-11-06T21:10:00Z";
   listeners.visibilitychange();

@@ -140,8 +140,9 @@
       }
     });
     document.querySelectorAll(".live-status-bar strong").forEach((label) => {
-      label.textContent = isEnabled ? "Streaming now" : "Stream offline";
+      label.dataset.streamEnabled = String(isEnabled);
     });
+    if (window.refreshBWELiveProgramStatus) window.refreshBWELiveProgramStatus();
   }
 
   function applyHomeContent(data) {
