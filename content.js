@@ -8,65 +8,68 @@ const scheduleState = {
 
 const PROGRAM_DATA = {
   Monday: [
-    { time: "06:00", title: "Morning Rise", host: "Moses & Lydia", summary: "A vibrant start with local news, weather, devotions and community updates.", type: "Live" },
     { time: "07:30", title: "Bweyale Breakfast", host: "The BWE Team", summary: "Breakfast conversation, local stories, and community highlights from the district.", type: "Talk" },
-    { time: "10:00", title: "Local Voices", host: "Community Correspondents", summary: "Real stories from families, traders, and youth across Bweyale and Kiryandongo.", type: "Interview" },
-    { time: "12:30", title: "Lunch Time Update", host: "News Desk", summary: "Short, sharp midday updates on politics, agriculture, health and community events.", type: "News" },
-    { time: "18:00", title: "Community News", host: "BWE Reporting Team", summary: "The most important local stories, public notices and district developments.", type: "Live" },
-    { time: "19:30", title: "Cultural Roots", host: "Teddy Achen", summary: "Music, heritage and stories that keep local culture alive across generations.", type: "Culture" }
+    { time: "09:00", title: "Morning Rise", host: "Moses & Lydia", summary: "A vibrant start with local news, weather, devotions and community updates.", type: "Live" },
+    { time: "11:00", title: "Local Voices", host: "Community Correspondents", summary: "Real stories from families, traders, and youth across Bweyale and Kiryandongo.", type: "Interview" },
+    { time: "13:30", title: "Lunch Time Update", host: "News Desk", summary: "Short, sharp midday updates on politics, agriculture, health and community events.", type: "News" },
+    { time: "17:30", title: "Community News", host: "BWE Reporting Team", summary: "The most important local stories, public notices and district developments.", type: "Live" },
+    { time: "20:30", title: "Cultural Roots", host: "Teddy Achen", summary: "Music, heritage and stories that keep local culture alive across generations.", type: "Culture" }
   ],
   Tuesday: [
-    { time: "06:00", title: "Morning Rise", host: "Moses & Lydia", summary: "Morning motivation, local weather, and community briefing.", type: "Live" },
-    { time: "08:00", title: "Women in Action", host: "Community Studio", summary: "Empowering women through leadership, entrepreneurship and wellbeing stories.", type: "Talk" },
+    { time: "07:30", title: "Morning Rise", host: "Moses & Lydia", summary: "Morning motivation, local weather, and community briefing.", type: "Live" },
+    { time: "09:00", title: "Women in Action", host: "Community Studio", summary: "Empowering women through leadership, entrepreneurship and wellbeing stories.", type: "Talk" },
     { time: "11:00", title: "Agri Pulse", host: "Farm & Market Desk", summary: "Farming tips, market prices and practical advice for local households.", type: "Agriculture" },
-    { time: "13:00", title: "Lunch Time Update", host: "News Desk", summary: "Daily updates on local issues, service delivery and public notices.", type: "News" },
-    { time: "17:45", title: "Youth Voices", host: "Young Presenters", summary: "A forum for youth ideas, talents, and community conversations.", type: "Youth" },
-    { time: "19:30", title: "Business Update", host: "Market Watch", summary: "Business opportunities, small enterprise stories and economic updates.", type: "Business" }
+    { time: "13:30", title: "Lunch Time Update", host: "News Desk", summary: "Daily updates on local issues, service delivery and public notices.", type: "News" },
+    { time: "17:30", title: "Youth Voices", host: "Young Presenters", summary: "A forum for youth ideas, talents, and community conversations.", type: "Youth" },
+    { time: "20:30", title: "Business Update", host: "Market Watch", summary: "Business opportunities, small enterprise stories and economic updates.", type: "Business" }
   ],
   Wednesday: [
-    { time: "06:00", title: "Morning Rise", host: "Moses & Lydia", summary: "Local news and warm-up conversation to start the day.", type: "Live" },
-    { time: "08:15", title: "Health & Wellness", host: "BWE Health Desk", summary: "Public health awareness, family wellness and lifestyle guidance.", type: "Health" },
-    { time: "10:30", title: "Education Corner", host: "School & Learning Desk", summary: "Learning opportunities, school updates and student stories from the region.", type: "Education" },
-    { time: "13:00", title: "Lunch Time Update", host: "News Desk", summary: "A short midday bulletin covering district updates and public information.", type: "News" },
-    { time: "18:00", title: "Community News", host: "BWE Reporting Team", summary: "A live local briefing on community events, public notices and district activity.", type: "Live" },
-    { time: "20:00", title: "Entertainment Express", host: "BWE Studio", summary: "Music, lifestyle trends, and feel-good programming for the evening audience.", type: "Entertainment" }
+    { time: "07:30", title: "Morning Rise", host: "Moses & Lydia", summary: "Local news and warm-up conversation to start the day.", type: "Live" },
+    { time: "09:00", title: "Health & Wellness", host: "BWE Health Desk", summary: "Public health awareness, family wellness and lifestyle guidance.", type: "Health" },
+    { time: "11:00", title: "Education Corner", host: "School & Learning Desk", summary: "Learning opportunities, school updates and student stories from the region.", type: "Education" },
+    { time: "13:30", title: "Lunch Time Update", host: "News Desk", summary: "A short midday bulletin covering district updates and public information.", type: "News" },
+    { time: "17:30", title: "Community News", host: "BWE Reporting Team", summary: "A live local briefing on community events, public notices and district activity.", type: "Live" },
+    { time: "20:30", title: "Entertainment Express", host: "BWE Studio", summary: "Music, lifestyle trends, and feel-good programming for the evening audience.", type: "Entertainment" }
   ],
   Thursday: [
-    { time: "06:00", title: "Morning Rise", host: "Moses & Lydia", summary: "A strong start with devotion, weather, and local headlines.", type: "Live" },
-    { time: "08:00", title: "Faith & Family", host: "Community Leaders", summary: "Family life, faith perspectives, and practical social guidance.", type: "Talk" },
-    { time: "10:30", title: "Small Business Today", host: "Market Desk", summary: "Helping local entrepreneurs grow and thrive in the district economy.", type: "Business" },
-    { time: "12:45", title: "Lunch Time Update", host: "News Desk", summary: "Timely coverage of district headlines and local developments.", type: "News" },
-    { time: "18:00", title: "Community News", host: "BWE Reporting Team", summary: "Stories from homes, markets, schools, and public institutions across the region.", type: "Live" },
-    { time: "19:30", title: "Sports & Culture", host: "BWE Sports Desk", summary: "A mix of district sports highlights and local cultural discussions.", type: "Sports" }
+    { time: "07:30", title: "Morning Rise", host: "Moses & Lydia", summary: "A strong start with devotion, weather, and local headlines.", type: "Live" },
+    { time: "09:00", title: "Faith & Family", host: "Community Leaders", summary: "Family life, faith perspectives, and practical social guidance.", type: "Talk" },
+    { time: "11:00", title: "Small Business Today", host: "Market Desk", summary: "Helping local entrepreneurs grow and thrive in the district economy.", type: "Business" },
+    { time: "13:30", title: "Lunch Time Update", host: "News Desk", summary: "Timely coverage of district headlines and local developments.", type: "News" },
+    { time: "17:30", title: "Community News", host: "BWE Reporting Team", summary: "Stories from homes, markets, schools, and public institutions across the region.", type: "Live" },
+    { time: "20:30", title: "Sports & Culture", host: "BWE Sports Desk", summary: "A mix of district sports highlights and local cultural discussions.", type: "Sports" }
   ],
   Friday: [
-    { time: "06:00", title: "Morning Rise", host: "Moses & Lydia", summary: "Local briefing to begin the day with updates, weather and motivation.", type: "Live" },
-    { time: "08:00", title: "Good Morning Kiryandongo", host: "BWE Studio", summary: "A cheerful community conversation with updates from the district.", type: "Talk" },
+    { time: "07:30", title: "Morning Rise", host: "Moses & Lydia", summary: "Local briefing to begin the day with updates, weather and motivation.", type: "Live" },
+    { time: "09:00", title: "Good Morning Kiryandongo", host: "BWE Studio", summary: "A cheerful community conversation with updates from the district.", type: "Talk" },
     { time: "11:00", title: "Local Leadership Forum", host: "Public Affairs Desk", summary: "Discussion on service delivery, civic engagement and district progress.", type: "Public Affairs" },
-    { time: "14:00", title: "Market Watch", host: "Trade Desk", summary: "Daily market trends, trade stories and local shopping opportunities.", type: "Business" },
-    { time: "18:00", title: "Community News", host: "BWE Reporting Team", summary: "Friday community updates and the latest happenings across the district.", type: "Live" },
-    { time: "20:00", title: "Weekend Preview", host: "BWE Team", summary: "A look ahead at the biggest stories and upcoming events across BWE TV.", type: "Preview" }
+    { time: "13:30", title: "Market Watch", host: "Trade Desk", summary: "Daily market trends, trade stories and local shopping opportunities.", type: "Business" },
+    { time: "17:30", title: "Community News", host: "BWE Reporting Team", summary: "Friday community updates and the latest happenings across the district.", type: "Live" },
+    { time: "20:30", title: "Weekend Preview", host: "BWE Team", summary: "A look ahead at the biggest stories and upcoming events across BWE TV.", type: "Preview" }
   ],
   Saturday: [
-    { time: "08:00", title: "Weekend Morning Live", host: "BWE Studio", summary: "A relaxed look at community life, culture and local updates.", type: "Live" },
-    { time: "10:00", title: "Family Focus", host: "Community Presenters", summary: "Family matters, parenting advice and local perspectives.", type: "Family" },
-    { time: "12:00", title: "Market Day", host: "Trade Desk", summary: "Fresh updates on market movement, commodities and local commerce.", type: "Business" },
-    { time: "15:00", title: "Music & Culture", host: "Cultural Desk", summary: "A festival of local sound, heritage and cultural stories.", type: "Culture" },
-    { time: "18:30", title: "Community News", host: "BWE Reporting Team", summary: "Local issues, public notices and stories from across Bweyale.", type: "Live" },
-    { time: "20:00", title: "Weekend Wrap", host: "BWE Desk", summary: "A recap of the week’s biggest moments and highlights.", type: "Wrap" }
+    { time: "07:30", title: "Weekend Morning Live", host: "BWE Studio", summary: "A relaxed look at community life, culture and local updates.", type: "Live" },
+    { time: "09:00", title: "Family Focus", host: "Community Presenters", summary: "Family matters, parenting advice and local perspectives.", type: "Family" },
+    { time: "11:00", title: "Market Day", host: "Trade Desk", summary: "Fresh updates on market movement, commodities and local commerce.", type: "Business" },
+    { time: "13:30", title: "Music & Culture", host: "Cultural Desk", summary: "A festival of local sound, heritage and cultural stories.", type: "Culture" },
+    { time: "17:30", title: "Community News", host: "BWE Reporting Team", summary: "Local issues, public notices and stories from across Bweyale.", type: "Live" },
+    { time: "20:30", title: "Weekend Wrap", host: "BWE Desk", summary: "A recap of the week’s biggest moments and highlights.", type: "Wrap" }
   ],
   Sunday: [
     { time: "07:30", title: "Worship & Reflection", host: "Community Chaplaincy", summary: "Faith, inspiration and uplifting reflections to start the day.", type: "Faith" },
     { time: "09:00", title: "Sunday Family Talk", host: "BWE Studio", summary: "Family conversations, community stories and uplifting dialogue.", type: "Talk" },
     { time: "11:00", title: "Local Worship Service", host: "Community Churches", summary: "A live church service and spiritual encouragement.", type: "Live" },
-    { time: "14:00", title: "Community Highlights", host: "District Desk", summary: "The people, places and stories shaping life in the region.", type: "Community" },
-    { time: "18:00", title: "Sunday Evening News", host: "BWE Reporting Team", summary: "A wrap-up of the week’s community updates and local developments.", type: "Live" },
-    { time: "19:30", title: "Faith & Hope", host: "Studio Panel", summary: "An uplifting end-of-day conversation rooted in faith and community resilience.", type: "Talk" }
+    { time: "13:30", title: "Community Highlights", host: "District Desk", summary: "The people, places and stories shaping life in the region.", type: "Community" },
+    { time: "17:30", title: "Sunday Evening News", host: "BWE Reporting Team", summary: "A wrap-up of the week’s community updates and local developments.", type: "Live" },
+    { time: "20:30", title: "Faith & Hope", host: "Studio Panel", summary: "An uplifting end-of-day conversation rooted in faith and community resilience.", type: "Talk" }
   ]
 };
 
 const DAYS_OF_WEEK = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 const BROADCAST_TIME_ZONE = "Africa/Kampala";
+const BROADCAST_START = 7 * 60 + 30;
+const BROADCAST_END = 23 * 60 + 30;
+const MAX_PROGRAM_MINUTES = 4 * 60;
 
 function getBroadcastTime() {
   const parts = new Intl.DateTimeFormat("en-GB", {
@@ -97,20 +100,11 @@ function getCurrentProgram(programs) {
   const nowMinutes = getBroadcastTime().minutes;
 
   for (let index = 0; index < programs.length; index += 1) {
-    const program = programs[index];
-    const start = timeToMinutes(program.time);
-    const end = index < programs.length - 1 ? timeToMinutes(programs[index + 1].time) : start + 90;
-    if (nowMinutes >= start && nowMinutes < end) {
-      return program;
+    if (getProgramStatus(programs, index, nowMinutes) === 'live') {
+      return programs[index];
     }
   }
 
-  if (programs === getProgramsForDay('Today')) {
-    const yesterday = DAYS_OF_WEEK[(DAYS_OF_WEEK.indexOf(getTodayLabel()) + 6) % DAYS_OF_WEEK.length];
-    const previous = getProgramsForDay(yesterday);
-    const last = previous[previous.length - 1];
-    if (last && timeToMinutes(last.time) + 90 > 1440 + nowMinutes) return last;
-  }
   return null;
 }
 
@@ -118,7 +112,7 @@ function getNextProgram(programs) {
   if (!programs.length) return null;
 
   const nowMinutes = getBroadcastTime().minutes;
-  return programs.find((program) => timeToMinutes(program.time) > nowMinutes) || null;
+  return programs.find((_, index) => getProgramStatus(programs, index, nowMinutes) === 'upcoming') || null;
 }
 
 function escapeProgramHtml(value) {
@@ -134,13 +128,16 @@ function formatMinutes(total) {
 }
 
 function getProgramWindow(programs, index) {
-  const start = timeToMinutes(programs[index].time);
-  const end = index < programs.length - 1 ? timeToMinutes(programs[index + 1].time) : start + 90;
+  const scheduledStart = timeToMinutes(programs[index].time);
+  const start = Math.max(scheduledStart, BROADCAST_START);
+  const nextStart = index < programs.length - 1 ? timeToMinutes(programs[index + 1].time) : BROADCAST_END;
+  const end = Math.min(nextStart, scheduledStart + MAX_PROGRAM_MINUTES, BROADCAST_END);
   return { start, end };
 }
 
 function getProgramStatus(programs, index, nowMinutes) {
   const { start, end } = getProgramWindow(programs, index);
+  if (end <= start) return 'done';
   if (nowMinutes >= start && nowMinutes < end) return 'live';
   if (nowMinutes < start) return 'upcoming';
   return 'done';
@@ -148,13 +145,9 @@ function getProgramStatus(programs, index, nowMinutes) {
 
 // Shows the live program first, then the next ones; wraps to tomorrow's start when the day is over.
 function pickFeaturedPrograms(programs, nowMinutes, count) {
-  const live = programs.findIndex((_, i) => getProgramStatus(programs, i, nowMinutes) === 'live');
-  const firstUpcoming = programs.findIndex((_, i) => getProgramStatus(programs, i, nowMinutes) === 'upcoming');
-  const startIndex = live >= 0 ? live : (firstUpcoming >= 0 ? firstUpcoming : 0);
-  return programs.slice(startIndex, startIndex + count).map((program) => {
-    const index = programs.indexOf(program);
-    return { program, index, status: live >= 0 || firstUpcoming >= 0 ? getProgramStatus(programs, index, nowMinutes) : 'upcoming' };
-  });
+  return programs.map((program, index) => ({
+    program, index, status: getProgramStatus(programs, index, nowMinutes)
+  })).filter((pick) => pick.status !== 'done').slice(0, count);
 }
 
 function renderFeaturedPrograms() {
@@ -166,12 +159,12 @@ function renderFeaturedPrograms() {
   const tomorrow = DAYS_OF_WEEK[(DAYS_OF_WEEK.indexOf(getTodayLabel()) + 1) % DAYS_OF_WEEK.length];
   const nextDay = !programs.some((_, index) => getProgramStatus(programs, index, nowMinutes) !== 'done');
   if (nextDay) programs = getProgramsForDay(tomorrow);
-  if (!programs.length) {
+  const picks = pickFeaturedPrograms(programs, nextDay ? -1 : nowMinutes, 3);
+  if (!picks.length) {
     container.innerHTML = nextDay ? '<p class="md:col-span-2 xl:col-span-3">No more programs today. No programs are scheduled for tomorrow.</p>' : '';
     delete container.dataset.signature;
     return;
   }
-  const picks = pickFeaturedPrograms(programs, nextDay ? -1 : nowMinutes, 3);
   const firstUpcomingKey = picks.find((p) => p.status === 'upcoming');
   const signature = `${nextDay}|` + picks.map((p) => `${p.program.time}${p.program.title}${p.status}`).join('|');
   const rebuild = container.dataset.signature !== signature;
@@ -227,12 +220,19 @@ function renderLiveProgramStatus() {
   const info = document.getElementById('live-program-info');
   if (!info) return;
 
+  const label = document.getElementById('live-program-label');
+  const nowMinutes = getBroadcastTime().minutes;
+  const duringBroadcast = nowMinutes >= BROADCAST_START && nowMinutes < BROADCAST_END;
+  const streamEnabled = !label || label.dataset.streamEnabled !== 'false';
   const programs = getProgramsForDay('Today');
   const liveProgram = getCurrentProgram(programs);
-  const text = liveProgram
+  const text = !streamEnabled ? 'The stream is currently offline'
+    : !duringBroadcast ? 'Broadcast hours: 07:30–23:30 Uganda time'
+    : liveProgram
     ? `${liveProgram.title} — ${liveProgram.summary}`
-    : 'Local news, culture, and live community coverage';
+    : 'Program details are not available for this time';
 
+  if (label) label.textContent = !streamEnabled ? 'Stream offline' : duringBroadcast ? 'Streaming now' : 'Outside broadcast hours';
   if (info.textContent !== text) info.textContent = text;
 }
 
@@ -312,6 +312,8 @@ function renderSchedule() {
   const programs = getProgramsForDay(activeDay);
   const currentProgram = activeDay === 'Today' ? getCurrentProgram(programs) : programs[0];
   const nextProgram = activeDay === 'Today' ? getNextProgram(programs) : programs[1] || programs[0];
+  const nowMinutes = getBroadcastTime().minutes;
+  const duringBroadcast = nowMinutes >= BROADCAST_START && nowMinutes < BROADCAST_END;
 
   if (title) {
     const dayTitle = activeDay === 'Today' ? getTodayLabel() : activeDay;
@@ -320,8 +322,8 @@ function renderSchedule() {
 
   if (currentInfo) {
     currentInfo.innerHTML = `
-      <p class="mb-1 text-xs font-bold uppercase tracking-[0.2em] text-yellow-200">${activeDay === 'Today' ? (currentProgram ? 'Now airing' : 'Off air') : 'Featured'}</p>
-      <p class="text-2xl font-bold text-white">${currentProgram ? escapeProgramHtml(currentProgram.title) : 'No programming available'}</p>
+      <p class="mb-1 text-xs font-bold uppercase tracking-[0.2em] text-yellow-200">${activeDay === 'Today' ? (currentProgram ? 'Now airing' : duringBroadcast ? 'Schedule unavailable' : 'Outside broadcast hours') : 'Featured'}</p>
+      <p class="text-2xl font-bold text-white">${currentProgram ? escapeProgramHtml(currentProgram.title) : 'No program details available'}</p>
       <p class="mt-1 text-sm text-white/85">${currentProgram ? `${escapeProgramHtml(currentProgram.time)} • ${escapeProgramHtml(currentProgram.host)}` : 'Check back later'}</p>
       ${nextProgram ? `<p class="mt-2 text-xs text-white/80">Up next: ${escapeProgramHtml(nextProgram.title)} at ${escapeProgramHtml(nextProgram.time)}</p>` : ''}
     `;
@@ -330,10 +332,8 @@ function renderSchedule() {
   if (container) {
     container.innerHTML = programs.map((program, index) => {
       const isLive = activeDay === 'Today' && currentProgram === program;
-      const nowMinutes = getBroadcastTime().minutes;
-      const programMinutes = timeToMinutes(program.time);
       const isNext = activeDay === 'Today' && nextProgram === program && !isLive;
-      const isPast = activeDay === 'Today' && programMinutes < nowMinutes && !isLive;
+      const isPast = activeDay === 'Today' && getProgramStatus(programs, index, nowMinutes) === 'done';
 
       return `
         <div class="schedule-item rounded-xl border ${isLive ? 'border-red-200 bg-red-50' : 'border-gray-200 bg-white'} p-4 shadow-sm">
@@ -449,6 +449,7 @@ if (typeof window !== 'undefined') {
     renderSchedule();
   };
   window.selectDay = selectDay;
+  window.refreshBWELiveProgramStatus = renderLiveProgramStatus;
   window.setReminder = setReminder;
   window.shareSchedule = shareSchedule;
   window.downloadSchedule = downloadSchedule;

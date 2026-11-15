@@ -590,6 +590,15 @@
     document.getElementById("cmsPageSelect").addEventListener("change", loadPage);
     document.getElementById("homeContentForm").addEventListener("submit", saveHomeContent);
     document.getElementById("scheduleEditorForm").addEventListener("submit", saveSchedule);
+    document.getElementById("loadEstimatedScheduleButton").addEventListener("click", () => {
+      if (!window.BWEScheduleDefaults) {
+        showStatus("The estimated schedule is unavailable. Reload the page and try again.", true);
+        return;
+      }
+      if (!confirm("Replace the schedule in the editor with the estimated lineup? Nothing will be saved until you click Save.")) return;
+      document.getElementById("scheduleJsonInput").value = JSON.stringify(window.BWEScheduleDefaults, null, 2);
+      showStatus("Estimated schedule loaded. Review it and save to publish.");
+    });
     document.getElementById("exportBackupButton").addEventListener("click", exportBackup);
     document.getElementById("exportShowsCsvButton").addEventListener("click", () => exportCsv("shows"));
     document.getElementById("exportEpisodesCsvButton").addEventListener("click", () => exportCsv("episodes"));

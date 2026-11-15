@@ -441,15 +441,16 @@
         <section class="card p-6">
           <div class="mb-5">
             <h3 class="text-xl font-bold text-gray-900">Broadcast schedule</h3>
-            <p class="mt-1 text-sm text-gray-600">JSON format: a weekday-keyed object containing arrays of programs with time, title, host, summary, and type.</p>
+            <p class="mt-1 text-sm text-gray-600">JSON format: a weekday-keyed object containing arrays of programs with time, title, host, summary, and type. Uganda broadcast hours are 07:30–23:30. Programs are assumed to last until the next start, up to four hours.</p>
           </div>
           <form id="scheduleEditorForm" class="space-y-4">
-            <textarea id="scheduleJsonInput" class="field font-mono text-sm" rows="16" spellcheck="false" placeholder='{"Monday":[{"time":"06:00","title":"Morning Rise","host":"BWE Team","summary":"Local updates.","type":"Live"}]}'></textarea>
+            <textarea id="scheduleJsonInput" class="field font-mono text-sm" rows="16" spellcheck="false" placeholder='{"Monday":[{"time":"07:30","title":"Morning Rise","host":"BWE Team","summary":"Local updates.","type":"Live"}]}'></textarea>
             <label class="inline-flex items-center gap-2 text-sm font-semibold text-gray-700">
               <input id="streamEnabledInput" type="checkbox" checked />
               Stream is online
             </label>
-            <div class="flex justify-end">
+            <div class="flex flex-wrap justify-end gap-3">
+              <button id="loadEstimatedScheduleButton" type="button" class="rounded-xl border border-gray-300 px-5 py-3 text-sm font-bold text-gray-700">Load estimated schedule</button>
               <button type="submit" class="rounded-xl bg-red-600 px-5 py-3 text-sm font-bold text-white hover:bg-red-700">Save schedule &amp; stream status</button>
             </div>
           </form>
@@ -582,9 +583,9 @@
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js" defer></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js" defer></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js" defer></script>
-  <script src="content.js?v=20261105" defer></script>
+  <script src="content.js?v=20261115-hours" defer></script>
   <script src="admin.js?v=20261106" defer></script>
-  <script src="admin-content.js?v=20261105" defer></script>
+  <script src="admin-content.js?v=20261115-hours" defer></script>
   <script src="admin-ops.js?v=20261106" defer></script>
 </body>
 </html>

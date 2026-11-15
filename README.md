@@ -99,7 +99,7 @@ Administrators, editors, and moderators can remove community posts in Operations
 
 The Content Studio JSON backup includes shows, episodes, settings, pages, page revisions, and media. It does not include Firebase Authentication accounts, roles, community posts, chat, analytics, newsletter subscriptions, or advertising inquiries. Keep separate backups of those services as appropriate. Restore merges documents and can partially complete if a batch fails.
 
-Schedules use Uganda time (Africa/Kampala) and update automatically while the page is open. The final program is assumed to last 90 minutes unless another program follows it. After it ends, the homepage labels the next day's programs as tomorrow's lineup.
+Schedules use Uganda time (Africa/Kampala), with estimated broadcast hours of 07:30–23:30, and update automatically while the page is open. Default program slots are estimates. Programs run until the next scheduled start, for at most four hours and no later than 23:30; gaps have no assigned program. After the day's lineup ends, the homepage labels the next day's programs as tomorrow's lineup. A schedule saved in Content Studio overrides the default slots; use **Load estimated schedule**, review it, and save to replace an existing saved schedule. The stream's online/offline setting remains a separate manual control.
 
 ## Advertising inquiries
 
