@@ -371,13 +371,6 @@
     }
   });
 
-  $('mobileMenuBtn').addEventListener('click', function () {
-    const nav = $('mobileMenu');
-    const expanded = this.getAttribute('aria-expanded') === 'true';
-    this.setAttribute('aria-expanded', String(!expanded));
-    nav.classList.toggle('hidden');
-  });
-
   document.querySelectorAll('[data-nav-link]').forEach(function (link) {
     if (link.getAttribute('href') === location.pathname.split('/').pop()) link.classList.add('nav-link-active');
   });
