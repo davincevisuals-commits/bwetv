@@ -49,6 +49,47 @@ test("the previous day's last program can continue across midnight", () => {
   assert.equal(vm.runInContext("getCurrentProgram(getProgramsForDay('Today')).title", context), "Late show");
 });
 
+test("homepage identifies tomorrow's programs after the final show ends", () => {
+  const container = { dataset: {}, innerHTML: "", querySelectorAll: () => [] };
+  const document = { getElementById: (id) => id === "featured-programs" ? container : null, addEventListener() {} };
+  const context = runScript("content.js", { document, Date: dateAt("2026-11-15T18:00:00Z") });
+  vm.runInContext("renderFeaturedPrograms()", context);
+  assert.match(container.innerHTML, /No more programs today\. Coming up tomorrow:/);
+  assert.match(container.innerHTML, /Tomorrow, 07:30/);
+  assert.match(container.innerHTML, /Bweyale Breakfast/);
+  assert.doesNotMatch(container.innerHTML, /On now/);
+});
+
+test("schedule page refreshes live status and day when time passes", () => {
+  let now = "2026-11-06T17:15:00Z";
+  class Clock extends Date {
+    constructor(...args) { super(...(args.length ? args : [now])); }
+  }
+  const nodes = {
+    scheduleContainer: { innerHTML: "" },
+    scheduleTitle: { textContent: "" },
+    currentShowInfo: { innerHTML: "" }
+  };
+  const listeners = {};
+  const document = {
+    hidden: false,
+    getElementById: (id) => nodes[id] || null,
+    querySelectorAll: () => [],
+    addEventListener: (type, handler) => { listeners[type] = handler; }
+  };
+  let refresh;
+  runScript("content.js", { document, Date: Clock, setInterval: (handler) => { refresh = handler; } });
+  listeners.DOMContentLoaded();
+  assert.match(nodes.currentShowInfo.innerHTML, /Weekend Preview/);
+  now = "2026-11-06T18:30:00Z";
+  refresh();
+  assert.match(nodes.currentShowInfo.innerHTML, /Off air/);
+  assert.doesNotMatch(nodes.currentShowInfo.innerHTML, /Weekend Preview/);
+  now = "2026-11-06T21:10:00Z";
+  listeners.visibilitychange();
+  assert.equal(nodes.scheduleTitle.textContent, "Saturday Schedule");
+});
+
 test("show cards escape text and attributes while retaining the show ID", () => {
   const context = runScript("show-episodes.js");
   context.input = {
