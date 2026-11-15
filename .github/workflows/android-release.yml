@@ -2,6 +2,11 @@ name: Build signed Android AAB
 
 on:
   workflow_dispatch:
+    inputs:
+      release_tag:
+        description: "Optional release tag to publish the APK publicly (for example v1.0.0)"
+        required: false
+        type: string
 
 permissions:
   contents: read
@@ -56,3 +61,34 @@ jobs:
             android/app/build/outputs/apk/release/app-release.apk
           if-no-files-found: error
           retention-days: 30
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bwetv-android-apk
+          path: android/app/build/outputs/apk/release/app-release.apk
+          if-no-files-found: error
+          retention-days: 30
+
+  publish-apk:
+    if: github.event_name == 'workflow_dispatch' && inputs.release_tag != ''
+    needs: release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: bwetv-android-apk
+          path: release-assets
+
+      - name: Publish APK release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: |
+          cp release-assets/app-release.apk release-assets/bwetv-android.apk
+          gh release create "$RELEASE_TAG" \
+            release-assets/bwetv-android.apk \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "BWE TV Android $RELEASE_TAG" \
+            --notes "Signed Android APK for BWE TV. Download bwetv-android.apk and install it on an Android device. If upgrading from a debug/test build, uninstall that build first."

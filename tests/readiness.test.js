@@ -69,6 +69,12 @@ test("home page loads the same HLS-capable player as the schedule", () => {
   assert.match(read("schedule.html"), /https:\/\/vjs\.zencdn\.net\/7\.20\.3\/video\.min\.js/);
 });
 
+test("homepage download link points to the official Android APK page", () => {
+  const homepage = read("index.html");
+  assert.match(homepage, /href="download\.html"[^>]*>Download Android app/);
+  assert.match(read("download.html"), /releases\/latest\/download\/bwetv-android\.apk/);
+});
+
 test("episode editor keeps draft and publish controls synchronized", async () => {
   const nodes = new Map();
   function node(id) {
