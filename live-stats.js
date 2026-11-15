@@ -147,15 +147,15 @@
       updates = updates.then(async () => {
         if (!state.connected) return;
         if (currentRef !== state.ref || !state.active) {
-          await currentRef.onDisconnect().cancel();
           await currentRef.remove();
+          await currentRef.onDisconnect().cancel();
           return;
         }
 
         await currentRef.onDisconnect().remove();
         if (currentRef !== state.ref || !state.connected || !state.active) {
-          await currentRef.onDisconnect().cancel();
           await currentRef.remove();
+          await currentRef.onDisconnect().cancel();
           return;
         }
         await currentRef.set(true);
@@ -171,8 +171,8 @@
         if (previousRef) {
           updates = updates.then(async () => {
             if (!state.connected) return;
-            await previousRef.onDisconnect().cancel();
             await previousRef.remove();
+            await previousRef.onDisconnect().cancel();
           }).catch(onError);
         }
         enqueueSync();
