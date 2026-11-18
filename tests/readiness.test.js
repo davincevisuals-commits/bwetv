@@ -42,6 +42,31 @@ test("schedule identifies current and next programs within broadcast hours", () 
   assert.equal(vm.runInContext("getCurrentProgram(getProgramsForDay('Today')).title", evening), "Weekend Preview");
 });
 
+test("viewer schedule uses the saved lineup and labels tomorrow after today's programs", () => {
+  let now = "2026-11-09T18:00:00Z";
+  class Clock extends Date {
+    constructor(...args) { super(...(args.length ? args : [now])); }
+  }
+  const nodes = { viewerProgramNow: {}, viewerProgramNext: {} };
+  const document = { getElementById: (id) => nodes[id] || null, querySelectorAll: () => [], addEventListener() {} };
+  const context = runScript("content.js", { document, Date: Clock });
+  context.window.applyBWESchedule({
+    Monday: [
+      { time: "21:00", title: "Evening", host: "", summary: "", type: "" },
+      { time: "22:00", title: "Late", host: "", summary: "", type: "" }
+    ],
+    Tuesday: [{ time: "07:30", title: "Tomorrow", host: "", summary: "", type: "" }]
+  });
+  assert.equal(nodes.viewerProgramNow.textContent, "Evening · 9:00 PM");
+  assert.equal(nodes.viewerProgramNext.textContent, "10:00 PM · Late");
+  now = "2026-11-09T20:30:00Z";
+  vm.runInContext("renderViewerSchedule()", context);
+  assert.equal(nodes.viewerProgramNow.textContent, "No program scheduled for this time.");
+  assert.equal(nodes.viewerProgramNext.textContent, "Tomorrow, 7:30 AM · Tomorrow");
+  context.window.applyBWESchedule({ Tuesday: [] });
+  assert.equal(nodes.viewerProgramNext.textContent, "No upcoming program listed.");
+});
+
 test("program times display AM and PM while retaining 24-hour schedule values", () => {
   const context = runScript("content.js");
   for (const [time, expected] of [

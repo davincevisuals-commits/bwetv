@@ -243,6 +243,23 @@ function renderLiveProgramStatus() {
   if (info.textContent !== text) info.textContent = text;
 }
 
+function renderViewerSchedule() {
+  const nowNode = document.getElementById('viewerProgramNow');
+  const nextNode = document.getElementById('viewerProgramNext');
+  if (!nowNode || !nextNode) return;
+  const programs = getProgramsForDay('Today');
+  const current = getCurrentProgram(programs);
+  let next = getNextProgram(programs);
+  let prefix = '';
+  if (!next) {
+    const tomorrow = DAYS_OF_WEEK[(DAYS_OF_WEEK.indexOf(getTodayLabel()) + 1) % DAYS_OF_WEEK.length];
+    next = pickFeaturedPrograms(getProgramsForDay(tomorrow), -1, 1)[0]?.program;
+    prefix = 'Tomorrow, ';
+  }
+  nowNode.textContent = current ? `${current.title} · ${formatProgramTime(current.time)}` : 'No program scheduled for this time.';
+  nextNode.textContent = next ? `${prefix}${formatProgramTime(next.time)} · ${next.title}` : 'No upcoming program listed.';
+}
+
 function initProgramInteractions() {
   const container = document.getElementById('featured-programs');
   renderLiveProgramStatus();
@@ -268,12 +285,13 @@ function initProgramInteractions() {
     });
   }
 
-  if (!container && !document.getElementById('scheduleContainer') && !document.getElementById('live-program-info')) return;
+  if (!container && !document.getElementById('scheduleContainer') && !document.getElementById('live-program-info') && !document.getElementById('viewerProgramNow')) return;
   let lastDay = getTodayLabel();
   const refresh = () => {
     if (document.hidden) return;
     renderFeaturedPrograms();
     renderLiveProgramStatus();
+    renderViewerSchedule();
     renderSchedule();
     const today = getTodayLabel();
     if (today !== lastDay) renderWeekOverview();
@@ -424,6 +442,7 @@ function downloadSchedule() {
 
 function initializeProgramExperience() {
   renderFeaturedPrograms();
+  renderViewerSchedule();
   initProgramInteractions();
   renderWeekOverview();
   renderSchedule();
@@ -452,6 +471,7 @@ if (typeof window !== 'undefined') {
     }
     renderFeaturedPrograms();
     renderLiveProgramStatus();
+    renderViewerSchedule();
     renderWeekOverview();
     renderSchedule();
   };
