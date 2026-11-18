@@ -78,6 +78,7 @@ To connect your streaming server:
 - The shared live chat UI expects Firebase Authentication and Realtime Database access.
 - Protect production chat data with Firebase Security Rules so only allowed users can write and read the collections/paths you expose.
 - Homepage live stats count active playback sessions on the homepage and signed-in members tracked on the homepage or Community page. Firebase removes presence on disconnect; a leftover entry can be removed from `presence/viewers` in the Realtime Database console after confirming that session is no longer active. Publish `database.rules.json` to the `bwetv-ug` Realtime Database for presence tracking to work.
+- Signed-in members are signed out after 30 minutes of inactivity while the homepage, Community, or live chat page is open. Activity is shared across those tabs; guest sessions are unaffected.
 
 ## Admin Content Studio
 

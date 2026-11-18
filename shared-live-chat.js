@@ -184,8 +184,8 @@
       }
       if (auth.currentUser) return Promise.resolve(auth.currentUser);
       if (authenticationPromise) return authenticationPromise;
-      authenticationPromise = authReady.then((user) => {
-        const current = auth.currentUser || user;
+      authenticationPromise = authReady.then(() => {
+        const current = auth.currentUser;
         if (current) return current;
         return auth.signInAnonymously().catch((error) => {
           console.error('BWE chat auth error:', error);
