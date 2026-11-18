@@ -229,15 +229,17 @@ function renderLiveProgramStatus() {
   const nowMinutes = getBroadcastTime().minutes;
   const duringBroadcast = nowMinutes >= BROADCAST_START && nowMinutes < BROADCAST_END;
   const streamEnabled = !label || label.dataset.streamEnabled !== 'false';
+  const streamError = label && label.dataset.streamError === 'true';
   const programs = getProgramsForDay('Today');
   const liveProgram = getCurrentProgram(programs);
   const text = !streamEnabled ? 'The stream is currently offline'
     : !duringBroadcast ? 'Broadcast hours: 7:30 AM–11:30 PM Uganda time'
+    : streamError ? 'Please try again'
     : liveProgram
     ? `${liveProgram.title} — ${liveProgram.summary}`
     : 'Program details are not available for this time';
 
-  if (label) label.textContent = !streamEnabled ? 'Stream offline' : duringBroadcast ? 'Streaming now' : 'Outside broadcast hours';
+  if (label) label.textContent = !streamEnabled ? 'Stream offline' : !duringBroadcast ? 'Outside broadcast hours' : streamError ? 'Stream unavailable' : 'Streaming now';
   if (info.textContent !== text) info.textContent = text;
 }
 
@@ -454,6 +456,10 @@ if (typeof window !== 'undefined') {
     renderSchedule();
   };
   window.selectDay = selectDay;
+  window.isBWEBroadcastTime = function () {
+    const minutes = getBroadcastTime().minutes;
+    return minutes >= BROADCAST_START && minutes < BROADCAST_END;
+  };
   window.refreshBWELiveProgramStatus = renderLiveProgramStatus;
   window.setReminder = setReminder;
   window.shareSchedule = shareSchedule;

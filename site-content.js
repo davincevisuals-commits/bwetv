@@ -102,43 +102,13 @@
       });
     });
 
-    document.querySelectorAll("[data-live-player]").forEach((player) => {
-      if (settings.liveStreamUrl && /^https:\/\//i.test(settings.liveStreamUrl)) {
-        const type = /\.m3u8(?:[?#]|$)/i.test(settings.liveStreamUrl) ? "application/x-mpegURL" : "video/mp4";
-        const videojsPlayer = window.videojs && window.videojs.getPlayer && window.videojs.getPlayer(player.id);
-        if (videojsPlayer) {
-          videojsPlayer.src({ src: settings.liveStreamUrl, type });
-        } else {
-          player.replaceChildren();
-          const source = document.createElement("source");
-          source.src = settings.liveStreamUrl;
-          source.type = type;
-          player.appendChild(source);
-          player.load();
-        }
-      }
-    });
+    if (window.BWELivePlayer && settings.liveStreamUrl && /^https:\/\//i.test(settings.liveStreamUrl)) {
+      window.BWELivePlayer.setStreamUrl(settings.liveStreamUrl);
+    }
   }
 
   function applyStreamStatus(isEnabled) {
-    document.querySelectorAll("[data-live-player]").forEach((player) => {
-      const shell = player.closest(".live-player-shell") || player.parentElement;
-      if (!shell) return;
-      let message = shell.querySelector("[data-stream-offline]");
-      if (!isEnabled) {
-        player.hidden = true;
-        if (!message) {
-          message = document.createElement("p");
-          message.dataset.streamOffline = "true";
-          message.className = "rounded-xl bg-black/70 p-6 text-center font-semibold text-white";
-          message.textContent = "The BWE TV stream is currently offline. Please check the schedule for upcoming programs.";
-          shell.appendChild(message);
-        }
-      } else {
-        player.hidden = false;
-        if (message) message.remove();
-      }
-    });
+    if (window.BWELivePlayer) window.BWELivePlayer.setStreamEnabled(isEnabled);
     document.querySelectorAll(".live-status-bar strong").forEach((label) => {
       label.dataset.streamEnabled = String(isEnabled);
     });
