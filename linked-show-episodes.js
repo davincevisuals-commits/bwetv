@@ -77,17 +77,15 @@
       const id = youtubeId(episode);
 
       if (id) {
-        const link = document.createElement("a");
-        link.href = `https://www.youtube.com/watch?v=${encodeURIComponent(id)}`;
-        link.target = "_blank";
-        link.rel = "noopener noreferrer";
-        const image = document.createElement("img");
-        image.src = `https://img.youtube.com/vi/${encodeURIComponent(id)}/hqdefault.jpg`;
-        image.alt = title;
-        image.loading = "lazy";
-        image.className = "h-28 w-full object-cover";
-        link.appendChild(image);
-        item.appendChild(link);
+        const player = document.createElement("iframe");
+        player.src = `https://www.youtube.com/embed/${encodeURIComponent(id)}`;
+        player.title = title;
+        player.loading = "lazy";
+        player.referrerPolicy = "strict-origin-when-cross-origin";
+        player.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
+        player.allowFullscreen = true;
+        player.className = "h-56 w-full bg-black";
+        item.appendChild(player);
       }
 
       const details = document.createElement("div");
