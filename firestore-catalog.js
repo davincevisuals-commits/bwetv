@@ -95,12 +95,13 @@
     const episodeNumber = `${season}${number}`.trim();
     const publishedDate = formatPublishedDate(episode);
     const embedUrl = youtubeVideoId
-      ? `https://www.youtube.com/embed/${encodeURIComponent(youtubeVideoId)}`
+      ? `https://www.youtube.com/embed/${encodeURIComponent(youtubeVideoId)}?enablejsapi=1&origin=${encodeURIComponent(window.location.origin)}`
       : "";
 
     const player = youtubeVideoId
       ? `
         <iframe
+          data-youtube-player
           class="aspect-video w-full bg-black"
           src="${escapeText(embedUrl)}"
           title="${escapeText(title)}"

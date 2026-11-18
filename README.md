@@ -47,6 +47,8 @@ bwetv/
 3. Open any `.html` file in your web browser
 4. Navigate using the menu to explore all pages
 
+Starting a video or radio station pauses the other players on that page. Prime Radio uses a third-party player: open it, then press play; starting another player closes it. YouTube switching requires the YouTube IFrame API to load.
+
 ## Android app (Capacitor)
 
 The Android app packages the existing website pages and assets in a Capacitor WebView. Firebase data, chat, streaming, and third-party links still require an internet connection.
