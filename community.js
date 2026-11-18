@@ -15,7 +15,8 @@
     resetBtn: $('resetBtn'), togglePw: $('togglePassword'),
     viewer: $('currentViewer'), nameInput: $('profileNameInput'),
     postInput: $('postInput'), postBtn: $('postBtn'), postStatus: $('postStatus'), counter: $('postCounter'),
-    posts: $('postsContainer'), preview: $('profilePreview'), pic: $('profilePicInput'),
+    posts: $('postsContainer'), allPostsBtn: $('allPostsBtn'), myPostsBtn: $('myPostsBtn'),
+    postsFilterInfo: $('postsFilterInfo'), preview: $('profilePreview'), pic: $('profilePicInput'),
     newsletterForm: $('newsletterForm'), newsletterStatus: $('newsletterStatus'),
     paypal: $('donatePaypalBtn'), momo: $('donateMtnBtn')
   };
@@ -28,6 +29,7 @@
   };
 
   let auth = null, db = null, currentUser = null, lastPostAt = 0, unsubscribe = null;
+  let recentPosts = [], showMyPosts = false, postsUnavailable = false;
   try {
     if (window.firebase) {
       if (!firebase.apps.length) firebase.initializeApp(config);
@@ -80,6 +82,10 @@
   function showLogin() {
     currentUser = null;
     if (unsubscribe) { unsubscribe(); unsubscribe = null; }
+    recentPosts = [];
+    showMyPosts = false;
+    postsUnavailable = false;
+    el.posts.textContent = '';
     el.loginSection.classList.remove('hidden');
     el.communitySection.classList.add('hidden');
   }
@@ -116,10 +122,17 @@
 
   function renderPosts(posts) {
     el.posts.textContent = '';
+    el.allPostsBtn.setAttribute('aria-pressed', String(!showMyPosts));
+    el.myPostsBtn.setAttribute('aria-pressed', String(showMyPosts));
+    el.postsFilterInfo.textContent = showMyPosts
+      ? 'Showing your posts from the latest 50 community posts.'
+      : 'Showing the latest 50 community posts.';
+    if (postsUnavailable) el.postsFilterInfo.textContent = 'Could not load community posts. Showing posts saved on this device instead.';
+    if (showMyPosts) posts = posts.filter((post) => currentUser && post.userId === currentUser.uid);
     if (!posts.length) {
       const empty = document.createElement('div');
       empty.className = 'rounded border border-dashed border-gray-300 p-4 text-sm text-gray-500';
-      empty.textContent = 'No community posts yet. Start the conversation.';
+      empty.textContent = showMyPosts ? 'You have no posts among the latest 50.' : 'No community posts yet. Start the conversation.';
       el.posts.appendChild(empty);
       return;
     }
@@ -160,10 +173,12 @@
 
   function startPosts() {
     if (unsubscribe) { unsubscribe(); unsubscribe = null; }
-    if (!db) { renderPosts(localPosts().slice().reverse()); return; }
+    postsUnavailable = false;
+    el.posts.textContent = 'Loading community posts...';
+    if (!db) { recentPosts = localPosts().slice().reverse().slice(0, 50); renderPosts(recentPosts); return; }
     unsubscribe = db.collection('posts').orderBy('createdAt', 'desc').limit(50).onSnapshot(
-      (snap) => renderPosts(snap.docs.map((d) => Object.assign({ id: d.id }, d.data()))),
-      () => { el.postStatus.textContent = 'Could not load posts right now.'; renderPosts(localPosts().slice().reverse()); }
+      (snap) => { postsUnavailable = false; recentPosts = snap.docs.map((d) => Object.assign({ id: d.id }, d.data())); renderPosts(recentPosts); },
+      () => { postsUnavailable = true; el.postStatus.textContent = 'Could not load posts right now.'; recentPosts = localPosts().slice().reverse().slice(0, 50); renderPosts(recentPosts); }
     );
   }
 
@@ -201,7 +216,8 @@
       el.postInput.value = '';
       updateCounter();
       el.postStatus.textContent = 'Posted (saved on this device only).';
-      renderPosts(posts.slice().reverse());
+      recentPosts = posts.slice().reverse().slice(0, 50);
+      renderPosts(recentPosts);
     }
   }
 
@@ -317,6 +333,8 @@
 
   el.postBtn.addEventListener('click', submitPost);
   el.postInput.addEventListener('input', updateCounter);
+  el.allPostsBtn.addEventListener('click', () => { showMyPosts = false; renderPosts(recentPosts); });
+  el.myPostsBtn.addEventListener('click', () => { showMyPosts = true; renderPosts(recentPosts); });
 
   el.newsletterForm.addEventListener('submit', function (event) {
     event.preventDefault();

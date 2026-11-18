@@ -49,6 +49,8 @@ bwetv/
 
 Starting a video or radio station pauses the other players on that page. Prime Radio uses a third-party player: open it, then press play; starting another player closes it. YouTube switching requires the YouTube IFrame API to load.
 
+The community dashboard gives members and guests a profile area, program summary, and quick links. **My posts** filters the latest 50 community posts; it is not a complete post history. Program times are in Uganda time and the default lineup is estimated.
+
 ## Android app (Capacitor)
 
 The Android app packages the existing website pages and assets in a Capacitor WebView. Firebase data, chat, streaming, and third-party links still require an internet connection.
