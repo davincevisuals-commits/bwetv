@@ -91,4 +91,4 @@ jobs:
             release-assets/bwetv-android.apk \
             --repo "$GITHUB_REPOSITORY" \
             --title "BWE TV Android $RELEASE_TAG" \
-            --notes "Signed Android APK for BWE TV, including improved off-air stream handling, playback coordination that pauses other media, and 30-minute inactivity sign-out for signed-in members. Download bwetv-android.apk and install it on an Android device. If upgrading from a debug/test build, uninstall that build first."
+            --notes "Signed Android APK for BWE TV. Download bwetv-android.apk and install it on an Android device. If upgrading from a debug/test build, uninstall that build first."
