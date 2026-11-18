@@ -32,6 +32,7 @@
     settingsForm: document.getElementById("settingsForm"),
     tabs: [...document.querySelectorAll("[data-tab]")],
     tabsContent: {
+      overview: document.getElementById("overviewTab"),
       shows: document.getElementById("showsTab"),
       episodes: document.getElementById("episodesTab"),
       hero: document.getElementById("heroTab"),
@@ -44,7 +45,7 @@
   const state = {
     editingShowId: null,
     editingEpisodeId: null,
-    activeTab: "shows"
+    activeTab: "overview"
   };
 
   function normalizeSlug(value) {
@@ -94,6 +95,7 @@
       const active = button.dataset.tab === tabName;
       button.classList.toggle("active", active);
     });
+    document.dispatchEvent(new CustomEvent("bwe-admin-tab", { detail: { tab: tabName } }));
   }
 
   function resetShowForm() {
@@ -656,7 +658,7 @@
       elements.tabs.forEach((button) => {
         button.classList.toggle("hidden", role === "moderator" && button.dataset.tab !== "ops");
       });
-      setTab(role === "moderator" ? "ops" : "shows");
+      setTab(role === "moderator" ? "ops" : "overview");
       setStatus("Signed in successfully.");
       document.dispatchEvent(new CustomEvent("bwe-admin-auth", { detail: { user, role } }));
       if (role !== "moderator") Promise.all([loadShows(), loadEpisodes(), loadSettings(), loadHero()]);
@@ -668,6 +670,29 @@
 
   elements.tabs.forEach((button) => {
     button.addEventListener("click", () => setTab(button.dataset.tab));
+  });
+
+  document.querySelectorAll("[data-overview-action]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const action = button.dataset.overviewAction;
+      const targets = {
+        shows: ["shows", "showList"], episodes: ["episodes", "episodeList"],
+        pages: ["studio", "pageEditorForm"], schedule: ["studio", "scheduleEditorForm"],
+        inquiries: ["ops", "adBookingsSection"], "add-show": ["shows", "showForm"],
+        "add-episode": ["episodes", "episodeForm"]
+      };
+      if (action === "add-show" && state.editingShowId) {
+        if (!window.confirm("Start a new show and discard the current form edits?")) return;
+        resetShowForm();
+      }
+      if (action === "add-episode" && state.editingEpisodeId) {
+        if (!window.confirm("Start a new episode and discard the current form edits?")) return;
+        resetEpisodeForm();
+      }
+      const [tab, id] = targets[action];
+      setTab(tab);
+      document.getElementById(id).scrollIntoView({ behavior: "smooth", block: "start" });
+    });
   });
 
   elements.loginForm.addEventListener("submit", async (event) => {
@@ -716,7 +741,7 @@
   document.addEventListener("DOMContentLoaded", () => {
     resetShowForm();
     resetEpisodeForm();
-    setTab("shows");
+    setTab("overview");
 
     if (!window.firebase) {
       setStatus("Firebase SDK is not available. Check admin script tags.", true);

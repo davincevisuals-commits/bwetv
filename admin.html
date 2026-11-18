@@ -73,7 +73,8 @@
       </div>
 
       <div class="flex flex-wrap gap-3">
-        <button type="button" data-tab="shows" class="tab-btn active">Shows</button>
+        <button type="button" data-tab="overview" class="tab-btn active">Overview</button>
+        <button type="button" data-tab="shows" class="tab-btn">Shows</button>
         <button type="button" data-tab="episodes" class="tab-btn">Episodes</button>
         <button type="button" data-tab="hero" class="tab-btn">Shows Hero</button>
         <button type="button" data-tab="settings" class="tab-btn">Settings</button>
@@ -81,7 +82,51 @@
         <button type="button" data-tab="ops" class="tab-btn">Operations</button>
       </div>
 
-      <div id="showsTab" class="space-y-8">
+      <div id="overviewTab" class="space-y-8">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h3 class="text-xl font-bold text-gray-900">Overview</h3>
+            <p class="mt-1 text-sm text-gray-600">A summary of saved content and settings.</p>
+          </div>
+          <button id="refreshOverviewButton" type="button" class="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-semibold text-gray-700">Refresh overview</button>
+        </div>
+        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4" aria-live="polite">
+          <div class="card p-5"><h4 class="text-sm font-semibold text-gray-600">Shows</h4><p id="overviewShows" class="mt-2 text-2xl font-bold">Loading...</p></div>
+          <div class="card p-5"><h4 class="text-sm font-semibold text-gray-600">Episodes</h4><p id="overviewEpisodes" class="mt-2 text-2xl font-bold">Loading...</p></div>
+          <div class="card p-5"><h4 class="text-sm font-semibold text-gray-600">New advertising inquiries</h4><p id="overviewInquiries" class="mt-2 text-2xl font-bold">Loading...</p></div>
+          <div class="card p-5"><h4 class="text-sm font-semibold text-gray-600">Stream setting (manual)</h4><p id="overviewStream" class="mt-2 text-lg font-bold">Loading...</p><p class="mt-2 text-xs text-gray-600">This setting does not verify that the broadcast is working.</p></div>
+        </div>
+        <div class="grid gap-6 lg:grid-cols-2">
+          <section class="card p-6">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+              <h3 class="text-xl font-bold text-gray-900">Today's schedule</h3>
+              <button type="button" data-overview-action="schedule" class="text-sm font-bold text-red-700 underline">Edit schedule</button>
+            </div>
+            <p class="mt-1 text-sm text-gray-600">Uganda time (Africa/Kampala). Current and upcoming programs are scheduled, not verified on air.</p>
+            <div id="overviewSchedule" class="mt-4 space-y-2 text-sm" aria-live="polite">Loading...</div>
+          </section>
+          <section class="card p-6">
+            <h3 class="text-xl font-bold text-gray-900">Needs attention</h3>
+            <div class="mt-4 space-y-3 text-sm" aria-live="polite">
+              <p><span id="overviewDraftShows">Loading...</span> <button type="button" data-overview-action="shows" class="font-bold text-red-700 underline">Manage shows</button></p>
+              <p><span id="overviewDraftEpisodes">Loading...</span> <button type="button" data-overview-action="episodes" class="font-bold text-red-700 underline">Manage episodes</button></p>
+              <p><span id="overviewDraftPages">Loading...</span> <button type="button" data-overview-action="pages" class="font-bold text-red-700 underline">Manage pages</button></p>
+              <p><span id="overviewNewInquiries">Loading...</span> <button type="button" data-overview-action="inquiries" class="font-bold text-red-700 underline">Review inquiries</button></p>
+            </div>
+          </section>
+        </div>
+        <section class="card p-6">
+          <h3 class="text-xl font-bold text-gray-900">Quick actions</h3>
+          <div class="mt-4 flex flex-wrap gap-3">
+            <button type="button" data-overview-action="add-show" class="tab-btn">Add a show</button>
+            <button type="button" data-overview-action="add-episode" class="tab-btn">Add an episode</button>
+            <button type="button" data-overview-action="schedule" class="tab-btn">Edit schedule</button>
+            <button type="button" data-overview-action="inquiries" class="tab-btn">Review inquiries</button>
+          </div>
+        </section>
+      </div>
+
+      <div id="showsTab" class="hidden space-y-8">
         <div class="card p-6">
           <div class="mb-5 flex items-center justify-between">
             <h3 id="formTitle" class="text-xl font-bold text-gray-900">Add a new show</h3>
@@ -447,7 +492,7 @@
             <textarea id="scheduleJsonInput" class="field font-mono text-sm" rows="16" spellcheck="false" placeholder='{"Monday":[{"time":"07:30","title":"Morning Rise","host":"BWE Team","summary":"Local updates.","type":"Live"}]}'></textarea>
             <label class="inline-flex items-center gap-2 text-sm font-semibold text-gray-700">
               <input id="streamEnabledInput" type="checkbox" checked />
-              Stream is online
+              Stream is marked online (manual setting, not a broadcast health check)
             </label>
             <div class="flex flex-wrap justify-end gap-3">
               <button id="loadEstimatedScheduleButton" type="button" class="rounded-xl border border-gray-300 px-5 py-3 text-sm font-bold text-gray-700">Load estimated schedule</button>
@@ -535,7 +580,7 @@
             <h3 class="text-xl font-bold text-gray-900">Analytics (last 14 days)</h3>
             <button id="refreshAnalyticsButton" type="button" class="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm font-semibold text-gray-700">Refresh</button>
           </div>
-          <p class="mt-1 text-sm text-gray-600">Counts are anonymous page loads (once per browser session) and are not bot-filtered.</p>
+          <p class="mt-1 text-sm text-gray-600">Client-reported estimates of anonymous page loads (once per browser session); not verified or bot-filtered.</p>
           <div id="analyticsSummary" class="mt-4 grid gap-4 md:grid-cols-2"></div>
         </section>
 
@@ -584,8 +629,9 @@
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js" defer></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js" defer></script>
   <script src="content.js?v=20261115-hours" defer></script>
-  <script src="admin.js?v=20261106" defer></script>
-  <script src="admin-content.js?v=20261115-hours" defer></script>
-  <script src="admin-ops.js?v=20261106" defer></script>
+  <script src="admin-overview.js?v=20261118" defer></script>
+  <script src="admin.js?v=20261118-overview" defer></script>
+  <script src="admin-content.js?v=20261118-overview" defer></script>
+  <script src="admin-ops.js?v=20261118-overview" defer></script>
 </body>
 </html>
