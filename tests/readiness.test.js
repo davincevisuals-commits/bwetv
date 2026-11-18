@@ -240,6 +240,7 @@ test("show cards embed their published episodes and retain YouTube links", async
   function element(tagName) {
     return {
       tagName, children: [], textContent: "", className: "",
+      setAttribute() {},
       appendChild(child) { this.children.push(child); },
       append(...children) { this.children.push(...children); }
     };
@@ -274,19 +275,19 @@ test("show cards embed their published episodes and retain YouTube links", async
     })
   };
   class MutationObserver { observe() {} }
-  runScript("linked-show-episodes.js", { document, window: { firebase }, MutationObserver });
+  runScript("linked-show-episodes.js", { document, window: { firebase, location: { origin: "https://bwetv.live" } }, MutationObserver });
   ready();
   await new Promise((resolve) => setImmediate(resolve));
   const section = card.children[0];
   assert.equal(section.children.length, 4);
   const [first, second, noVideo] = section.children.slice(1);
   assert.equal(first.children[0].tagName, "iframe");
-  assert.equal(first.children[0].src, "https://www.youtube.com/embed/AbCdEf12345");
+  assert.equal(first.children[0].src, "https://www.youtube.com/embed/AbCdEf12345?enablejsapi=1&origin=https%3A%2F%2Fbwetv.live");
   assert.equal(first.children[0].title, "First");
   assert.equal(first.children[0].loading, "lazy");
   assert.equal(first.children[0].referrerPolicy, "strict-origin-when-cross-origin");
   assert.equal(first.children[1].children.at(-1).href, "https://www.youtube.com/watch?v=AbCdEf12345");
-  assert.equal(second.children[0].src, "https://www.youtube.com/embed/ZyXwVu98765");
+  assert.equal(second.children[0].src, "https://www.youtube.com/embed/ZyXwVu98765?enablejsapi=1&origin=https%3A%2F%2Fbwetv.live");
   assert.equal(noVideo.children[0].tagName, "div");
 });
 
@@ -323,11 +324,11 @@ test("published episodes use a lazy-loaded YouTube embed", async () => {
       };
     }
   };
-  runScript("firestore-catalog.js", { document, window: { firebase } });
+  runScript("firestore-catalog.js", { document, window: { firebase, location: { origin: "https://bwetv.live" } } });
   await new Promise((resolve) => setImmediate(resolve));
   const card = nodes.get("episodesContainer").innerHTML;
   assert.match(card, /<iframe/);
-  assert.match(card, /src="https:\/\/www\.youtube\.com\/embed\/AbCdEf12345"/);
+  assert.match(card, /src="https:\/\/www\.youtube\.com\/embed\/AbCdEf12345\?enablejsapi=1&amp;origin=https%3A%2F%2Fbwetv\.live"/);
   assert.match(card, /title="Episode &quot;one&quot;"/);
   assert.match(card, /loading="lazy"/);
   assert.doesNotMatch(card, /href="https:\/\/www\.youtube\.com\/watch/);

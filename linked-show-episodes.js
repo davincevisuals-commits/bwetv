@@ -78,7 +78,8 @@
 
       if (id) {
         const player = document.createElement("iframe");
-        player.src = `https://www.youtube.com/embed/${encodeURIComponent(id)}`;
+        player.src = `https://www.youtube.com/embed/${encodeURIComponent(id)}?enablejsapi=1&origin=${encodeURIComponent(window.location.origin)}`;
+        player.setAttribute("data-youtube-player", "");
         player.title = title;
         player.loading = "lazy";
         player.referrerPolicy = "strict-origin-when-cross-origin";

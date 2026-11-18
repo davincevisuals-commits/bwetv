@@ -192,7 +192,9 @@
 
             <div class="surface-card rounded-xl p-4">
               <h3 class="mb-2 text-xl font-semibold">Prime Radio Kampala 91.9 FM</h3>
-              <iframe src="https://onlineradiobox.com/ug/prime/?cs=ug.prime" width="100%" height="180" title="Prime Radio Kampala live player" frameborder="0" loading="lazy" allow="autoplay" sandbox="allow-scripts allow-same-origin"></iframe>
+              <button id="primeRadioToggle" type="button" class="btn btn-secondary text-sm" aria-controls="primeRadioPlayer" aria-expanded="false">Open Prime Radio player</button>
+              <p class="mt-2 text-sm">Open the player, then press play to listen.</p>
+              <div id="primeRadioPlayer"></div>
             </div>
           </div>
         </div>
@@ -331,13 +333,14 @@
       });
     });
   </script>
+<script src="media-playback.js?v=20261118"></script>
 <script src="https://cdn.jsdelivr.net/npm/hls.js@1"></script>
 <script>
 document.querySelectorAll('audio[data-hls]').forEach(function(a){
   var u=a.dataset.hls;
   if(a.canPlayType('application/vnd.apple.mpegurl')){a.src=u;}
   else if(window.Hls&&Hls.isSupported()){
-    var h;a.addEventListener('play',function(){if(h)return;h=new Hls();h.loadSource(u);h.attachMedia(a);h.on(Hls.Events.MEDIA_ATTACHED,function(){a.play();});},{once:true});
+    var h;a.addEventListener('play',function(){if(h)return;h=new Hls();h.loadSource(u);h.attachMedia(a);h.on(Hls.Events.MEDIA_ATTACHED,function(){if(window.BWEMediaPlayback && window.BWEMediaPlayback.isActive(a)) a.play();});},{once:true});
   }
 });
 </script>

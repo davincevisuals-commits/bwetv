@@ -107,7 +107,8 @@
     if (slide.querySelector('.sh-player')) return;
     var wrap = el('div', 'sh-player');
     var iframe = document.createElement('iframe');
-    iframe.src = 'https://www.youtube-nocookie.com/embed/' + s.youtube + '?autoplay=1&rel=0';
+    iframe.src = 'https://www.youtube-nocookie.com/embed/' + s.youtube + '?autoplay=1&rel=0&enablejsapi=1&origin=' + encodeURIComponent(window.location.origin);
+    iframe.setAttribute('data-youtube-player', '');
     iframe.title = s.title + ' highlight video';
     iframe.allow = 'autoplay; encrypted-media; picture-in-picture';
     iframe.allowFullscreen = true;
