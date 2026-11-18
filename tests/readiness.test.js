@@ -236,6 +236,60 @@ test("show cards escape text and attributes while retaining the show ID", () => 
   assert.ok(!card.includes('class="bg-gradient-to-br red" onclick='));
 });
 
+test("show cards embed their published episodes and retain YouTube links", async () => {
+  function element(tagName) {
+    return {
+      tagName, children: [], textContent: "", className: "",
+      appendChild(child) { this.children.push(child); },
+      append(...children) { this.children.push(...children); }
+    };
+  }
+  const heading = { textContent: "Morning Rise" };
+  const card = element("article");
+  card.dataset = { showId: "morning-rise" };
+  card.querySelector = (selector) => selector === "h3" ? heading : null;
+  const container = { querySelectorAll: () => [card] };
+  let ready;
+  const document = {
+    createElement: element,
+    getElementById: () => container,
+    addEventListener(type, handler) { if (type === "DOMContentLoaded") ready = handler; }
+  };
+  const records = [
+    { showId: "morning-rise", title: "First", videoId: "AbCdEf12345", publishedAt: 4 },
+    { showId: "morning-rise", title: "Second", videoUrl: "https://youtu.be/ZyXwVu98765", publishedAt: 3 },
+    { showId: "morning-rise", title: "No video", publishedAt: 2 },
+    { showId: "morning-rise", title: "Older", videoId: "12345678901", publishedAt: 1 },
+    { showId: "another-show", title: "Different show", videoId: "12345678902", publishedAt: 5 }
+  ];
+  const firebase = {
+    apps: [{}],
+    firestore: () => ({
+      collection: () => ({
+        where(field, operator, value) {
+          assert.deepEqual([field, operator, value], ["status", "==", "published"]);
+          return { get: async () => ({ docs: records.map((record) => ({ data: () => record })) }) };
+        }
+      })
+    })
+  };
+  class MutationObserver { observe() {} }
+  runScript("linked-show-episodes.js", { document, window: { firebase }, MutationObserver });
+  ready();
+  await new Promise((resolve) => setImmediate(resolve));
+  const section = card.children[0];
+  assert.equal(section.children.length, 4);
+  const [first, second, noVideo] = section.children.slice(1);
+  assert.equal(first.children[0].tagName, "iframe");
+  assert.equal(first.children[0].src, "https://www.youtube.com/embed/AbCdEf12345");
+  assert.equal(first.children[0].title, "First");
+  assert.equal(first.children[0].loading, "lazy");
+  assert.equal(first.children[0].referrerPolicy, "strict-origin-when-cross-origin");
+  assert.equal(first.children[1].children.at(-1).href, "https://www.youtube.com/watch?v=AbCdEf12345");
+  assert.equal(second.children[0].src, "https://www.youtube.com/embed/ZyXwVu98765");
+  assert.equal(noVideo.children[0].tagName, "div");
+});
+
 test("published episodes use a lazy-loaded YouTube embed", async () => {
   const nodes = new Map();
   const document = {
