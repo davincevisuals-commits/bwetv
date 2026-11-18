@@ -84,6 +84,8 @@ To connect your streaming server:
 
 Sign in at `admin.html` with the verified Firebase admin account (`bwetv.ug@gmail.com`). The Content Studio adds draft/publish page editing for About, Contact, Community, and Privacy; page metadata; homepage announcements and highlight cards; broadcast schedules; stream availability; JSON backup/restore; and shows/episodes CSV import/export.
 
+Admins and editors open on **Overview**, which summarizes saved shows, episodes, draft pages, new advertising inquiries, today's Uganda-time schedule, and the manual stream setting. Refresh the overview to retry unavailable data or pick up changes. The schedule uses estimated defaults where no saved day exists; the stream setting is not a broadcast health check. Moderators continue to open on Operations.
+
 In **Settings**, add HTTPS profile URLs for Facebook, X, Instagram, YouTube, and TikTok and save them to update the homepage footer. Blank fields retain the footer's default platform links. The TikTok icon is from [Simple Icons](https://simpleicons.org/) (CC0 1.0).
 
 Before deploying, publish the Firestore rules in `firestore.rules` (`firebase deploy --only firestore:rules`). The admin email restriction is enforced by these rules; do not loosen it to make the dashboard appear to work.

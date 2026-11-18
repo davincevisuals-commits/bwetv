@@ -358,7 +358,8 @@ test("episode editor keeps draft and publish controls synchronized", async () =>
   }
   const document = {
     getElementById: node, querySelectorAll() { return []; },
-    addEventListener(type, handler) { if (type === "DOMContentLoaded") this.ready = handler; }
+    addEventListener(type, handler) { if (type === "DOMContentLoaded") this.ready = handler; },
+    dispatchEvent() {}
   };
   let saved;
   const firestore = () => ({
@@ -372,7 +373,10 @@ test("episode editor keeps draft and publish controls synchronized", async () =>
   firestore.Timestamp = { fromDate: (date) => date };
   firestore.FieldValue = { serverTimestamp: () => "timestamp" };
   const firebase = { apps: [{}], firestore, auth: () => ({ onAuthStateChanged() {} }) };
-  runScript("admin.js", { document, window: { firebase } });
+  class CustomEvent {
+    constructor(type, options) { this.type = type; this.detail = options.detail; }
+  }
+  runScript("admin.js", { document, window: { firebase }, CustomEvent });
   document.ready();
   assert.equal(node("episodeStatusInput").value, "draft");
   assert.equal(node("episodeActiveInput").checked, false);

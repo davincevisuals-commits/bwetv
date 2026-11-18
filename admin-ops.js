@@ -246,13 +246,15 @@
     const list = $("adBookingList");
     list.textContent = "Loading inquiries…";
     try {
-      const snapshot = await fs().collection("adBookings").orderBy("createdAt", "desc").limit(50).get();
+      const snapshot = await fs().collection("adBookings").orderBy("createdAt", "desc").get();
       list.replaceChildren();
       if (snapshot.empty) {
         list.textContent = "No advertising inquiries yet.";
         return;
       }
-      snapshot.forEach((doc) => {
+      const bookings = snapshot.docs.slice().sort((a, b) =>
+        Number(b.data().status === "new") - Number(a.data().status === "new"));
+      bookings.forEach((doc) => {
         const booking = doc.data();
         const card = document.createElement("article");
         card.className = "rounded-xl border border-gray-200 bg-white p-4";
