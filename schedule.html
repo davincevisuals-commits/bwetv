@@ -112,11 +112,14 @@
         <h1 class="mb-4 text-3xl font-bold md:text-4xl">BWE TV Schedule</h1>
         <p class="mx-auto mb-6 max-w-3xl text-lg opacity-90">See what is on air now, plan your viewing, and share the daily lineup with your audience. Broadcast hours are 7:30 AM–11:30 PM Uganda time (EAT). Program times are estimated.</p>
         <div id="currentShowInfo" class="mb-6"><p class="text-lg font-semibold">Loading...</p></div>
-        <div class="mx-auto mb-4 max-w-4xl overflow-hidden rounded-xl shadow-2xl">
-          <video id="livePlayer" data-live-player class="video-js vjs-default-skin w-full h-auto" controls preload="metadata" aria-label="BWE TV live stream player" data-setup='{"fluid": true, "aspectRatio": "16:9"}'>
-            <source src="https://stream.bwetv.live/hls/bwetv/index.m3u8" type="application/x-mpegURL">
-            <source src="video.mp4" type="video/mp4">
-          </video>
+        <div class="live-player-shell mx-auto mb-4 max-w-4xl overflow-hidden rounded-xl shadow-2xl">
+          <div data-live-player-container hidden>
+            <video id="livePlayer" data-live-player class="video-js vjs-default-skin w-full h-auto" controls preload="none" aria-label="BWE TV live stream player"></video>
+          </div>
+          <div data-live-player-message class="rounded-xl bg-black/70 p-6 text-center font-semibold text-white" role="status" aria-live="polite">
+            <p data-live-player-message-text>Checking broadcast availability...</p>
+            <button data-live-player-retry class="mt-4 rounded-lg bg-white px-4 py-2 font-bold text-black" type="button" hidden>Try again</button>
+          </div>
         </div>
         <a href="index.html" class="btn btn-secondary">← Back to Home</a>
       </div>
@@ -173,7 +176,8 @@
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js" defer></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js" defer></script>
   <script src="mobile-menu.js" defer></script>
-  <script src="content.js?v=20261115-ampm" defer></script>
-  <script src="site-content.js?v=20261115-hours" defer></script>
+  <script src="content.js?v=20261118-player" defer></script>
+  <script src="live-player.js?v=20261118" defer></script>
+  <script src="site-content.js?v=20261118-player" defer></script>
 </body>
 </html>

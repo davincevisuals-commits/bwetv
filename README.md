@@ -103,6 +103,8 @@ The Content Studio JSON backup includes shows, episodes, settings, pages, page r
 
 Schedules display AM/PM in Uganda time (Africa/Kampala), with estimated broadcast hours of 7:30 AM–11:30 PM, and update automatically while the page is open. Content Studio schedule JSON uses 24-hour time, e.g. `09:00` for 9:00 AM and `21:00` for 9:00 PM. Default program slots are estimates. Programs run until the next scheduled start, for at most four hours and no later than 11:30 PM; gaps have no assigned program. After the day's lineup ends, the homepage labels the next day's programs as tomorrow's lineup. A schedule saved in Content Studio overrides the default slots; use **Load estimated schedule**, review it, and save to replace an existing saved schedule. The stream's online/offline setting remains a separate manual control.
 
+The homepage and schedule players show an off-air notice outside broadcast hours and become available automatically at 7:30 AM. During broadcast hours, playback errors show a retry button; a stream manually marked offline remains unavailable regardless of the schedule.
+
 ## Advertising inquiries
 
 The `adbooker.html` page lets potential advertisers request information about campaign formats and dates. Requests are saved in the Firestore `adBookings` collection and can be reviewed and moved through New, Contacted, Confirmed, and Declined in the admin Operations tab by verified administrators and editors. A request is not a confirmed booking; the team follows up to agree availability and pricing. Creative files are not uploaded; the form accepts an optional public HTTPS link.
